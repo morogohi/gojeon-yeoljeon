@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: 21 }
       - run: npm ci
       - run: npm run build:app && npx cap sync android
@@ -63,7 +63,12 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon assembleDebug bundleRelease
+          set -o pipefail
+          if ! ./gradlew --no-daemon --stacktrace assembleDebug bundleRelease 2>&1 | tee "$RUNNER_TEMP/gradle.log"; then
+            # 실패 원인을 공개 주석(annotation)으로 남겨 로그 없이도 확인할 수 있게 한다
+            grep -E "What went wrong|error:|Error:|FAILURE|Could not|> " "$RUNNER_TEMP/gradle.log" | head -25 | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: gojeon-android-${{ github.run_number }}
