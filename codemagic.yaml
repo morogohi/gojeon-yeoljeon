@@ -1,0 +1,72 @@
+# Codemagic: iOS(App Store Connect/TestFlight)와 Android(Google Play) 출시 빌드.
+# 사전 준비: Codemagic 팀 설정에 App Store Connect API 키 연동(이름: gojeon_asc),
+#           Android 업로드 키스토어 업로드(참조 이름: gojeon_upload),
+#           Google Play 서비스 계정 JSON 을 환경 변수 그룹 google_play 의 GCLOUD_SERVICE_ACCOUNT_CREDENTIALS 로 등록.
+workflows:
+  ios-release:
+    name: iOS → TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: gojeon_asc
+    environment:
+      node: 22
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: io.github.morogohi.gojeon
+    scripts:
+      - name: 웹 빌드와 동기화
+        script: |
+          npm ci
+          npm run build:app
+          npx cap sync ios
+      - name: 서명 설정
+        script: xcode-project use-profiles
+      - name: 빌드 번호 올리기
+        script: |
+          cd ios/App
+          agvtool new-version -all $(($BUILD_NUMBER + 1))
+      - name: IPA 빌드
+        script: |
+          xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  android-release:
+    name: Android → Google Play 내부 테스트
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      node: 22
+      java: 21
+      android_signing:
+        - gojeon_upload
+      groups:
+        - google_play
+    scripts:
+      - name: 웹 빌드와 동기화
+        script: |
+          npm ci
+          npm run build:app
+          npx cap sync android
+      - name: AAB 빌드
+        script: |
+          cd android
+          chmod +x gradlew
+          VERSION_CODE=$((BUILD_NUMBER + 100)) ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$CM_KEYSTORE_PATH \
+            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true

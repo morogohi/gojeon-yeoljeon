@@ -1,8 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { STORIES } from '../../src/content/stories';
 
-const DAY1 = '/?e2e=1&today=2026-11-09';
-const DAY2 = '/?e2e=1&today=2026-11-10';
+const DAY1 = '/play/?e2e=1&today=2026-11-09';
+const DAY2 = '/play/?e2e=1&today=2026-11-10';
 
 function watchErrors(page: Page): string[] {
   const errors: string[] = [];

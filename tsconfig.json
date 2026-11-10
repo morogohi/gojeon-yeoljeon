@@ -4,5 +4,5 @@
     "strict": true, "noUnusedLocals": true, "lib": ["ES2022", "DOM"], "types": ["vitest/globals"],
     "skipLibCheck": true, "noEmit": true
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests", "site"]
 }
