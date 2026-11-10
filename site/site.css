@@ -119,6 +119,7 @@ section { padding: clamp(48px, 9vw, 96px) 0; }
 
 .footer { text-align: center; padding: 36px 16px 48px; color: var(--moon-2); font-size: 14px; border-top: 1px solid var(--night-3); }
 .footer p { margin: 4px 0; }
+.footer .cr { max-width: 720px; margin: 12px auto 0; font-size: 13px; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere; }
 
 /* 문서 페이지(안내·개인정보) */
 .doc { max-width: 760px; padding-top: 40px; padding-bottom: 64px; }

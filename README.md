@@ -32,3 +32,9 @@ E2E는 `dist-site`를 띄워 실제 배포 구조로 검사한다(먼저 `npm ru
 - **웹:** `main`에 푸시하면 GitHub Actions가 타입 검사 → 단위 테스트 → 빌드 → E2E 후 `gh-pages`로 배포한다.
 - **Android:** 같은 워크플로가 디버그 APK와 AAB를 만들어 Actions 아티팩트로 올린다. 업로드 키 시크릿(`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`)이 있으면 서명된 AAB가 나온다.
 - **스토어 출시:** `codemagic.yaml` — iOS는 TestFlight, Android는 Play 내부 테스트로 올린다. 준비 사항은 `store/README.md`.
+
+## 저작권 및 이용조건
+- **저작권자:** 양인석 (Inseok Yang, GitHub 계정 morogohi) · © 2026 · All rights reserved. — [LICENSE](LICENSE), [COPYRIGHT.md](COPYRIGHT.md)
+- 자체 제작 코드·디자인·콘텐츠의 복제·수정·재배포 및 별도 서비스로의 이용은 사전 서면 허락이 필요합니다. 저장소 공개는 오픈소스 이용허락이 아니며, GitHub 이용약관에 따른 열람·포크는 가능합니다.
+- 『사기』·『논어』 원문(공유 저작물)과 글꼴·Capacitor 등 제3자 자료는 각 조건을 따릅니다: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+- 상세 안내: https://morogohi.github.io/gojeon-yeoljeon/copyright.html
