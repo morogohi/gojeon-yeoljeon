@@ -1,4 +1,4 @@
-import { h, stars, topbar } from '../dom';
+import { h, stars, tabs, topbar } from '../dom';
 import { app } from '../../state/store';
 import { BOOKS, type Book } from '../../content/types';
 import { storiesOf } from '../../content/stories';
@@ -13,9 +13,7 @@ export function mapScreen(args: string[]): Screen {
 
   const el = h('main', { class: 'screen map' },
     topbar('열전 캠페인', null),
-    h('div', { class: 'tabs', role: 'tablist' },
-      ...BOOKS.map((b) => h('a', { class: `tab${b.id === book ? ' active' : ''}`, href: `#map-${b.id}`, role: 'tab' }, `${b.name} `, h('span', { class: 'hanja-sm' }, b.hanja))),
-    ),
+    tabs('원전', BOOKS.map((b) => ({ href: `#map-${b.id}`, label: [`${b.name} `, h('span', { class: 'hanja-sm', 'aria-hidden': 'true' }, b.hanja)], active: b.id === book, testid: `book-${b.id}` }))),
     h('p', { class: 'map-progress' }, `${cleared} / ${list.length} 고사 복원`),
     h('ol', { class: 'path' },
       ...list.map((s, i) => {

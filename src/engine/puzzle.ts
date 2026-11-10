@@ -17,6 +17,14 @@ export interface PuzzleState {
 
 export type TapEvent = 'keep' | 'reset' | 'complete' | 'done' | 'ignored';
 
+export type PuzzleScope = 'learned' | 'all';
+
+/** learned: 복원한 고사에서만(4편 미만이면 전체로), all: 12편 전체에서 4개 */
+export function puzzlePool(rng: Rng, scope: PuzzleScope, learned: Story[], all: Story[]): Story[] {
+  const pool = scope === 'learned' && learned.length >= 4 ? learned : all;
+  return shuffle(rng, pool).slice(0, 4);
+}
+
 export function pickPuzzleStories(rng: Rng, unlocked: Story[], all: Story[]): Story[] {
   const pool = unlocked.length >= 4 ? unlocked : all.slice(0, 4);
   return shuffle(rng, pool).slice(0, 4);

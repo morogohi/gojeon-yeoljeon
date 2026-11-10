@@ -101,8 +101,14 @@ test('E-03 오답 3번이면 패배하고 진행은 저장되지 않는다', asy
   expect(errors).toEqual([]);
 });
 
-test('E-05 성어 퍼즐 네 개를 완성하면 완료 화면', async ({ page }) => {
+test('E-05 성어 퍼즐: 시작 화면에서 고르고, 네 개를 완성하면 완료 화면', async ({ page }) => {
   await page.goto(`${DAY1}#puzzle`);
+  // 처음에는 배운 성어가 없으므로 '배운 성어'는 잠기고 '전체 성어'가 골라져 있다. 시작 전에는 시간이 흐르지 않는다.
+  await expect(page.getByTestId('scope-learned')).toBeDisabled();
+  await expect(page.getByTestId('scope-all')).toHaveAttribute('aria-checked', 'true');
+  await page.waitForTimeout(1200);
+  await page.getByTestId('puzzle-start').click();
+  await expect(page.getByTestId('clock')).toHaveText('60초');
   const readings = await page.locator('.targets li').allTextContents();
   expect(readings).toHaveLength(4);
   for (const r of readings) {

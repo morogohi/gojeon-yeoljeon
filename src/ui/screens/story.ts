@@ -119,13 +119,14 @@ export function storyScreen(args: string[]): Screen {
       h('div', { class: 'bar enemy-bar' }, enemyBar),
     );
     const progress = h('span', { class: 'q-progress' });
-    const hpBox = h('div', { class: 'hp', 'data-testid': 'hp' });
+    const hpBox = h('div', { class: 'hp', 'data-testid': 'hp', role: 'img' });
+    const hpLive = h('span', { class: 'sr-only', role: 'status', 'aria-live': 'polite' });
     const skillBtn = h('button', { class: 'skill', 'data-testid': 'skill' });
     const qBox = h('div', { class: 'q-box' });
     const fb = h('div', { class: 'battle-feedback' });
     const comboEl = h('div', { class: 'combo' });
 
-    const heroBar = h('footer', { class: 'hero-bar' }, hpBox,
+    const heroBar = h('footer', { class: 'hero-bar' }, hpBox, hpLive,
       hero ? h('div', { class: 'hero-chip' }, h('span', { class: 'hero-hanja' }, hero.hanja), h('span', null, hero.name)) : h('div', { class: 'hero-chip empty' }, '출전 인물 없음'),
       hero ? skillBtn : null,
     );
@@ -134,7 +135,10 @@ export function storyScreen(args: string[]): Screen {
 
     const paintStatus = () => {
       enemyBar.style.width = `${s.enemyHp}%`;
-      replace(hpBox, ...Array.from({ length: s.maxHp }, (_, k) => h('span', { class: k < s.hp ? 'life on' : 'life off' }, '命')));
+      replace(hpBox, ...Array.from({ length: s.maxHp }, (_, k) => h('span', { class: k < s.hp ? 'life on' : 'life off', 'aria-hidden': 'true' }, '命')));
+      const hpText = `남은 생명 ${s.hp}/${s.maxHp}`;
+      if (hpBox.getAttribute('aria-label') && hpBox.getAttribute('aria-label') !== hpText) hpLive.textContent = hpText;
+      hpBox.setAttribute('aria-label', hpText);
       comboEl.textContent = s.combo >= 2 ? `${s.combo} 연속!` : '';
       if (hero) {
         if (s.skill === 'shield') {

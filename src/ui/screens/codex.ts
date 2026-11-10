@@ -1,4 +1,4 @@
-import { h, topbar } from '../dom';
+import { h, tabs, topbar } from '../dom';
 import { app, commit } from '../../state/store';
 import { HEROES } from '../../content/heroes';
 import { HANJA, hunEum } from '../../content/hanja';
@@ -84,12 +84,12 @@ export function codexScreen(args: string[]): Screen {
 
   const el = h('main', { class: 'screen codex' },
     topbar('도감', null),
-    h('div', { class: 'tabs' },
-      h('a', { class: `tab${tab === 'heroes' ? ' active' : ''}`, href: '#codex-heroes' }, '인물'),
-      h('a', { class: `tab${tab === 'hanja' ? ' active' : ''}`, href: '#codex-hanja' }, '한자'),
-      h('a', { class: `tab${tab === 'album' ? ' active' : ''}`, href: '#codex-album' }, '화첩'),
-      h('a', { class: `tab${tab === 'words' ? ' active' : ''}`, href: '#codex-words', 'data-testid': 'tab-words' }, '단어장'),
-    ),
+    tabs('도감 분류', [
+      { href: '#codex-heroes', label: '인물', active: tab === 'heroes' },
+      { href: '#codex-hanja', label: '한자', active: tab === 'hanja' },
+      { href: '#codex-album', label: '화첩', active: tab === 'album' },
+      { href: '#codex-words', label: '단어장', active: tab === 'words', testid: 'tab-words' },
+    ]),
     h('p', { class: 'hint-line' }, hints[tab]),
     tab === 'heroes' ? heroes : tab === 'hanja' ? hanja : tab === 'album' ? album : words,
   );

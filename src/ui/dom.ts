@@ -45,3 +45,13 @@ export function topbar(title: Child, back: string | null, right?: Child): HTMLEl
     h('div', { class: 'topbar-right' }, right ?? ''),
   );
 }
+
+/** 화면 안 탭. 고른 탭은 aria-selected·aria-current 로 보조기기에 알린다. */
+export function tabs(label: string, items: { href: string; label: Child; active: boolean; testid?: string }[]): HTMLElement {
+  return h('div', { class: 'tabs', role: 'tablist', 'aria-label': label },
+    ...items.map((t) => h('a', {
+      class: `tab${t.active ? ' active' : ''}`, href: t.href, role: 'tab',
+      'aria-selected': t.active ? 'true' : 'false', 'aria-current': t.active ? 'page' : undefined,
+      'data-testid': t.testid,
+    }, t.label)));
+}

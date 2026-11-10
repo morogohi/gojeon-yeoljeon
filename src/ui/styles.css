@@ -5,11 +5,11 @@
   --night-2: #223042;
   --night-3: #2d3d52;
   --moon: #ece2c9;
-  --moon-2: #9fadbd;
+  --moon-2: #b6c2cf;
   --slip: #e8dcc0;
   --slip-2: #d6c6a1;
   --ink: #1a1f27;
-  --ink-2: #5d5747;
+  --ink-2: #4f4a3c;
   --cinnabar: #c8402f;
   --celadon: #86b2a3;
   --celadon-ink: #2e6656;
@@ -77,12 +77,12 @@ body[data-route="story"] .screen { padding-bottom: calc(24px + env(safe-area-ins
 body[data-route="story"] .tabbar { display: none; }
 .tab-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; color: var(--moon-2); }
 .tab-glyph { font-family: var(--serif); font-size: 21px; font-weight: 700; line-height: 1.2; }
-.tab-label { font-size: 11.5px; }
+.tab-label { font-size: 12.5px; }
 .tab-item.active { color: var(--moon); }
 .tab-item.active .tab-glyph { color: var(--cinnabar); }
 .badge {
   position: absolute; top: 6px; left: calc(50% + 8px); min-width: 20px; height: 20px; padding: 0 6px;
-  background: var(--cinnabar); color: #fff; border-radius: 10px; font-size: 11.5px; font-weight: 700;
+  background: var(--cinnabar); color: #fff; border-radius: 10px; font-size: 12.5px; font-weight: 700;
   display: grid; place-items: center;
 }
 
@@ -203,7 +203,7 @@ body[data-route="story"] .tabbar { display: none; }
   background: linear-gradient(90deg, #cdbb92, #e6d8b6 45%, #d3c29b); border-radius: 2px;
 }
 .char-tile .char { font-family: var(--serif); font-size: 36px; font-weight: 900; line-height: 1.15; }
-.char-tile small { font-size: 11.5px; color: var(--ink-2); text-align: center; }
+.char-tile small { font-size: 12.5px; color: var(--ink-2); text-align: center; }
 .idiom-reading { text-align: center; font-weight: 700; letter-spacing: .3em; margin: 12px 0 4px; }
 .idiom-meaning { text-align: center; font-size: 14px; color: var(--ink-2); margin: 0; word-break: keep-all; }
 .related ul { margin: 0; padding-left: 18px; font-size: 14px; }
@@ -262,7 +262,7 @@ body[data-route="story"] .tabbar { display: none; }
 .life { font-family: var(--serif); font-weight: 900; font-size: 16px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 3px; }
 .life.on { background: var(--cinnabar); color: #fff4ea; }
 .life.off { background: var(--night-3); color: var(--night-2); }
-.hero-chip { display: flex; flex-direction: column; align-items: flex-start; flex: 1; font-size: 12px; color: var(--moon-2); line-height: 1.25; }
+.hero-chip { display: flex; flex-direction: column; align-items: flex-start; flex: 1; font-size: 13px; color: var(--moon-2); line-height: 1.25; }
 .hero-chip .hero-hanja { font-family: var(--serif); font-size: 16px; color: var(--moon); font-weight: 900; }
 .skill { padding: 9px 12px; border-radius: 4px; border: 1px solid var(--gold); background: transparent; color: var(--gold); font-size: 13px; font-weight: 700; white-space: nowrap; }
 .skill:disabled { opacity: .4; }
@@ -301,14 +301,14 @@ body[data-route="story"] .tabbar { display: none; }
 .hero-grid .hero-card.locked { background: transparent; color: var(--moon-2); border: 1px dashed var(--night-3); box-shadow: none; }
 .hero-grid .hero-card.locked .hero-from { color: var(--moon-2); }
 .hero-grid .hero-card.party { outline: 3px solid var(--cinnabar); outline-offset: -3px; }
-.party-tag { position: absolute; top: 8px; left: 8px; font-size: 11px; background: var(--cinnabar); color: #fff; padding: 1px 6px; border-radius: 3px; }
+.party-tag { position: absolute; top: 8px; left: 8px; font-size: 12.5px; background: var(--cinnabar); color: #fff; padding: 1px 6px; border-radius: 3px; }
 .hero-name { margin: 4px 0 0; font-size: 14px; }
-.lv { color: var(--gold); font-size: 12px; }
-.hero-from { margin: 2px 0 0; font-size: 12px; color: var(--ink-2); }
+.lv { color: var(--gold); font-size: 13px; }
+.hero-from { margin: 2px 0 0; font-size: 13px; color: var(--ink-2); }
 .hanja-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .hanja-cell { display: flex; flex-direction: column; align-items: center; padding: 10px 2px 8px; border-radius: 3px; }
 .hanja-cell .char { font-family: var(--serif); font-size: 30px; font-weight: 900; line-height: 1.2; }
-.hanja-cell small { font-size: 11px; text-align: center; line-height: 1.25; min-height: 14px; }
+.hanja-cell small { font-size: 12.5px; text-align: center; line-height: 1.25; min-height: 14px; }
 .hanja-cell.m0 { border: 1px dashed var(--night-3); color: var(--night-3); }
 .hanja-cell.m1 { background: #e7b3a9; color: var(--ink); }
 .hanja-cell.m2 { background: var(--slip); color: var(--ink); }
@@ -361,7 +361,7 @@ body[data-route="story"] .tabbar { display: none; }
 .album .card { margin: 0; }
 .album-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 0 10px; }
 .album-title b { font-family: var(--serif); font-size: 19px; font-weight: 900; letter-spacing: .06em; }
-.album-title span { font-size: 12px; color: var(--ink-2); text-align: right; }
+.album-title span { font-size: 13px; color: var(--ink-2); text-align: right; }
 .album .locked-art { height: 120px; display: grid; place-items: center; border: 1px dashed var(--slip-2); border-radius: 3px; color: var(--ink-2); font-size: 13px; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -448,7 +448,7 @@ button.hanja-cell { border: 0; font: inherit; cursor: pointer; position: relativ
 /* 이번 주 기록 */
 .week-bars { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; height: 170px; align-items: end; }
 .wb { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; }
-.wb-num { font-size: 12px; color: var(--ink-2); min-height: 16px; }
+.wb-num { font-size: 13px; color: var(--ink-2); min-height: 16px; }
 .wb-bar { width: 70%; min-height: 3px; max-height: calc(100% - 40px); border-radius: 3px 3px 0 0; background: var(--slip-2); }
 .wb-bar.hit { background: var(--celadon-ink); }
 .wb-day { font-size: 12.5px; color: var(--ink-2); }
@@ -457,12 +457,12 @@ button.hanja-cell { border: 0; font: inherit; cursor: pointer; position: relativ
 .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
 .stat-grid div { background: var(--night-2); border-radius: 4px; padding: 12px 8px; text-align: center; display: flex; flex-direction: column; }
 .stat-grid b { font-family: var(--serif); font-size: 20px; color: var(--moon); }
-.stat-grid span { font-size: 12px; color: var(--moon-2); }
+.stat-grid span { font-size: 13px; color: var(--moon-2); }
 .weak { font-family: var(--serif); font-weight: 900; font-size: 30px; letter-spacing: .2em; margin: 0 0 12px; }
 
 /* 단어장·오답 노트 */
 .words-title { font-family: var(--sans); font-size: 15px; color: var(--moon-2); margin: 16px 0 8px; font-weight: 700; }
-.cell-badge { position: absolute; top: 4px; right: 4px; font-style: normal; font-size: 10.5px; background: var(--cinnabar); color: #fff; padding: 0 4px; border-radius: 3px; }
+.cell-badge { position: absolute; top: 4px; right: 4px; font-style: normal; font-size: 11.5px; background: var(--cinnabar); color: #fff; padding: 0 4px; border-radius: 3px; }
 .idiom-cell { position: relative; text-decoration: none; }
 .idiom-cell .char { font-size: 17px; letter-spacing: .05em; }
 .tabs .tab { font-size: 14px; }
@@ -488,3 +488,20 @@ body.large .quiz-label, body.large .battle-feedback p { font-size: 16px; }
 body.large .today-meaning, body.large .idiom-meaning { font-size: 16px; }
 .sheet .btn { color: var(--ink); border-color: var(--ink); }
 .sheet .btn.primary { color: #fff4ea; border-color: var(--cinnabar); }
+
+/* v0.6: 접근성·퍼즐 시작 화면 */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.puzzle-intro { text-align: center; }
+.intro-rule { margin: 6px 0 4px; color: var(--ink-2); font-size: 14.5px; word-break: keep-all; }
+.pick-label { margin: 18px 0 8px; font-weight: 700; text-align: left; }
+.picks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pick {
+  display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 12px; border-radius: 4px;
+  border: 1px solid var(--slip-2); background: #f3ead3; color: var(--ink); font: inherit;
+}
+.pick b { font-size: 15.5px; }
+.pick small { font-size: 12.5px; color: var(--ink-2); line-height: 1.4; word-break: keep-all; }
+.pick.on { border: 2px solid var(--cinnabar); background: #fff6e4; }
+.pick:disabled { opacity: .5; }
+.puzzle-intro .btn.big { margin-top: 20px; }
+.empty-state .btn { width: 100%; }

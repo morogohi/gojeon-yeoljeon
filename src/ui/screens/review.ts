@@ -29,12 +29,16 @@ export function reviewScreen(args: string[] = []): Screen {
   }
 
   if (!queue.length) {
+    const focusCount = new Set([...app.save.wordbook.map((c) => `h:${c}`), ...mistakes(app.save).map((m) => m.key)]).size;
     const upcoming = Object.values(app.save.cards).map((c) => c.due).sort()[0];
     replace(body, h('section', { class: 'card empty-state', 'data-testid': 'review-empty' },
       h('div', { class: 'hero-big' }, '習'),
       h('h2', null, '오늘 복습은 끝났다'),
-      h('p', null, upcoming ? `다음 복습: ${upcoming}` : '캠페인에서 고사를 하나 복원하면 복습 카드가 생긴다.'),
-      h('a', { class: 'btn primary', href: '#map-sagi' }, '캠페인으로'),
+      h('p', null, upcoming ? `다음 정기 복습은 ${upcoming}에 열린다.` : '캠페인에서 고사를 하나 복원하면 복습 카드가 생긴다.'),
+      focusCount
+        ? h('a', { class: 'btn primary', href: '#review-focus', 'data-testid': 'to-focus' }, `단어장·오답 ${focusCount}개 지금 복습하기`)
+        : h('a', { class: 'btn primary', href: '#map-sagi' }, '캠페인으로'),
+      focusCount ? h('a', { class: 'btn', href: '#map-sagi', style: 'margin-top:8px' }, '캠페인으로') : null,
     ));
     return { el };
   }

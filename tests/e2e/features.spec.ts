@@ -75,3 +75,40 @@ test('E-11 다음 시즌 예고와 360px 레이아웃', async ({ page }) => {
   await page.goto(`${DAY}#map-sagi`);
   await expect(page.getByTestId('season-teaser')).toContainText('맹자·장자');
 });
+
+test('E-12 접근성: 탭 선택 상태, 남은 생명 수치 안내, 퍼즐 연습 모드, 복습→집중 복습 연결', async ({ page }) => {
+  await page.goto(`${DAY}#map-nonyu`);
+  await expect(page.getByTestId('book-nonyu')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByTestId('book-sagi')).toHaveAttribute('aria-selected', 'false');
+
+  await page.goto(`${DAY}#story-sagi-01`);
+  await page.locator('.scene').waitFor();
+  while (!(await page.locator('.choice').first().isVisible())) await page.getByTestId('next').click();
+  await page.locator('.choice:not([data-correct])').first().click();
+  await page.getByTestId('to-original').click();
+  await page.getByTestId('start-battle').click();
+  await expect(page.getByTestId('hp')).toHaveAttribute('aria-label', '남은 생명 3/3');
+  await page.locator('.opt:not([data-correct])').first().click();
+  await expect(page.getByTestId('hp')).toHaveAttribute('aria-label', '남은 생명 2/3');
+  await expect(page.locator('.hero-bar [role="status"]')).toHaveText('남은 생명 2/3');
+  // 대전을 끝까지 마쳐야 오답이 기록된다
+  await page.getByTestId('continue').click();
+  for (let i = 2; i <= 8; i++) {
+    await expect(page.locator('.q-progress')).toHaveText(`${i} / 8`);
+    await page.locator('.opt[data-correct="1"]').click();
+  }
+  await expect(page.getByTestId('result')).toBeVisible();
+
+  // 오답 노트가 생겼으니 정기 복습이 없어도 집중 복습으로 이어진다
+  await page.goto(`${DAY}#review`);
+  await expect(page.getByTestId('review-empty')).toBeVisible();
+  await page.getByTestId('to-focus').click();
+  await expect(page.locator('.review-progress')).toHaveText(/^1 \/ \d+$/);
+
+  await page.goto(`${DAY}#puzzle`);
+  await page.getByTestId('mode-practice').click();
+  await page.getByTestId('puzzle-start').click();
+  await expect(page.getByTestId('clock')).toHaveText('연습');
+  await page.waitForTimeout(1500);
+  await expect(page.getByTestId('clock')).toHaveText('연습');
+});
