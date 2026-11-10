@@ -5,6 +5,7 @@ import { dueQueue } from '../../engine/srs';
 import { HANJA } from '../../content/hanja';
 import type { Screen } from '../../state/router';
 import { artEl } from '../art';
+import { todayProgress, weekReport } from '../../engine/stats';
 
 export function homeScreen(): Screen {
   const pct = restoration(app.save);
@@ -14,6 +15,8 @@ export function homeScreen(): Screen {
   const open = unlockedStories(app.save);
   const next = open.find((s) => !(app.save.stars[s.id] ?? 0)) ?? open.find((s) => (app.save.stars[s.id] ?? 0) < 3);
   const learned = HANJA.filter((x) => (app.save.cards[`h:${x.char}`]?.reps ?? 0) >= 1).length;
+  const goal = todayProgress(app.save, app.today);
+  const week = weekReport(app.save, app.today);
 
   // 서고 두루마리: 한자 하나가 죽간 하나. 익힌 글자만 먹으로 쓰인다.
   const scroll = h('div', { class: 'scroll', role: 'img', 'aria-label': `서고 복원 ${learned}/${HANJA.length}자` },
@@ -24,6 +27,7 @@ export function homeScreen(): Screen {
   );
 
   const el = h('main', { class: 'screen home' },
+    h('a', { class: 'gear', href: '#settings', 'aria-label': '설정', 'data-testid': 'open-settings' }, '設'),
     h('header', { class: 'home-head' },
       h('h1', { class: 'title-vertical', 'aria-label': '고전열전' }, '古典列傳'),
       h('div', { class: 'home-meta' },
@@ -42,6 +46,11 @@ export function homeScreen(): Screen {
         h('span', { class: 'continue-source' }, next.source),
       )
       : null,
+    h('a', { class: `goal${goal.done ? ' done' : ''}`, href: '#report', 'data-testid': 'daily-goal' },
+      h('span', { class: 'goal-text' }, h('b', null, goal.done ? '오늘 목표 달성' : '오늘의 목표'), h('span', null, `${Math.min(goal.answered, goal.goal)} / ${goal.goal}문제`)),
+      h('span', { class: 'bar goal-bar' }, h('i', { style: `width:${Math.min(100, Math.round((goal.answered / goal.goal) * 100))}%` })),
+      h('span', { class: 'goal-week' }, `이번 주 ${week.activeDays}일 공부 · 기록 보기`),
+    ),
     due
       ? h('a', { class: 'due-note', href: '#review' }, h('b', null, `복습 ${due}장`), h('span', null, '잊기 전에 오늘 다시 보자'))
       : null,

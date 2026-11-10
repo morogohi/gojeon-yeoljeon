@@ -26,7 +26,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '城入趙而璧留秦；城不入，臣請完璧歸趙。', translation: '성이 조나라에 들어오면 구슬은 진나라에 두겠지만, 성이 들어오지 않으면 신이 구슬을 온전히 하여 조나라로 돌려보내겠습니다.' },
+    original: { text: '城入趙而璧留秦；城不入，臣請完璧歸趙。', reading: '성입조이벽류진; 성불입, 신청완벽귀조.', translation: '성이 조나라에 들어오면 구슬은 진나라에 두겠지만, 성이 들어오지 않으면 신이 구슬을 온전히 하여 조나라로 돌려보내겠습니다.' },
     related: [
       { word: '完全', reading: '완전', meaning: '모자람이나 흠이 없음' },
       { word: '完成', reading: '완성', meaning: '완전히 다 이룸' },
@@ -54,7 +54,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '卒相與驩，爲刎頸之交。', translation: '마침내 서로 기뻐하며, 목을 베어도 변치 않을 사귐을 맺었다.' },
+    original: { text: '卒相與驩，爲刎頸之交。', reading: '졸상여환, 위문경지교.', translation: '마침내 서로 기뻐하며, 목을 베어도 변치 않을 사귐을 맺었다.' },
     related: [
       { word: '交友', reading: '교우', meaning: '벗을 사귐' },
       { word: '外交', reading: '외교', meaning: '다른 나라와 맺는 관계' },
@@ -81,7 +81,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '夫賢士之處世也，譬若錐之處囊中，其末立見。', translation: '무릇 현명한 선비가 세상에 있는 것은 송곳이 주머니 속에 있는 것과 같아서, 그 끝이 곧 드러난다.' },
+    original: { text: '夫賢士之處世也，譬若錐之處囊中，其末立見。', reading: '부현사지처세야, 비약추지처낭중, 기말입현.', translation: '무릇 현명한 선비가 세상에 있는 것은 송곳이 주머니 속에 있는 것과 같아서, 그 끝이 곧 드러난다.' },
     related: [
       { word: '中心', reading: '중심', meaning: '한가운데' },
       { word: '集中', reading: '집중', meaning: '한곳으로 모음' },
@@ -108,7 +108,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '持鹿獻於二世，曰：「馬也。」', translation: '사슴을 끌고 와 이세에게 바치며 “말입니다.” 하였다.' },
+    original: { text: '持鹿獻於二世，曰：「馬也。」', reading: '지록헌어이세, 왈: 「마야.」', translation: '사슴을 끌고 와 이세에게 바치며 “말입니다.” 하였다.' },
     related: [
       { word: '指示', reading: '지시', meaning: '가리켜 보임, 일러서 시킴' },
       { word: '指摘', reading: '지적', meaning: '꼭 집어서 가리킴' },
@@ -135,7 +135,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '乃使萬人先行，出，背水陳。', translation: '이에 1만 명을 먼저 보내 나아가 강을 등지고 진을 치게 하였다. (원문에서는 ‘陣’을 ‘陳’으로 썼다)' },
+    original: { text: '乃使萬人先行，出，背水陳。', reading: '내사만인선행, 출, 배수진.', translation: '이에 1만 명을 먼저 보내 나아가 강을 등지고 진을 치게 하였다. (원문에서는 ‘陣’을 ‘陳’으로 썼다)' },
     related: [
       { word: '背景', reading: '배경', meaning: '뒤쪽의 경치, 뒤에서 받쳐 주는 힘' },
       { word: '背信', reading: '배신', meaning: '믿음을 저버림' },
@@ -162,7 +162,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '夜聞漢軍四面皆楚歌，項王乃大驚曰：「漢皆已得楚乎？是何楚人之多也！」', translation: '밤에 한나라 군대가 사방에서 모두 초나라 노래를 부르는 것을 듣고, 항왕이 크게 놀라 말하였다. “한나라가 이미 초나라를 다 얻었단 말인가? 어찌 이리도 초나라 사람이 많은가!”' },
+    original: { text: '夜聞漢軍四面皆楚歌，項王乃大驚曰：「漢皆已得楚乎？是何楚人之多也！」', reading: '야문한군사면개초가, 항왕내대경왈: 「한개이득초호? 시하초인지다야!」', translation: '밤에 한나라 군대가 사방에서 모두 초나라 노래를 부르는 것을 듣고, 항왕이 크게 놀라 말하였다. “한나라가 이미 초나라를 다 얻었단 말인가? 어찌 이리도 초나라 사람이 많은가!”' },
     related: [
       { word: '四方', reading: '사방', meaning: '동서남북 네 방위, 여러 곳' },
       { word: '面談', reading: '면담', meaning: '서로 만나서 이야기함' },
@@ -189,7 +189,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '蜚鳥盡，良弓藏；狡兔死，走狗烹。', translation: '나는 새가 다 잡히면 좋은 활은 감추어지고, 교활한 토끼가 죽으면 사냥개는 삶아진다.' },
+    original: { text: '蜚鳥盡，良弓藏；狡兔死，走狗烹。', reading: '비조진, 양궁장; 교토사, 주구팽.', translation: '나는 새가 다 잡히면 좋은 활은 감추어지고, 교활한 토끼가 죽으면 사냥개는 삶아진다.' },
     related: [
       { word: '死亡', reading: '사망', meaning: '사람이 죽음' },
       { word: '生死', reading: '생사', meaning: '삶과 죽음' },
@@ -216,7 +216,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '生我者父母，知我者鮑子也。', translation: '나를 낳은 이는 부모이지만, 나를 알아준 이는 포숙(鮑子)이다.' },
+    original: { text: '生我者父母，知我者鮑子也。', reading: '생아자부모, 지아자포자야.', translation: '나를 낳은 이는 부모이지만, 나를 알아준 이는 포숙(鮑子)이다.' },
     related: [
       { word: '管理', reading: '관리', meaning: '일을 맡아 다스림' },
       { word: '血管', reading: '혈관', meaning: '피가 흐르는 관' },
@@ -243,7 +243,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '子曰：「溫故而知新，可以爲師矣。」', translation: '공자께서 말씀하셨다. “옛것을 익혀 새것을 알면 스승이 될 수 있다.”' },
+    original: { text: '子曰：「溫故而知新，可以爲師矣。」', reading: '자왈: 「온고이지신, 가이위사의.」', translation: '공자께서 말씀하셨다. “옛것을 익혀 새것을 알면 스승이 될 수 있다.”' },
     related: [
       { word: '溫度', reading: '온도', meaning: '따뜻하고 찬 정도' },
       { word: '知識', reading: '지식', meaning: '배우거나 겪어서 아는 것' },
@@ -270,7 +270,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '子貢問：「師與商也孰賢？」子曰：「師也過，商也不及。」曰：「然則師愈與？」子曰：「過猶不及。」', translation: '자공이 “자장과 자하 중 누가 낫습니까?” 하고 묻자, 공자께서 “자장은 지나치고 자하는 미치지 못한다.” 하셨다. “그렇다면 자장이 낫습니까?” 하니 “지나침은 미치지 못함과 같다.” 하셨다.' },
+    original: { text: '子貢問：「師與商也孰賢？」子曰：「師也過，商也不及。」曰：「然則師愈與？」子曰：「過猶不及。」', reading: '자공문: 「사여상야숙현?」 자왈: 「사야과, 상야불급.」 왈: 「연즉사유여?」 자왈: 「과유불급.」', translation: '자공이 “자장과 자하 중 누가 낫습니까?” 하고 묻자, 공자께서 “자장은 지나치고 자하는 미치지 못한다.” 하셨다. “그렇다면 자장이 낫습니까?” 하니 “지나침은 미치지 못함과 같다.” 하셨다.' },
     related: [
       { word: '過去', reading: '과거', meaning: '이미 지나간 때' },
       { word: '過失', reading: '과실', meaning: '부주의로 생긴 잘못' },
@@ -297,7 +297,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '子曰：「巧言令色，鮮矣仁。」', translation: '공자께서 말씀하셨다. “말을 교묘하게 하고 얼굴빛을 좋게 꾸미는 사람 중에는 어진 이가 드물다.”' },
+    original: { text: '子曰：「巧言令色，鮮矣仁。」', reading: '자왈: 「교언영색, 선의인.」', translation: '공자께서 말씀하셨다. “말을 교묘하게 하고 얼굴빛을 좋게 꾸미는 사람 중에는 어진 이가 드물다.”' },
     related: [
       { word: '言語', reading: '언어', meaning: '생각을 나타내는 말과 글' },
       { word: '發言', reading: '발언', meaning: '말을 꺼내어 의견을 나타냄' },
@@ -324,7 +324,7 @@ export const STORIES: Story[] = [
         },
       },
     ],
-    original: { text: '子曰：「後生可畏，焉知來者之不如今也？」', translation: '공자께서 말씀하셨다. “뒤에 태어난 이가 두려울 만하니, 앞으로 올 사람이 지금 사람만 못하리라고 어찌 알겠는가?”' },
+    original: { text: '子曰：「後生可畏，焉知來者之不如今也？」', reading: '자왈: 「후생가외, 언지래자지불여금야?」', translation: '공자께서 말씀하셨다. “뒤에 태어난 이가 두려울 만하니, 앞으로 올 사람이 지금 사람만 못하리라고 어찌 알겠는가?”' },
     related: [
       { word: '學生', reading: '학생', meaning: '배우는 사람' },
       { word: '生活', reading: '생활', meaning: '살아서 활동함' },

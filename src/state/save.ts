@@ -10,7 +10,21 @@ export interface SaveData {
   streak: { last: string; count: number };
   puzzleBest: number;
   partyHeroId: string | null;
+  /** 단어장에 담은 한자 */
+  wordbook: string[];
+  settings: Settings;
+  /** 날짜별 푼 문제 수 (최근 60일만 보관) */
+  daily: Record<string, { answered: number; correct: number }>;
 }
+
+export interface Settings {
+  large: boolean;          // 큰 글씨
+  sound: boolean;          // 읽어 주기
+  dailyGoal: number;       // 하루 목표 문제 수
+  reminder: string | null; // 매일 알림 'HH:MM' (앱에서만)
+}
+
+export const DAILY_GOALS = [10, 20, 30];
 
 export interface KV {
   getItem(k: string): string | null;
@@ -20,7 +34,10 @@ export interface KV {
 export const SAVE_KEY = 'gojeon-yeoljeon:save';
 
 export function defaultSave(): SaveData {
-  return { version: 1, stars: {}, heroes: {}, cards: {}, streak: { last: '', count: 0 }, puzzleBest: 0, partyHeroId: null };
+  return {
+    version: 1, stars: {}, heroes: {}, cards: {}, streak: { last: '', count: 0 }, puzzleBest: 0, partyHeroId: null,
+    wordbook: [], settings: { large: false, sound: true, dailyGoal: 10, reminder: null }, daily: {},
+  };
 }
 
 function sanitize(raw: unknown): SaveData {
@@ -36,7 +53,44 @@ function sanitize(raw: unknown): SaveData {
   if (r.streak && typeof r.streak.last === 'string') d.streak = { last: r.streak.last, count: Number(r.streak.count) || 0 };
   d.puzzleBest = Number(r.puzzleBest) || 0;
   d.partyHeroId = r.partyHeroId && heroIds.has(r.partyHeroId) && d.heroes[r.partyHeroId] ? r.partyHeroId : null;
+  // v0.5에서 늘어난 항목: 없으면 기본값 (예전 세이브와 호환)
+  if (Array.isArray(r.wordbook)) d.wordbook = [...new Set(r.wordbook.filter((c) => typeof c === 'string' && [...c].length === 1))];
+  const st = r.settings as Partial<Settings> | undefined;
+  if (st && typeof st === 'object') {
+    d.settings = {
+      large: st.large === true,
+      sound: st.sound !== false,
+      dailyGoal: DAILY_GOALS.includes(Number(st.dailyGoal)) ? Number(st.dailyGoal) : 10,
+      reminder: typeof st.reminder === 'string' && /^\d{2}:\d{2}$/.test(st.reminder) ? st.reminder : null,
+    };
+  }
+  for (const [k, v] of Object.entries(r.daily ?? {})) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(k) && v && typeof v.answered === 'number') d.daily[k] = { answered: v.answered, correct: Number(v.correct) || 0 };
+  }
   return d;
+}
+
+/** 백업 코드: 세이브 JSON 을 base64 로 감싼다. 기기를 옮길 때 쓴다. */
+export function exportCode(data: SaveData): string {
+  const json = JSON.stringify(data);
+  const bytes = new TextEncoder().encode(json);
+  let bin = '';
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return `GJ1:${btoa(bin)}`;
+}
+
+export function importCode(code: string): SaveData | null {
+  const m = code.trim().match(/^GJ1:([A-Za-z0-9+/=]+)$/);
+  if (!m) return null;
+  try {
+    const bin = atob(m[1]);
+    const json = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+    const raw = JSON.parse(json);
+    if (!raw || raw.version !== 1) return null;
+    return sanitize(raw);
+  } catch {
+    return null;
+  }
 }
 
 export function loadSave(kv: KV | null): SaveData {

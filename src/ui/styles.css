@@ -367,3 +367,124 @@ body[data-route="story"] .tabbar { display: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ── v0.5: 한자 팝업 · 낭독 ── */
+.hz { all: unset; cursor: pointer; border-radius: 3px; padding: 0 1px; transition: background .15s; }
+.hz:hover, .hz:focus-visible { background: rgba(200, 64, 47, .16); outline: none; }
+.original-reading { margin: -4px 0 10px; color: var(--ink-2); letter-spacing: .08em; font-size: 14.5px; word-break: keep-all; }
+.listen { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.btn.small { min-height: 38px; padding: 0 14px; font-size: 14px; }
+.listen-hint { font-size: 12.5px; color: var(--ink-2); }
+button.char-tile { border: 0; color: var(--ink); font: inherit; cursor: pointer; }
+button.chip { border: 0; color: var(--ink); font: inherit; cursor: pointer; }
+button.hanja-cell { border: 0; font: inherit; cursor: pointer; position: relative; }
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 30; background: rgba(8, 12, 18, .55);
+  display: flex; align-items: flex-end; justify-content: center; animation: fade .18s ease-out;
+}
+.sheet {
+  position: relative; width: 100%; max-width: 480px; max-height: 80vh; overflow-y: auto;
+  background: var(--slip); color: var(--ink); border-radius: 12px 12px 0 0;
+  padding: 18px 18px calc(20px + env(safe-area-inset-bottom)); box-shadow: 0 -12px 40px rgba(0, 0, 0, .4);
+  animation: rise .22s ease-out;
+}
+@keyframes rise { from { transform: translateY(30px); opacity: .6; } to { transform: none; opacity: 1; } }
+.sheet-close { position: absolute; top: 8px; right: 8px; width: 40px; height: 40px; border: 0; background: transparent; font-size: 18px; color: var(--ink-2); }
+.sheet-head { display: flex; gap: 16px; align-items: center; }
+.sheet-char {
+  flex: none; width: 96px; height: 128px; display: grid; place-items: center; border-radius: 3px;
+  font-family: var(--serif); font-weight: 900; font-size: 72px;
+  background: linear-gradient(90deg, #b9a77d, #e3d5b1 45%, #c9b88c);
+}
+.sheet-hun { margin: 0; font-size: 22px; font-family: var(--serif); }
+.sheet-hun b { font-weight: 900; color: var(--cinnabar); }
+.sheet-note { margin: 4px 0 0; font-size: 14px; color: var(--ink-2); word-break: keep-all; }
+.sheet-status { margin: 6px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.sheet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0 6px; }
+.sheet-book.on { background: var(--celadon); border-color: var(--celadon); }
+.sheet-label { margin: 14px 0 4px; font-size: 13px; color: var(--ink-2); }
+.sheet-uses ul { margin: 0; padding-left: 18px; font-size: 14.5px; }
+.sheet-uses li { margin: 4px 0; }
+.sheet-uses b { font-family: var(--serif); font-weight: 900; }
+.sheet-uses a { color: var(--ink); }
+
+/* 홈: 설정·오늘의 목표 */
+.home { position: relative; }
+.gear {
+  position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px; width: 40px; height: 40px;
+  display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--night-3);
+  font-family: var(--serif); font-weight: 900; color: var(--moon-2);
+}
+.goal { display: grid; gap: 6px; margin: 10px 0 0; padding: 12px 16px; border-radius: 4px; background: var(--night-2); }
+.goal-text { display: flex; justify-content: space-between; font-size: 14px; color: var(--moon-2); }
+.goal-text b { color: var(--moon); }
+.goal-bar i { background: linear-gradient(90deg, var(--celadon), #a9cdbf); }
+.goal.done .goal-text b { color: var(--celadon); }
+.goal-week { font-size: 12.5px; color: var(--moon-2); }
+
+/* 설정 */
+.settings .group { margin: 8px 0 20px; }
+.settings h2 { font-size: 15px; color: var(--moon-2); margin: 0 0 8px; font-family: var(--sans); font-weight: 700; }
+.row {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left;
+  padding: 14px 16px; margin-bottom: 6px; border-radius: 4px; background: var(--night-2); border: 0; color: var(--moon);
+}
+.row-text { display: flex; flex-direction: column; }
+.row-text small { color: var(--moon-2); font-size: 12.5px; }
+.switch { flex: none; width: 46px; height: 28px; border-radius: 14px; background: var(--night-3); position: relative; transition: background .2s; }
+.switch i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--moon-2); transition: transform .2s, background .2s; }
+.toggle.on .switch { background: var(--cinnabar); }
+.toggle.on .switch i { transform: translateX(18px); background: #fff4ea; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.seg button { padding: 6px 10px; border-radius: 4px; border: 1px solid var(--night-3); background: transparent; color: var(--moon-2); font-size: 13.5px; }
+.seg button.on { background: var(--slip); color: var(--ink); border-color: var(--slip); }
+.row-note { font-size: 13px; color: var(--moon-2); margin: 4px 2px 10px; word-break: keep-all; }
+.code { width: 100%; margin: 8px 0; padding: 10px; border-radius: 4px; border: 1px solid var(--night-3); background: #121a24; color: var(--moon); font: 12px/1.4 ui-monospace, monospace; word-break: break-all; }
+.settings .btn { width: 100%; }
+.settings-msg { color: var(--gold); font-size: 14px; min-height: 20px; word-break: keep-all; }
+.about p { color: var(--moon-2); font-size: 13.5px; margin: 4px 0; }
+.about a { color: var(--moon); }
+
+/* 이번 주 기록 */
+.week-bars { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; height: 170px; align-items: end; }
+.wb { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; }
+.wb-num { font-size: 12px; color: var(--ink-2); min-height: 16px; }
+.wb-bar { width: 70%; min-height: 3px; max-height: calc(100% - 40px); border-radius: 3px 3px 0 0; background: var(--slip-2); }
+.wb-bar.hit { background: var(--celadon-ink); }
+.wb-day { font-size: 12.5px; color: var(--ink-2); }
+.wb.today .wb-day { color: var(--cinnabar); font-weight: 700; }
+.wb-goal { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--cinnabar); opacity: .6; }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.stat-grid div { background: var(--night-2); border-radius: 4px; padding: 12px 8px; text-align: center; display: flex; flex-direction: column; }
+.stat-grid b { font-family: var(--serif); font-size: 20px; color: var(--moon); }
+.stat-grid span { font-size: 12px; color: var(--moon-2); }
+.weak { font-family: var(--serif); font-weight: 900; font-size: 30px; letter-spacing: .2em; margin: 0 0 12px; }
+
+/* 단어장·오답 노트 */
+.words-title { font-family: var(--sans); font-size: 15px; color: var(--moon-2); margin: 16px 0 8px; font-weight: 700; }
+.cell-badge { position: absolute; top: 4px; right: 4px; font-style: normal; font-size: 10.5px; background: var(--cinnabar); color: #fff; padding: 0 4px; border-radius: 3px; }
+.idiom-cell { position: relative; text-decoration: none; }
+.idiom-cell .char { font-size: 17px; letter-spacing: .05em; }
+.tabs .tab { font-size: 14px; }
+
+/* 다음 시즌 예고 */
+.season { margin-top: 18px; padding: 18px; border: 1px dashed var(--gold); border-radius: 6px; }
+.season-label { margin: 0 0 4px; font-size: 13px; color: var(--gold); }
+.season h3 { font-size: 19px; margin: 0 0 6px; }
+.season-idioms { font-family: var(--serif); font-weight: 700; color: var(--moon); margin: 0 0 6px; word-break: keep-all; }
+.season-note { margin: 0; font-size: 13.5px; color: var(--moon-2); word-break: keep-all; }
+
+.share-btn { width: 100%; margin-top: 10px; }
+
+/* 큰 글씨 모드 */
+body.large { font-size: 18px; }
+body.large .scene-text { font-size: 21px; }
+body.large .opt { font-size: 18.5px; min-height: 64px; }
+body.large .opts-long .opt { font-size: 16.5px; }
+body.large .choice { font-size: 17px; }
+body.large .original-text { font-size: 26px; }
+body.large .original-tr, body.large .original-reading { font-size: 16.5px; }
+body.large .quiz-label, body.large .battle-feedback p { font-size: 16px; }
+body.large .today-meaning, body.large .idiom-meaning { font-size: 16px; }
+.sheet .btn { color: var(--ink); border-color: var(--ink); }
+.sheet .btn.primary { color: #fff4ea; border-color: var(--cinnabar); }

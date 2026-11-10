@@ -29,4 +29,10 @@ export function commit(next: SaveData): void {
 
 export function startSession(): void {
   commit(touchStreak(app.save, app.today));
+  applySettingsToPage();
+}
+
+/** 큰 글씨 등 화면 설정을 문서에 반영 */
+export function applySettingsToPage(): void {
+  document.body.classList.toggle('large', app.save.settings.large);
 }

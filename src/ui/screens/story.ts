@@ -10,6 +10,10 @@ import { createBattle, answer, useSkill, canUseSkill, current, starsOf, type Bat
 import { applyClear, applyLog, isUnlocked, skillUsesFor } from '../../engine/rewards';
 import { questionView } from '../quiz';
 import { artEl } from '../art';
+import { tappableText, openHanjaSheet } from '../hanjaSheet';
+import { speak } from '../speech';
+import { recordAnswers } from '../../engine/stats';
+import { shareIdiomCard } from '../shareCard';
 import type { Screen } from '../../state/router';
 
 export function storyScreen(args: string[]): Screen {
@@ -65,8 +69,14 @@ export function storyScreen(args: string[]): Screen {
     replace(body,
       h('section', { class: 'original card' },
         h('p', { class: 'eyebrow' }, `원문 ${s.source}`),
-        h('p', { class: 'original-text' }, s.original.text),
+        tappableText(s.original.text, 'original-text'),
+        h('p', { class: 'original-reading', 'data-testid': 'original-reading' }, s.original.reading),
         h('p', { class: 'original-tr' }, s.original.translation),
+        h('div', { class: 'listen' },
+          h('button', { class: 'btn small', 'data-testid': 'listen-reading', onclick: () => speak(s.original.reading) }, '독음 듣기'),
+          h('button', { class: 'btn small', onclick: () => speak(s.original.translation) }, '풀이 듣기'),
+          h('span', { class: 'listen-hint' }, '한자를 누르면 뜻과 소리가 나온다'),
+        ),
       ),
       h('section', { class: 'card art-card', 'data-testid': 'art-card' },
         h('p', { class: 'eyebrow' }, '붉은 낙관이 찍힌 곳이 그 글자다'),
@@ -76,7 +86,7 @@ export function storyScreen(args: string[]): Screen {
         h('div', { class: 'idiom-chars' },
           ...[...s.idiom].map((c) => {
             const hj = getHanja(c);
-            return h('div', { class: 'char-tile' }, h('span', { class: 'char' }, c), h('small', null, hunEum(hj)));
+            return h('button', { class: 'char-tile', 'data-char': c, onclick: () => openHanjaSheet(c) }, h('span', { class: 'char' }, c), h('small', null, hunEum(hj)));
           }),
         ),
         h('p', { class: 'idiom-reading' }, s.reading),
@@ -178,6 +188,7 @@ export function storyScreen(args: string[]): Screen {
     function finish() {
       const st = starsOf(s);
       let save = applyLog(app.save, s.log, app.today);
+      save = recordAnswers(save, app.today, s.log.length, s.log.filter((l) => l.correct).length);
       const res = applyClear(save, story!, st);
       save = res.save;
       commit(save);
@@ -209,13 +220,14 @@ export function storyScreen(args: string[]): Screen {
       correctChars.length
         ? h('section', { class: 'card' },
           h('p', { class: 'eyebrow' }, '되찾은 한자'),
-          h('div', { class: 'chips' }, ...correctChars.map((c) => h('span', { class: 'chip' }, h('b', null, c), ` ${hunEum(getHanja(c))}`))),
+          h('div', { class: 'chips' }, ...correctChars.map((c) => h('button', { class: 'chip', onclick: () => openHanjaSheet(c) }, h('b', null, c), ` ${hunEum(getHanja(c))}`))),
         )
         : null,
       h('section', { class: 'card modern' },
         h('p', { class: 'eyebrow' }, '오늘날의 쓰임'),
         h('p', null, st0.modern),
       ),
+      s.won ? h('button', { class: 'btn share-btn', 'data-testid': 'share-card', onclick: (e: Event) => shareIdiomCard(st0, e.currentTarget as HTMLButtonElement) }, '성어 카드로 공유하기') : null,
       h('div', { class: 'result-actions' },
         h('button', { class: 'btn', onclick: () => storyRestart() }, s.won ? '다시 하기' : '다시 도전'),
         s.won && next ? h('a', { class: 'btn primary', href: `#story-${next.id}`, 'data-testid': 'next-story' }, '다음 고사') : h('a', { class: 'btn primary', href: `#map-${st0.book}` }, '지도로'),

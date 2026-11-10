@@ -5,13 +5,28 @@ import { reviewQuestion } from '../../engine/questions';
 import { createRng } from '../../engine/rng';
 import { questionView } from '../quiz';
 import type { Screen } from '../../state/router';
+import { recordAnswers, mistakes } from '../../engine/stats';
 
-export function reviewScreen(): Screen {
-  const queue = dueQueue(app.save.cards, app.today);
+export function reviewScreen(args: string[] = []): Screen {
+  // focus: 단어장 + 오답 노트에서 골라 집중 복습 (날짜와 상관없이)
+  const focus = args[0] === 'focus';
+  const queue = focus
+    ? [...new Set([...app.save.wordbook.map((c) => `h:${c}`), ...mistakes(app.save).map((m) => m.key)])].slice(0, 15)
+    : dueQueue(app.save.cards, app.today);
   const body = h('div', { class: 'review-body' });
-  const el = h('main', { class: 'screen review' }, topbar('복습', null), body);
+  const el = h('main', { class: 'screen review' }, topbar(focus ? '집중 복습' : '복습', focus ? '#codex-words' : null), body);
   const timers: number[] = [];
   const rng = createRng(app.seed());
+
+  if (!queue.length && focus) {
+    replace(body, h('section', { class: 'card empty-state', 'data-testid': 'review-empty' },
+      h('div', { class: 'hero-big' }, '錄'),
+      h('h2', null, '집중 복습할 글자가 없다'),
+      h('p', null, '원문에서 한자를 눌러 단어장에 담거나, 대전에서 틀린 글자가 생기면 여기에 모인다.'),
+      h('a', { class: 'btn primary', href: '#map-sagi' }, '캠페인으로'),
+    ));
+    return { el };
+  }
 
   if (!queue.length) {
     const upcoming = Object.values(app.save.cards).map((c) => c.due).sort()[0];
@@ -40,7 +55,7 @@ export function reviewScreen(): Screen {
       const ok = choice === q.answer;
       view.reveal(choice);
       if (ok) right += 1;
-      commit({ ...app.save, cards: { ...app.save.cards, [key]: review(app.save.cards[key], ok, app.today) } });
+      commit(recordAnswers({ ...app.save, cards: { ...app.save.cards, [key]: review(app.save.cards[key], ok, app.today) } }, app.today, 1, ok ? 1 : 0));
       i += 1;
       if (ok) {
         replace(fb, h('p', { class: 'good' }, '기억났다! ', q.explain));

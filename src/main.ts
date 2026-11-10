@@ -9,6 +9,8 @@ import { storyScreen } from './ui/screens/story';
 import { codexScreen } from './ui/screens/codex';
 import { reviewScreen } from './ui/screens/review';
 import { puzzleScreen } from './ui/screens/puzzle';
+import { settingsScreen } from './ui/screens/settings';
+import { reportScreen } from './ui/screens/report';
 
 // 웹폰트는 화면 표시를 막지 않도록 스크립트로 붙인다. 실패하면 시스템 글꼴을 쓴다.
 const font = document.createElement('link');
@@ -49,5 +51,7 @@ startRouter(document.getElementById('app')!, {
   codex: codexScreen,
   review: reviewScreen,
   puzzle: puzzleScreen,
+  settings: settingsScreen,
+  report: reportScreen,
 }, 'home');
 paintTabs();

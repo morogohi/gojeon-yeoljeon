@@ -74,3 +74,32 @@ describe('C-05 삽화', () => {
     }
   });
 });
+
+import { glossOf, isHan } from '../src/content/gloss';
+describe('C-06 원문 한자 사전·독음', () => {
+  it('원문과 관련 단어의 모든 한자에 훈음이 있다', () => {
+    for (const s of STORIES) {
+      for (const c of [...s.original.text, ...s.related.flatMap((r) => [...r.word])]) {
+        if (isHan(c)) expect(glossOf(c), `${s.id} ${c}`).toBeDefined();
+      }
+    }
+  });
+  it('독음 글자 수가 원문 한자 수와 같다', () => {
+    for (const s of STORIES) {
+      const han = [...s.original.text].filter(isHan).length;
+      const syl = [...s.original.reading].filter((c) => /[가-힣]/.test(c)).length;
+      expect(syl, s.id).toBe(han);
+    }
+  });
+  it('독음의 각 음절이 사전의 음과 같거나, 두음법칙·이독(異讀)으로 설명된다', () => {
+    const variants: Record<string, string[]> = { 류: ['유'], 량: ['양'], 립: ['입'], 견: ['현'], 래: ['내'], 령: ['영'], 록: ['녹'], 칙: ['즉'] };
+    for (const s of STORIES) {
+      const han = [...s.original.text].filter(isHan);
+      const syl = [...s.original.reading].filter((c) => /[가-힣]/.test(c));
+      han.forEach((c, i) => {
+        const e = glossOf(c)!.eum;
+        expect([e, ...(variants[e] ?? [])], `${s.id} ${c}`).toContain(syl[i]);
+      });
+    }
+  });
+});

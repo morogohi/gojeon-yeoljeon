@@ -34,5 +34,11 @@ export function mapScreen(args: string[]): Screen {
       }),
     ),
   );
+  el.appendChild(h('section', { class: 'season', 'data-testid': 'season-teaser' },
+    h('p', { class: 'season-label' }, '다음 시즌 준비 중'),
+    h('h3', null, '맹자·장자 — 제자백가의 논쟁'),
+    h('p', { class: 'season-idioms' }, '五十步百步 · 緣木求魚 · 浩然之氣 · 胡蝶之夢 · 朝三暮四'),
+    h('p', { class: 'season-note' }, '토론 배틀 모드와 함께 찾아온다. 그 뒤로 한비자·전국책, 삼국지가 이어진다.'),
+  ));
   return { el };
 }

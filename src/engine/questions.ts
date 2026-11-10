@@ -1,4 +1,5 @@
-import { HANJA, getHanja, hunEum } from '../content/hanja';
+import { HANJA, hunEum } from '../content/hanja';
+import { glossOf } from '../content/gloss';
 import { STORIES } from '../content/stories';
 import type { Story } from '../content/types';
 import { type Rng, pickDistinct, shuffle, randInt } from './rng';
@@ -22,15 +23,21 @@ function withAnswer(rng: Rng, correct: string, wrongs: string[]): { options: str
   return { options, answer: options.indexOf(correct) };
 }
 
+function lookup(char: string) {
+  const g = glossOf(char);
+  if (!g) throw new Error(`사전에 없는 한자: ${char}`);
+  return g;
+}
+
 export function charToHun(rng: Rng, char: string): Question {
-  const h = getHanja(char);
+  const h = lookup(char);
   const correct = hunEum(h);
   const wrongs = pickDistinct(rng, HANJA.map(hunEum), 3, (x) => x === correct);
   return { kind: 'char2hun', label: '이 한자의 훈음은?', prompt: char, ...withAnswer(rng, correct, wrongs), cardKey: `h:${char}`, explain: `${char} = ${correct}` };
 }
 
 export function hunToChar(rng: Rng, char: string): Question {
-  const h = getHanja(char);
+  const h = lookup(char);
   const wrongs = pickDistinct(rng, HANJA.map((x) => x.char), 3, (x) => x === char);
   return { kind: 'hun2char', label: '훈음에 맞는 한자는?', prompt: hunEum(h), ...withAnswer(rng, char, wrongs), cardKey: `h:${char}`, explain: `${hunEum(h)} = ${char}` };
 }

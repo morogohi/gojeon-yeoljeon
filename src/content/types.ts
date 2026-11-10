@@ -32,7 +32,8 @@ export interface Story {
   source: string;
   heroId: string;
   scenes: Scene[];
-  original: { text: string; translation: string };
+  /** text: 백문, reading: 한글 독음(문장부호 위치를 맞춘다), translation: 풀이 */
+  original: { text: string; reading: string; translation: string };
   related: RelatedWord[];
   modern: string;
 }
