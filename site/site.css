@@ -146,3 +146,5 @@ section { padding: clamp(48px, 9vw, 96px) 0; }
   * { animation: none !important; }
   html { scroll-behavior: auto; }
 }
+.hero-key { color: var(--moon); font-family: var(--serif); }
+.final .section-lead { margin: -8px 0 22px; }

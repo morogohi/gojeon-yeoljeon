@@ -42,14 +42,22 @@ test.describe.serial('첫 플레이 → 저장 → 복습', () => {
 
   test('E-01 첫 고사를 전부 맞히면 별 3개와 인상여 획득', async () => {
     await page.goto(`${DAY1}#home`);
-    await expect(page.getByTestId('restore')).toHaveText('0%');
-    await page.getByTestId('tab-map').click();
-    await page.locator('[data-story="sagi-01"]').click();
+    // 첫 방문: 기록 대신 첫 고사로 안내하고, 하단 탭에 용도를 풀어 쓴다
+    await expect(page.getByTestId('home-first')).toBeVisible();
+    await expect(page.getByTestId('tab-home')).toContainText('내 학습 현황');
+    await expect(page.getByTestId('tab-map')).toContainText('고사 목록');
+    await page.getByTestId('first-start').click();
     await playScenes(page, true);
     await expect(page.locator('.life.on')).toHaveCount(4);
     await answerAllCorrect(page);
     await expect(page.locator('.result .stars .on')).toHaveCount(3);
     await expect(page.getByTestId('hero-reward')).toContainText('藺相如');
+    // 첫 고사 진행 단계(처음 실행 ~ 첫 인물 합류 15단계)가 기기 안에 기록된다
+    await page.goto(`${DAY1}#settings`);
+    await expect(page.getByTestId('funnel').locator('li.reached')).toHaveCount(15);
+    await page.goto(`${DAY1}#home`);
+    await expect(page.getByTestId('home-first')).toHaveCount(0);
+    await expect(page.getByTestId('tab-home')).not.toContainText('내 학습 현황');
     expect(errors).toEqual([]);
   });
 
@@ -81,6 +89,8 @@ test.describe.serial('첫 플레이 → 저장 → 복습', () => {
     await expect(page.getByTestId('review-done')).toBeVisible();
     await page.goto(`${DAY2}#home`);
     await expect(page.getByTestId('review-badge')).toHaveCount(0);
+    await page.goto(`${DAY2}#settings`);
+    await expect(page.getByTestId('funnel').locator('li.reached')).toHaveCount(16);
     expect(errors).toEqual([]);
   });
 });

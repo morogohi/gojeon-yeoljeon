@@ -5,6 +5,7 @@ import { reminderSupported, scheduleReminder } from '../reminder';
 import { speak } from '../speech';
 import { SITE_URL } from '../shareCard';
 import type { Screen } from '../../state/router';
+import { funnelSummary } from '../../engine/funnel';
 
 const REMINDER_TIMES = ['07:30', '12:30', '20:00', '21:30'];
 
@@ -84,6 +85,12 @@ export function settingsScreen(): Screen {
         } }, confirmReset ? '정말 지우기' : '진행 기록 모두 지우기'),
       ),
       msg,
+      h('details', { class: 'group funnel' },
+        h('summary', null, '첫 고사 진행 기록 (이 기기)'),
+        h('p', { class: 'row-note' }, '첫 고사에서 어디까지 왔는지 단계별로 처음 도달한 날짜를 보여 준다. 기기 밖으로 보내지 않는다.'),
+        h('ol', { class: 'funnel-list', 'data-testid': 'funnel' }, ...funnelSummary(app.save).map((f) =>
+          h('li', { class: f.date ? 'reached' : '' }, h('span', null, f.label), h('span', null, f.date ?? '—')))),
+      ),
       h('section', { class: 'group about' },
         h('h2', null, '정보'),
         h('p', null, '고전열전 1.0 · 원문은 『사기』·『논어』 백문, 풀이·그림은 자체 제작'),

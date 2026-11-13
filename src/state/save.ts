@@ -15,6 +15,8 @@ export interface SaveData {
   settings: Settings;
   /** 날짜별 푼 문제 수 (최근 60일만 보관) */
   daily: Record<string, { answered: number; correct: number }>;
+  /** 첫 고사 진행 단계를 처음 도달한 날짜 (engine/funnel.ts) */
+  events: Record<string, string>;
 }
 
 export interface Settings {
@@ -36,7 +38,7 @@ export const SAVE_KEY = 'gojeon-yeoljeon:save';
 export function defaultSave(): SaveData {
   return {
     version: 1, stars: {}, heroes: {}, cards: {}, streak: { last: '', count: 0 }, puzzleBest: 0, partyHeroId: null,
-    wordbook: [], settings: { large: false, sound: true, dailyGoal: 10, reminder: null }, daily: {},
+    wordbook: [], settings: { large: false, sound: true, dailyGoal: 10, reminder: null }, daily: {}, events: {},
   };
 }
 
@@ -66,6 +68,9 @@ function sanitize(raw: unknown): SaveData {
   }
   for (const [k, v] of Object.entries(r.daily ?? {})) {
     if (/^\d{4}-\d{2}-\d{2}$/.test(k) && v && typeof v.answered === 'number') d.daily[k] = { answered: v.answered, correct: Number(v.correct) || 0 };
+  }
+  for (const [k, v] of Object.entries(r.events ?? {})) {
+    if (/^[a-z0-9_]{1,24}$/.test(k) && typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) d.events[k] = v;
   }
   return d;
 }

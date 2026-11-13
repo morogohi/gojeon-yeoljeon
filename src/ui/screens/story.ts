@@ -14,6 +14,8 @@ import { tappableText, openHanjaSheet } from '../hanjaSheet';
 import { speak } from '../speech';
 import { recordAnswers } from '../../engine/stats';
 import { shareIdiomCard } from '../shareCard';
+import { track } from '../../state/track';
+import { FIRST_STORY, type FunnelKey } from '../../engine/funnel';
 import type { Screen } from '../../state/router';
 
 export function storyScreen(args: string[]): Screen {
@@ -27,11 +29,14 @@ export function storyScreen(args: string[]): Screen {
   const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
   const rng = createRng(app.seed());
   const playable = isUnlocked(app.save, story);
+  // 첫 고사에서만 진행 단계를 남긴다 (어디서 멈추는지 보기 위해)
+  const step = (key: FunnelKey) => { if (story.id === FIRST_STORY) track(key); };
 
   if (playable) showScene(0);
   else showOriginal(false);
 
   function showScene(i: number) {
+    if (i === 0) step('s1_scene');
     const scene = story!.scenes[i];
     const dots = h('div', { class: 'dots' }, ...story!.scenes.map((_, k) => h('i', { class: k <= i ? 'on' : '' })));
     const panel = h('section', { class: 'scene card' },
@@ -48,6 +53,7 @@ export function storyScreen(args: string[]): Screen {
       h('button', {
         class: 'choice', 'data-correct': app.e2e && o.correct ? '1' : undefined,
         onclick: () => {
+          step('s1_choice');
           opts.forEach((b, k) => {
             b.disabled = true;
             if (scene.choice!.options[k].correct) b.classList.add('right');
@@ -66,6 +72,7 @@ export function storyScreen(args: string[]): Screen {
 
   function showOriginal(bonusHp: boolean) {
     const s = story!;
+    if (playable) step('s1_original');
     replace(body,
       h('section', { class: 'original card' },
         h('p', { class: 'eyebrow' }, `원문 ${s.source}`),
@@ -103,6 +110,7 @@ export function storyScreen(args: string[]): Screen {
   }
 
   function startBattle(bonusHp: boolean) {
+    step('s1_battle');
     const partyId = app.save.partyHeroId;
     const hero = partyId && app.save.heroes[partyId] ? getHero(partyId) : null;
     const uses = hero ? skillUsesFor(app.save.heroes[hero.id].level) : 0;
@@ -157,6 +165,7 @@ export function storyScreen(args: string[]): Screen {
       const view = questionView(q, { removed: s.removed, hint: s.hint }, (choice) => {
         const res = answer(s, choice);
         s = res.state;
+        step(`s1_q${s.index}` as FunnelKey);
         view.reveal(choice);
         paintStatus();
         if (res.correct) {
@@ -196,6 +205,8 @@ export function storyScreen(args: string[]): Screen {
       const res = applyClear(save, story!, st);
       save = res.save;
       commit(save);
+      if (s.won) step('s1_clear');
+      if (res.newHero) step('s1_hero');
       showResult(s, st, res.newHero, res.levelUp);
     }
   }

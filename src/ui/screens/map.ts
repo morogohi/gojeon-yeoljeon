@@ -33,10 +33,11 @@ export function mapScreen(args: string[]): Screen {
     ),
   );
   el.appendChild(h('section', { class: 'season', 'data-testid': 'season-teaser' },
-    h('p', { class: 'season-label' }, '다음 시즌 준비 중'),
-    h('h3', null, '맹자·장자 — 제자백가의 논쟁'),
-    h('p', { class: 'season-idioms' }, '五十步百步 · 緣木求魚 · 浩然之氣 · 胡蝶之夢 · 朝三暮四'),
-    h('p', { class: 'season-note' }, '토론 배틀 모드와 함께 찾아온다. 그 뒤로 한비자·전국책, 삼국지가 이어진다.'),
+    h('p', { class: 'season-label' }, '확장팩 준비 중'),
+    h('h3', null, '사기의 명장들'),
+    h('p', { class: 'season-idioms' }, '國士無雙 · 破釜沈舟 · 鴻門之宴 · 先則制人'),
+    h('p', { class: 'season-note' }, '한신·항우·유방·범증, 초한전쟁의 명장 이야기를 묶은 확장팩. 그 뒤로 맹자·장자(제자백가의 논쟁), 삼국지가 이어진다.'),
+    h('p', { class: 'season-free' }, '지금의 사기·논어 12편은 앞으로도 무료다.'),
   ));
   return { el };
 }

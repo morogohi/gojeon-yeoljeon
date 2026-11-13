@@ -1,6 +1,7 @@
 import './ui/styles.css';
 import { startRouter, parseHash } from './state/router';
 import { app, startSession } from './state/store';
+import { track } from './state/track';
 import { dueQueue } from './engine/srs';
 import { h } from './ui/dom';
 import { homeScreen } from './ui/screens/home';
@@ -19,10 +20,11 @@ font.href = 'https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Se
 document.head.appendChild(font);
 
 startSession();
+track('first_open');
 
 const TABS = [
-  { route: 'home', href: '#home', glyph: '書', label: '서고' },
-  { route: 'map', href: '#map-sagi', glyph: '傳', label: '열전' },
+  { route: 'home', href: '#home', glyph: '書', label: '서고', hint: '내 학습 현황' },
+  { route: 'map', href: '#map-sagi', glyph: '傳', label: '열전', hint: '고사 목록' },
   { route: 'review', href: '#review', glyph: '習', label: '복습' },
   { route: 'codex', href: '#codex-heroes', glyph: '錄', label: '도감' },
   { route: 'puzzle', href: '#puzzle', glyph: '字', label: '퍼즐' },
@@ -35,10 +37,14 @@ function paintTabs(): void {
   const { name } = parseHash(location.hash);
   document.body.dataset.route = name || 'home';
   const due = dueQueue(app.save.cards, app.today).length;
+  // 처음 고사를 복원할 때까지만 '서고·열전'의 용도를 풀어 쓴다
+  const onboarding = !Object.values(app.save.stars).some((x) => x > 0);
+  tabbar.classList.toggle('with-hints', onboarding);
   tabbar.replaceChildren(...TABS.map((t) =>
     h('a', { class: `tab-item${t.route === name ? ' active' : ''}`, href: t.href, 'data-testid': `tab-${t.route}`, 'aria-current': t.route === name ? 'page' : undefined },
       h('span', { class: 'tab-glyph' }, t.glyph),
       h('span', { class: 'tab-label' }, t.label),
+      onboarding && 'hint' in t ? h('span', { class: 'tab-hint' }, t.hint) : null,
       t.route === 'review' && due ? h('span', { class: 'badge', 'data-testid': 'review-badge' }, String(due)) : null,
     )));
 }

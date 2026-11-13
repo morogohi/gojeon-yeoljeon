@@ -26,8 +26,38 @@ export function homeScreen(): Screen {
     }),
   );
 
+  const gear = h('a', { class: 'gear', href: '#settings', 'data-testid': 'open-settings' }, h('span', { class: 'gear-hanja', 'aria-hidden': 'true' }, '設'), '설정');
+
+  // 첫 방문(아직 복원한 고사가 없음): 기록 대신 첫 고사로 바로 안내한다
+  if (!Object.values(app.save.stars).some((x) => x > 0)) {
+    const el = h('main', { class: 'screen home first', 'data-testid': 'home-first' },
+      gear,
+      h('header', { class: 'home-head' },
+        h('h1', { class: 'title-vertical', 'aria-label': '고전열전' }, '古典列傳'),
+        h('div', { class: 'first-intro' },
+          h('p', { class: 'first-lead' }, '하루 10분, 이야기로 고사성어 하나를 익혀요.'),
+          h('p', { class: 'first-sub' }, '사기와 논어의 장면 속 인물이 되어 선택하고, 원문을 읽고, 한자 대전으로 익힌다.'),
+        ),
+      ),
+      h('a', { class: 'first-start', href: '#story-sagi-01', 'data-testid': 'first-start' },
+        artEl('sagi-01', { plain: true, cls: 'first-art' }),
+        h('span', { class: 'first-hook' }, '인상여는 진나라 왕에게서 보물을 되찾을 수 있을까요?'),
+        h('span', { class: 'first-cta' }, '첫 고사 시작 · 완벽귀조'),
+      ),
+      h('ol', { class: 'first-steps', 'aria-label': '한 고사의 진행' },
+        h('li', null, h('b', null, '장면'), h('span', null, '인물의 선택을 고른다')),
+        h('li', null, h('b', null, '원문'), h('span', null, '한자를 누르면 뜻과 소리')),
+        h('li', null, h('b', null, '대전'), h('span', null, '한자 문제 8개')),
+        h('li', null, h('b', null, '합류'), h('span', null, '인물이 동료가 된다')),
+      ),
+      h('a', { class: 'first-browse', href: '#map-sagi' }, '다른 고사 둘러보기'),
+      h('p', { class: 'first-note' }, '가입 없이 이 기기에 저장된다. 다른 기기로는 설정의 백업 코드로 옮길 수 있다.'),
+    );
+    return { el };
+  }
+
   const el = h('main', { class: 'screen home' },
-    h('a', { class: 'gear', href: '#settings', 'aria-label': '설정', 'data-testid': 'open-settings' }, '設'),
+    gear,
     h('header', { class: 'home-head' },
       h('h1', { class: 'title-vertical', 'aria-label': '고전열전' }, '古典列傳'),
       h('div', { class: 'home-meta' },

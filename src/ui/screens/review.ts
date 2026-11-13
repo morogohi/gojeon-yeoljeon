@@ -6,6 +6,8 @@ import { createRng } from '../../engine/rng';
 import { questionView } from '../quiz';
 import type { Screen } from '../../state/router';
 import { recordAnswers, mistakes } from '../../engine/stats';
+import { isNextDayReview } from '../../engine/funnel';
+import { track } from '../../state/track';
 
 export function reviewScreen(args: string[] = []): Screen {
   // focus: 단어장 + 오답 노트에서 골라 집중 복습 (날짜와 상관없이)
@@ -60,6 +62,7 @@ export function reviewScreen(args: string[] = []): Screen {
       view.reveal(choice);
       if (ok) right += 1;
       commit(recordAnswers({ ...app.save, cards: { ...app.save.cards, [key]: review(app.save.cards[key], ok, app.today) } }, app.today, 1, ok ? 1 : 0));
+      if (isNextDayReview(app.save, app.today)) track('review_next_day');
       i += 1;
       if (ok) {
         replace(fb, h('p', { class: 'good' }, '기억났다! ', q.explain));

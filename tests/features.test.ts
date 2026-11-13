@@ -74,3 +74,26 @@ describe('U-19 백업 코드·예전 세이브 호환', () => {
     expect(glossOf('則')!.eum).toBe('즉');
   });
 });
+
+import { markStep, isNextDayReview, funnelSummary, FUNNEL_STEPS } from '../src/engine/funnel';
+describe('U-20 첫 고사 진행 단계', () => {
+  it('처음 도달한 날짜만 남기고 다시 기록하지 않는다', () => {
+    let r = markStep(defaultSave(), 's1_scene', '2026-11-11');
+    expect(r.first).toBe(true);
+    r = markStep(r.save, 's1_scene', '2026-11-12');
+    expect(r.first).toBe(false);
+    expect(r.save.events.s1_scene).toBe('2026-11-11');
+  });
+  it('첫 고사를 복원한 다음 날 이후의 복습만 재방문으로 본다', () => {
+    const s = markStep(defaultSave(), 's1_clear', '2026-11-11').save;
+    expect(isNextDayReview(s, '2026-11-11')).toBe(false);
+    expect(isNextDayReview(s, '2026-11-12')).toBe(true);
+    expect(isNextDayReview(defaultSave(), '2026-11-12')).toBe(false);
+  });
+  it('요약은 16단계, 백업에도 함께 옮겨진다', () => {
+    const s = markStep(defaultSave(), 'first_open', '2026-11-11').save;
+    expect(funnelSummary(s)).toHaveLength(FUNNEL_STEPS.length);
+    expect(FUNNEL_STEPS).toHaveLength(16);
+    expect(importCode(exportCode(s))!.events).toEqual({ first_open: '2026-11-11' });
+  });
+});
