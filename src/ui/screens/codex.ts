@@ -72,7 +72,7 @@ export function codexScreen(args: string[]): Screen {
         : h('a', { class: 'hanja-cell m1 idiom-cell', href: `#story-${w.key.slice(2)}` },
           h('span', { class: 'char' }, STORIES.find((s) => s.id === w.key.slice(2))?.idiom ?? ''), h('em', { class: 'cell-badge' }, `${w.lapses}번`))))
       : h('p', { class: 'hint-line' }, '대전과 복습에서 틀린 글자가 자동으로 모인다.'),
-    app.save.wordbook.length || wrong.length ? h('a', { class: 'btn primary big', href: '#review-focus', 'data-testid': 'focus-review' }, '단어장·오답만 집중 복습') : null,
+    app.save.wordbook.length || wrong.length ? h('a', { class: 'btn primary big', href: '#review-focus-words', 'data-testid': 'focus-review' }, '단어장·오답만 집중 복습') : null,
   );
 
   const hints: Record<string, string> = {

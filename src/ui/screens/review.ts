@@ -11,12 +11,15 @@ import { track } from '../../state/track';
 
 export function reviewScreen(args: string[] = []): Screen {
   // focus: 단어장 + 오답 노트에서 골라 집중 복습 (날짜와 상관없이)
-  const focus = args[0] === 'focus';
+  const focus = (args[0] ?? '').startsWith('focus');
+  // 집중 복습의 '뒤로'는 들어온 화면으로: focus-report → 주간 기록, focus-review → 복습, 그 밖 → 단어장
+  const from = (args[0] ?? '').slice('focus-'.length);
+  const backTo = from === 'report' ? '#report' : from === 'review' ? '#review' : '#codex-words';
   const queue = focus
     ? [...new Set([...app.save.wordbook.map((c) => `h:${c}`), ...mistakes(app.save).map((m) => m.key)])].slice(0, 15)
     : dueQueue(app.save.cards, app.today);
   const body = h('div', { class: 'review-body' });
-  const el = h('main', { class: 'screen review' }, topbar(focus ? '집중 복습' : '복습', focus ? '#codex-words' : null), body);
+  const el = h('main', { class: 'screen review' }, topbar(focus ? '집중 복습' : '복습', focus ? backTo : null), body);
   const timers: number[] = [];
   const rng = createRng(app.seed());
 
@@ -38,7 +41,7 @@ export function reviewScreen(args: string[] = []): Screen {
       h('h2', null, '오늘 복습은 끝났다'),
       h('p', null, upcoming ? `다음 정기 복습은 ${upcoming}에 열린다.` : '캠페인에서 고사를 하나 복원하면 복습 카드가 생긴다.'),
       focusCount
-        ? h('a', { class: 'btn primary', href: '#review-focus', 'data-testid': 'to-focus' }, `단어장·오답 ${focusCount}개 지금 복습하기`)
+        ? h('a', { class: 'btn primary', href: '#review-focus-review', 'data-testid': 'to-focus' }, `단어장·오답 ${focusCount}개 지금 복습하기`)
         : h('a', { class: 'btn primary', href: '#map-sagi' }, '캠페인으로'),
       focusCount ? h('a', { class: 'btn', href: '#map-sagi', style: 'margin-top:8px' }, '캠페인으로') : null,
     ));

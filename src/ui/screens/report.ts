@@ -42,7 +42,7 @@ export function reportScreen(): Screen {
       ? h('section', { class: 'card' },
         h('p', { class: 'eyebrow' }, '자주 틀린 글자'),
         h('p', { class: 'weak' }, weak.map((w) => w.key.slice(2)).join('  ')),
-        h('a', { class: 'btn primary', href: '#review-focus' }, '틀린 글자만 다시 풀기'))
+        h('a', { class: 'btn primary', href: '#review-focus-report', 'data-testid': 'report-focus' }, '틀린 글자만 다시 풀기'))
       : null,
     h('button', { class: 'btn big', 'data-testid': 'report-share', onclick: async () => { msg.textContent = await shareText('고전열전 학습 기록', reportText(r, rank.name)); } }, '보호자·친구에게 기록 보내기'),
     msg,

@@ -112,3 +112,41 @@ test('E-12 접근성: 탭 선택 상태, 남은 생명 수치 안내, 퍼즐 연
   await page.waitForTimeout(1500);
   await expect(page.getByTestId('clock')).toHaveText('연습');
 });
+
+test('E-13 결과·홈·기록의 한자 수가 같고, 집중 복습의 뒤로는 들어온 곳으로 간다', async ({ page }) => {
+  await page.goto(`${DAY}#story-sagi-01`);
+  await page.locator('.scene').waitFor();
+  while (!(await page.locator('.choice').first().isVisible())) await page.getByTestId('next').click();
+  await page.locator('.choice[data-correct="1"]').click();
+  await page.getByTestId('to-original').click();
+  await page.getByTestId('start-battle').click();
+  // 1번은 일부러 틀리고 나머지는 맞힌다 (평가 재현: 7/8)
+  await page.locator('.opt:not([data-correct])').first().click();
+  await page.getByTestId('continue').click();
+  for (let i = 2; i <= 8; i++) {
+    await expect(page.locator('.q-progress')).toHaveText(`${i} / 8`);
+    await page.locator('.opt[data-correct="1"]').click();
+  }
+  const met = page.getByTestId('met-hanja');
+  await expect(met).toContainText('이번 고사에서 만난 한자 4자 · 익힘 3 · 다시 볼 글자 1');
+
+  await page.goto(`${DAY}#home`);
+  await expect(page.getByTestId('learned-count')).toHaveText('익힌 한자 3자 / 44자');
+  await page.goto(`${DAY}#report`);
+  await expect(page.getByTestId('report-stats')).toContainText('3자');
+
+  await page.getByTestId('report-focus').click();
+  await expect(page.locator('.review-progress')).toBeVisible();
+  await page.locator('.back').click();
+  await expect(page).toHaveURL(/#report$/);
+
+  await page.goto(`${DAY}#codex-words`);
+  await page.getByTestId('focus-review').click();
+  await page.locator('.back').click();
+  await expect(page).toHaveURL(/#codex-words$/);
+
+  await page.goto(`${DAY}#review`);
+  await page.getByTestId('to-focus').click();
+  await page.locator('.back').click();
+  await expect(page).toHaveURL(/#review$/);
+});

@@ -538,3 +538,6 @@ body.large .today-meaning, body.large .idiom-meaning { font-size: 16px; }
 .funnel-list li { display: flex; justify-content: space-between; padding: 6px 4px; border-bottom: 1px solid var(--night-3); color: var(--moon-2); }
 .funnel-list li.reached { color: var(--moon); }
 body:has(.tabbar.with-hints) .screen { padding-bottom: calc(108px + env(safe-area-inset-bottom)); }
+.chip.missed { background: #ecc3ba; }
+.chip em { font-style: normal; font-size: 12px; color: var(--cinnabar); }
+.chip-note { margin: 8px 0 0; font-size: 13px; color: var(--ink-2); }

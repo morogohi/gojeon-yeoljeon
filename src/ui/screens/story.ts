@@ -216,7 +216,10 @@ export function storyScreen(args: string[]): Screen {
     const hero = getHero(st0.heroId);
     const list = storiesOf(st0.book);
     const next = list[list.findIndex((x) => x.id === st0.id) + 1] as Story | undefined;
-    const correctChars = [...new Set(s.log.filter((l) => l.correct && l.cardKey.startsWith('h:')).map((l) => l.cardKey.slice(2)))];
+    // 복습 카드와 같은 기준: 이번 판에서 한 번이라도 틀린 글자는 '다시 볼 글자'
+    const met = [...new Set(s.log.filter((l) => l.cardKey.startsWith('h:')).map((l) => l.cardKey.slice(2)))];
+    const missed = new Set(s.log.filter((l) => !l.correct && l.cardKey.startsWith('h:')).map((l) => l.cardKey.slice(2)));
+    const learnedNow = met.filter((c) => !missed.has(c));
     replace(body,
       h('section', { class: `result card ${s.won ? 'win' : 'lose'}`, 'data-testid': 'result' },
         h('div', { class: `stamp ${s.won ? 'stamp-win' : 'stamp-lose'}`, 'aria-hidden': 'true' }, s.won ? '復元' : '退却'),
@@ -232,10 +235,12 @@ export function storyScreen(args: string[]): Screen {
           h('p', { class: 'skill-desc' }, `${hero.skillName}: ${hero.skillDesc}`),
         )
         : null,
-      correctChars.length
-        ? h('section', { class: 'card' },
-          h('p', { class: 'eyebrow' }, '되찾은 한자'),
-          h('div', { class: 'chips' }, ...correctChars.map((c) => h('button', { class: 'chip', onclick: () => openHanjaSheet(c) }, h('b', null, c), ` ${hunEum(getHanja(c))}`))),
+      met.length
+        ? h('section', { class: 'card', 'data-testid': 'met-hanja' },
+          h('p', { class: 'eyebrow' }, `이번 고사에서 만난 한자 ${met.length}자 · 익힘 ${learnedNow.length}${missed.size ? ` · 다시 볼 글자 ${missed.size}` : ''}`),
+          h('div', { class: 'chips' }, ...met.map((c) => h('button', { class: `chip${missed.has(c) ? ' missed' : ''}`, onclick: () => openHanjaSheet(c) },
+            h('b', null, c), ` ${hunEum(getHanja(c))}`, missed.has(c) ? h('em', null, ' 다시 보기') : null))),
+          missed.size ? h('p', { class: 'chip-note' }, '틀린 글자는 내일 복습에 다시 나오고, 맞히면 익힌 한자로 셈한다.') : null,
         )
         : null,
       h('section', { class: 'card modern' },

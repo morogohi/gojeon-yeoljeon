@@ -67,7 +67,7 @@ export function homeScreen(): Screen {
       ),
     ),
     scroll,
-    h('p', { class: 'scroll-note' }, `흩어진 글자 ${HANJA.length}자 중 ${learned}자를 되찾았다`),
+    h('p', { class: 'scroll-note', 'data-testid': 'learned-count' }, `익힌 한자 ${learned}자 / ${HANJA.length}자`),
     next
       ? h('a', { class: 'continue', href: `#story-${next.id}`, 'data-testid': 'continue-story' },
         h('span', { class: 'continue-label' }, (app.save.stars[next.id] ?? 0) ? '별 3개에 도전하기' : '다음 고사 이어 하기'),
