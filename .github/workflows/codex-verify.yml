@@ -1,0 +1,114 @@
+# Codex 독립 검증(재사용). 필수 검사가 끝난 같은 커밋을 검증한다.
+# - 이 작업은 저장소 읽기 권한만 가진다. Codex 는 qa-output/ 밖을 바꾸면 보고서가 무효가 된다.
+# - OPENAI_API_KEY 가 없거나 실행이 실패하면 BLOCKED 보고서를 쓴다(통과로 표시하지 않는다).
+name: Codex 독립 검증
+
+on:
+  workflow_call:
+    inputs:
+      ref: { type: string, required: true }
+      artifact_prefix: { type: string, required: true }
+      mode: { description: 'codex(실제) | stub(자가 점검, AI 미사용)', type: string, default: codex }
+      task: { type: string, default: '' }
+      simulate_missing_credentials: { description: 인증정보 없음 경로 점검용, type: boolean, default: false }
+    secrets:
+      OPENAI_API_KEY: { required: false }
+    outputs:
+      verdict: { value: '${{ jobs.verify.outputs.verdict }}' }
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Codex 독립 검증 (${{ inputs.mode }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      verdict: ${{ steps.result.outputs.verdict }}
+    env:
+      COMMIT: ${{ inputs.ref }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ inputs.ref }}', persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: 필수 검사 결과 받기
+        uses: actions/download-artifact@v4
+        with: { name: '${{ inputs.artifact_prefix }}-checks', path: . }
+      - name: 빌드 산출물 받기
+        uses: actions/download-artifact@v4
+        with: { name: '${{ inputs.artifact_prefix }}-site', path: dist-site }
+      - name: 검사 결과가 이 커밋의 것인지 확인
+        run: node scripts/qa/qa.mjs validate checks qa-output/checks.json --commit "$COMMIT"
+
+      - name: 자가 점검 검증기 (AI 미사용)
+        if: inputs.mode == 'stub'
+        run: node scripts/qa/qa.mjs stub-verify
+
+      - id: cred
+        if: inputs.mode == 'codex'
+        env:
+          HAS_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
+          SIMULATE: ${{ inputs.simulate_missing_credentials }}
+        run: |
+          if [ "$HAS_KEY" != true ] || [ "$SIMULATE" = true ]; then
+            node scripts/qa/qa.mjs blocked --reason "OPENAI_API_KEY 시크릿이 없음(credential missing)"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: 프롬프트·출력 스키마 준비
+        if: steps.cred.outputs.ok == 'true'
+        env:
+          TASK: ${{ inputs.task }}
+        run: |
+          node scripts/qa/qa.mjs prompt --template .github/ai/prompts/codex-verify.md --out "$RUNNER_TEMP/codex-prompt.md"
+          node scripts/qa/qa.mjs codex-schema --out "$RUNNER_TEMP/codex-output.schema.json"
+          npx playwright install --with-deps chromium
+          rm -f qa-output/codex.json
+      - id: codex
+        if: steps.cred.outputs.ok == 'true'
+        continue-on-error: true
+        timeout-minutes: 25
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          prompt-file: ${{ runner.temp }}/codex-prompt.md
+          output-file: qa-output/codex.json
+          output-schema-file: ${{ runner.temp }}/codex-output.schema.json
+          sandbox: workspace-write
+          safety-strategy: drop-sudo
+          model: ${{ vars.CODEX_MODEL }}
+          effort: ${{ vars.CODEX_EFFORT || 'medium' }}
+          codex-args: '["-c","sandbox_workspace_write.network_access=true"]'
+      - name: Codex 실행 실패·빈 응답 → BLOCKED
+        if: steps.cred.outputs.ok == 'true' && (steps.codex.outcome != 'success' || hashFiles('qa-output/codex.json') == '')
+        env:
+          OUTCOME: ${{ steps.codex.outcome }}
+        run: node scripts/qa/qa.mjs blocked --reason "Codex 실행 실패 또는 응답 없음(인증·연결·사용 한도·시간 초과 확인) outcome=${OUTCOME}"
+      - name: Codex 가 제품 파일을 바꿨는지 확인
+        if: steps.cred.outputs.ok == 'true'
+        run: node scripts/qa/qa.mjs codex-scope
+
+      - id: result
+        if: always()
+        run: |
+          if node scripts/qa/qa.mjs validate codex-report qa-output/codex.json; then
+            echo "verdict=$(node -p "require('./qa-output/codex.json').verdict")" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=INVALID" >> "$GITHUB_OUTPUT"
+          fi
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-codex
+          path: |
+            qa-output/codex.json
+            qa-output/codex-raw.json
+            qa-output/codex-scope.json
+            qa-output/codex/
+            qa-output/proposed-tests/
+          retention-days: 14
+          if-no-files-found: warn

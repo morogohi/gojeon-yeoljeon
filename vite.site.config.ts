@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { buildMeta } from './build-meta';
 
 // 홍보·안내 사이트. 게임 빌드(dist)는 scripts/assemble-site.mjs 가 /play 로 넣는다.
 export default defineConfig({
   root: 'site',
+  plugins: [buildMeta()],
   base: './',
   build: {
     outDir: '../dist-site',

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gojeon.local/qa/final-report.schema.json",
+  "title": "반복 회차 최종 판정",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "commit",
+    "branch",
+    "dry_run",
+    "iteration",
+    "max_iterations",
+    "verdict",
+    "stop_reason",
+    "next_action",
+    "checks_verdict",
+    "codex_verdict",
+    "develop_status",
+    "guard_ok",
+    "defects",
+    "fingerprint",
+    "previous_fingerprints",
+    "evidence",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "commit": {
+      "type": "string"
+    },
+    "branch": {
+      "type": "string"
+    },
+    "iteration": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "max_iterations": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ]
+    },
+    "stop_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        null,
+        "limit_reached",
+        "repeated_failure",
+        "guard_violation",
+        "invalid_report",
+        "blocked_missing_credentials",
+        "blocked_tool_error",
+        "insufficient_evidence",
+        "requirement_conflict"
+      ]
+    },
+    "next_action": {
+      "type": "string",
+      "enum": [
+        "pr",
+        "retry",
+        "stop"
+      ]
+    },
+    "checks_verdict": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "NOT_RUN"
+      ]
+    },
+    "codex_verdict": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "NOT_RUN"
+      ]
+    },
+    "develop_status": {
+      "type": "string",
+      "enum": [
+        "done",
+        "no_change",
+        "blocked",
+        "error",
+        "skipped"
+      ]
+    },
+    "guard_ok": {
+      "type": "boolean"
+    },
+    "defects": {
+      "type": "array",
+      "items": {
+        "$ref": "https://gojeon.local/qa/codex-report.schema.json#/$defs/defect"
+      }
+    },
+    "fingerprint": {
+      "type": "string"
+    },
+    "previous_fingerprints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dry_run": {
+      "type": "boolean",
+      "description": "true: AI 대신 결정적 스텁으로 흐름만 점검한 결과(제품 통과 판정 아님)"
+    }
+  }
+}

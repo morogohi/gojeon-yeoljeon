@@ -26,7 +26,7 @@ function playAll(s: BattleState, wrongAt: number[] = []): BattleState {
 }
 
 describe('U-01 rng', () => {
-  it('같은 시드는 같은 수열, 범위 [0,1)', () => {
+  it('U-20 같은 시드는 같은 수열, 범위 [0,1)', () => {
     const a = createRng(42), b = createRng(42);
     for (let i = 0; i < 1000; i++) {
       const x = a();
@@ -64,7 +64,7 @@ describe('문제 생성', () => {
     expect(battleQuestions(createRng(9), S1)).toEqual(battleQuestions(createRng(9), S1));
   });
 
-  it('빈칸 문제의 정답은 성어의 빈칸 글자', () => {
+  it('U-21 빈칸 문제의 정답은 성어의 빈칸 글자', () => {
     const q = battleQuestions(createRng(3), S1)[6];
     const pos = [...q.prompt].indexOf('□');
     expect(q.options[q.answer]).toBe([...S1.idiom][pos]);
@@ -97,7 +97,7 @@ describe('한자 대전', () => {
     expect(starsOf(playAll(createBattle(qs()), [0, 5]))).toBe(1);
   });
 
-  it('장면 보너스로 체력 4', () => {
+  it('U-22 장면 보너스로 체력 4', () => {
     expect(createBattle(qs(), { bonusHp: true }).hp).toBe(4);
   });
 
@@ -130,14 +130,14 @@ describe('한자 대전', () => {
     expect(canUseSkill(s)).toBe(false);
   });
 
-  it('insight는 정답의 첫 글자를 보여 준다', () => {
+  it('U-23 insight는 정답의 첫 글자를 보여 준다', () => {
     const s = useSkill(createBattle(qs(), { skill: 'insight', skillUses: 2 }), createRng(2));
     expect(s.hint).toBe([...s.questions[0].options[s.questions[0].answer]][0]);
   });
 });
 
 describe('U-10·11 간격 반복', () => {
-  it('정답 1일 → 3일 → ×ease', () => {
+  it('U-24 정답 1일 → 3일 → ×ease', () => {
     let c = review(undefined, true, TODAY);
     expect([c.interval, c.due, c.reps]).toEqual([1, '2026-11-10', 1]);
     c = review(c, true, '2026-11-10');
@@ -146,14 +146,14 @@ describe('U-10·11 간격 반복', () => {
     expect(c.interval).toBe(8); // round(3 × 2.5)
   });
 
-  it('오답: 1일, ease −0.2, 하한 1.3, lapses +1', () => {
+  it('U-25 오답: 1일, ease −0.2, 하한 1.3, lapses +1', () => {
     let c = review(review(undefined, true, TODAY), false, TODAY);
     expect([c.interval, c.reps, c.lapses, c.ease]).toEqual([1, 0, 1, 2.3]);
     for (let i = 0; i < 10; i++) c = review(c, false, TODAY);
     expect(c.ease).toBe(MIN_EASE);
   });
 
-  it('복습 큐: due ≤ 오늘, 오름차순, 최대 10', () => {
+  it('U-26 복습 큐: due ≤ 오늘, 오름차순, 최대 10', () => {
     const cards: Record<string, ReturnType<typeof newCard>> = {};
     for (let i = 0; i < 15; i++) cards[`h:${HANJA[i].char}`] = { ...newCard(TODAY), due: addDays(TODAY, -i) };
     cards['h:未來'] = { ...newCard(TODAY), due: addDays(TODAY, 1) };
@@ -194,7 +194,7 @@ describe('보상·진행', () => {
     expect([24, 25, 59, 60, 99, 100].map((p) => rankOf(p).name)).toEqual(['견습 사관', '사관', '사관', '태사', '태사', '태사령']);
   });
 
-  it('같은 판에서 한 번이라도 틀린 카드는 오답 처리', () => {
+  it('U-27 같은 판에서 한 번이라도 틀린 카드는 오답 처리', () => {
     const s = applyLog(defaultSave(), [{ cardKey: 'h:璧', correct: true }, { cardKey: 'h:璧', correct: false }], TODAY);
     expect(s.cards['h:璧'].lapses).toBe(1);
   });
@@ -211,12 +211,12 @@ describe('보상·진행', () => {
 
 describe('U-15 성어 퍼즐', () => {
   const stories = STORIES.slice(0, 4);
-  it('16칸은 성어 4개의 글자', () => {
+  it('U-28 16칸은 성어 4개의 글자', () => {
     const p = createPuzzle(createRng(1), stories);
     expect(p.tiles.map((t) => t.char).sort()).toEqual(stories.flatMap((s) => [...s.idiom]).sort());
   });
 
-  it('접두 일치 유지, 불일치 초기화, 완성 점수, 전부 완성 보너스', () => {
+  it('U-29 접두 일치 유지, 불일치 초기화, 완성 점수, 전부 완성 보너스', () => {
     let p = createPuzzle(createRng(1), stories);
     const idOf = (ch: string, state = p) => state.tiles.find((t) => t.char === ch && !t.gone && !state.selection.includes(t.id))!.id;
     let r = tap(p, idOf('完'));
@@ -231,20 +231,20 @@ describe('U-15 성어 퍼즐', () => {
     expect(p.score).toBe(4 * IDIOM_SCORE + 30 * TIME_BONUS);
   });
 
-  it('개방 고사가 4개 미만이면 앞에서 채운다', () => {
+  it('U-30 개방 고사가 4개 미만이면 앞에서 채운다', () => {
     expect(pickPuzzleStories(createRng(1), [S1], STORIES)).toHaveLength(4);
   });
 });
 
 describe('U-16 세이브', () => {
-  it('저장 → 불러오기 왕복', () => {
+  it('U-31 저장 → 불러오기 왕복', () => {
     const kv = memKV();
     const s = applyClear(defaultSave(), S1, 3).save;
     expect(persistSave(kv, s)).toBe(true);
     expect(loadSave(kv)).toEqual(s);
   });
 
-  it('깨진 JSON·버전 불일치 → 새 세이브, 모르는 ID는 버림', () => {
+  it('U-32 깨진 JSON·버전 불일치 → 새 세이브, 모르는 ID는 버림', () => {
     const kv = memKV();
     kv.setItem(SAVE_KEY, '{oops');
     expect(loadSave(kv)).toEqual(defaultSave());
@@ -255,7 +255,7 @@ describe('U-16 세이브', () => {
     expect(loadSave(kv).heroes).toEqual({});
   });
 
-  it('저장소 오류에도 예외 없음', () => {
+  it('U-33 저장소 오류에도 예외 없음', () => {
     const bad: KV = { getItem: () => { throw new Error('denied'); }, setItem: () => { throw new Error('full'); } };
     expect(loadSave(bad)).toEqual(defaultSave());
     expect(persistSave(bad, defaultSave())).toBe(false);
@@ -265,7 +265,7 @@ describe('U-16 세이브', () => {
 
 import { parseHash } from '../src/state/router';
 describe('라우터 해시', () => {
-  it('#name-arg 형식을 나눈다', () => {
+  it('U-34 #name-arg 형식을 나눈다', () => {
     expect(parseHash('#story-sagi-01')).toEqual({ name: 'story', arg: 'sagi-01' });
     expect(parseHash('#home')).toEqual({ name: 'home', arg: '' });
     expect(parseHash('')).toEqual({ name: '', arg: '' });
@@ -274,7 +274,7 @@ describe('라우터 해시', () => {
 
 import { idiomPicture } from '../src/engine/questions';
 describe('그림 문제', () => {
-  it('그림 문제는 해당 고사의 삽화와 그 성어를 정답으로 가진다', () => {
+  it('U-35 그림 문제는 해당 고사의 삽화와 그 성어를 정답으로 가진다', () => {
     for (const story of STORIES) {
       const q = idiomPicture(createRng(4), story);
       expect(q.art).toBe(story.id);
@@ -282,7 +282,7 @@ describe('그림 문제', () => {
       expect(new Set(q.options).size).toBe(4);
     }
   });
-  it('복습의 성어 카드는 빈칸·뜻·그림 세 유형이 모두 나온다', () => {
+  it('U-36 복습의 성어 카드는 빈칸·뜻·그림 세 유형이 모두 나온다', () => {
     const kinds = new Set<string>();
     for (let seed = 0; seed < 60; seed++) kinds.add(reviewQuestion(createRng(seed), 'i:sagi-01').kind);
     expect([...kinds].sort()).toEqual(['blank', 'meaning', 'picture']);
@@ -291,7 +291,7 @@ describe('그림 문제', () => {
 
 import { puzzlePool } from '../src/engine/puzzle';
 describe('퍼즐 범위', () => {
-  it('배운 성어만: 4편 이상이면 그 안에서, 모자라면 전체에서', () => {
+  it('U-37 배운 성어만: 4편 이상이면 그 안에서, 모자라면 전체에서', () => {
     const learned = STORIES.slice(0, 5);
     for (let seed = 0; seed < 20; seed++) {
       const p = puzzlePool(createRng(seed), 'learned', learned, STORIES);

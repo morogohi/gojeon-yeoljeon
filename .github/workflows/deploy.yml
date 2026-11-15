@@ -1,3 +1,7 @@
+# PR·main 공통 파이프라인. 필수 검사는 checks.yml 하나만 쓴다(중복 워크플로 없음).
+#   PR      : 필수 검사 → (같은 저장소 PR만) Codex 독립 검증 → 판정·커밋 상태
+#   main    : 필수 검사 → gh-pages 배포 → 공개 주소 핵심 기능 확인, Android 빌드
+# 외부(fork) PR 은 pull_request 이벤트라 비밀값이 없고 쓰기 권한도 없다. pull_request_target 은 쓰지 않는다.
 name: 테스트·웹 배포·앱 빌드
 
 on:
@@ -6,25 +10,111 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: deploy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  web:
-    name: 테스트 후 웹(홍보 페이지 + 게임) 배포
+  checks:
+    uses: ./.github/workflows/checks.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      artifact_prefix: ci
+
+  pr-verify:
+    needs: checks
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.checks.outputs.verdict == 'PASS'
+    uses: ./.github/workflows/codex-verify.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}
+      artifact_prefix: ci
+      mode: codex
+      task: 'PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}'
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  pr-verdict:
+    name: PR 판정 (PASS/FAIL/BLOCKED)
+    needs: [checks, pr-verify]
+    if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      statuses: write
     steps:
       - uses: actions/checkout@v4
+        with: { ref: '${{ github.event.pull_request.head.sha }}', fetch-depth: 0, persist-credentials: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
-      - run: npx playwright install --with-deps chromium
-      - run: npm run e2e
-      - name: gh-pages 브랜치에 배포
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      - run: npm ci --ignore-scripts && mkdir -p qa-output
+      - uses: actions/download-artifact@v4
+        with: { name: ci-checks, path: . }
+        continue-on-error: true
+      - if: needs.pr-verify.result != 'skipped'
+        uses: actions/download-artifact@v4
+        with: { name: ci-codex, path: qa-output }
+        continue-on-error: true
+      - name: 외부 PR·검사 실패 시 검증 상태 기록
+        if: needs.pr-verify.result == 'skipped'
+        env:
+          FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        run: |
+          if [ "$FORK" = true ]; then
+            node scripts/qa/qa.mjs blocked --reason "외부(fork) PR: 비밀값을 주지 않으므로 독립 검증을 하지 않음. 유지보수자가 내용을 확인한 뒤 브랜치로 옮겨 실행"
+          fi
+      - name: '가드 (사람 PR은 테스트 약화만 검사)'
+        run: |
+          echo '{"status":"skipped","tool":"none","iteration":1,"reason":"사람이 연 PR"}' > qa-output/develop.json
+          node scripts/qa/qa.mjs guard --base "${{ github.event.pull_request.base.sha }}" --human
+      - id: decide
+        env:
+          BRANCH: ${{ github.head_ref }}
+          ITERATION: '1'
+          MAX_ITERATIONS: '1'
+          TASK: 'PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}'
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node scripts/qa/qa.mjs decide
+      - name: 커밋 상태 게시 (같은 저장소 PR)
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.decide.outputs.verdict }}
+        run: |
+          case "$V" in PASS) s=success;; FAIL) s=failure;; *) s=error;; esac
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" -f state="$s" -f context="gojeon-qa/pr" \
+            -f description="QA ${V} (필수 검사 + Codex 독립 검증)" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-final
+          path: |
+            qa-output/final.json
+            qa-output/final.md
+            qa-output/guard.json
+          retention-days: 30
+
+  deploy:
+    name: gh-pages 배포
+    needs: checks
+    if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.checks.outputs.verdict == 'PASS'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: ci-site, path: dist-site }
+      - name: gh-pages 브랜치에 배포 (검사를 통과한 바로 그 빌드)
+        env:
+          TOKEN: ${{ github.token }}
         run: |
           cd dist-site
           git init -q -b gh-pages
@@ -32,16 +122,59 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -qm "배포: ${GITHUB_SHA::7}"
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
+          git push -qf "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git" gh-pages
+
+  public-smoke:
+    name: 배포 후 공개 주소 확인
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      PUBLIC_URL: https://morogohi.github.io/gojeon-yeoljeon/
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: 공개 사이트가 이 커밋으로 바뀔 때까지 대기 (최대 10분)
+        run: |
+          for i in $(seq 1 40); do
+            got=$(curl -fsS "${PUBLIC_URL}play/?nocache=$RANDOM" | grep -o 'name="build-sha" content="[0-9a-f]*"' | grep -o '[0-9a-f]\{40\}' || true)
+            [ "$got" = "$GITHUB_SHA" ] && { echo "공개 사이트 커밋 일치: $got"; exit 0; }
+            echo "대기 ${i}: 공개=${got:-없음} 기대=${GITHUB_SHA}"; sleep 15
+          done
+          echo "::error::10분 안에 공개 사이트가 ${GITHUB_SHA} 로 바뀌지 않았다"; exit 1
+      - run: npx playwright install --with-deps chromium
+      - name: 공개 주소 핵심 기능
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: npx playwright test -c playwright.public.config.ts
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-smoke
+          path: |
+            qa-output/public.json
+            playwright-report-public/
+            test-results-public/
+          retention-days: 14
 
   android:
     name: Android 앱 빌드 (APK·AAB)
     runs-on: ubuntu-latest
-    needs: web
+    needs: checks
+    if: always() && needs.checks.outputs.verdict == 'PASS'
+    timeout-minutes: 40
+    permissions:
+      contents: read
     env:
       VERSION_CODE: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
+        with: { persist-credentials: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - uses: actions/setup-java@v5
@@ -65,7 +198,6 @@ jobs:
           chmod +x gradlew
           set -o pipefail
           if ! ./gradlew --no-daemon --stacktrace assembleDebug bundleRelease 2>&1 | tee "$RUNNER_TEMP/gradle.log"; then
-            # 실패 원인을 공개 주석(annotation)으로 남겨 로그 없이도 확인할 수 있게 한다
             grep -E "What went wrong|error:|Error:|FAILURE|Could not|> " "$RUNNER_TEMP/gradle.log" | head -25 | while IFS= read -r line; do echo "::error::$line"; done
             exit 1
           fi

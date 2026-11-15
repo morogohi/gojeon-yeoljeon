@@ -1,0 +1,287 @@
+# 개발→검사→독립 검증→판정 한 회차(재사용). ai-loop.yml 이 회차마다 부른다.
+# 권한 분리
+#   develop : 코드 실행 + AI(Claude). 저장소 읽기만. push 불가.
+#   commit  : 가드 통과한 변경만 커밋·push. AI·비밀값 없음.
+#   checks  : 필수 검사. 비밀값 없음, 읽기만.
+#   verify  : Codex. OPENAI_API_KEY 만, 읽기만.
+#   decide  : 판정·커밋 상태 게시. 비밀값 없음.
+name: AI 반복 회차
+
+on:
+  workflow_call:
+    inputs:
+      iteration: { type: number, required: true }
+      prev_iteration: { description: 직전 회차 번호(첫 회차는 0), type: number, default: 0 }
+      max_iterations: { type: number, required: true }
+      branch: { type: string, required: true }
+      base_sha: { description: 반복 시작 시점의 커밋(가드 비교 기준), type: string, required: true }
+      task: { type: string, default: '' }
+      dev_mode: { description: 'claude | stub', type: string, required: true }
+      verify_mode: { description: 'codex | stub', type: string, required: true }
+      scenario: { type: string, default: '' }
+      simulate_missing_credentials: { type: boolean, default: false }
+      prev_fingerprints: { type: string, default: '' }
+    secrets:
+      ANTHROPIC_API_KEY: { required: false }
+      CLAUDE_CODE_OAUTH_TOKEN: { required: false }
+      OPENAI_API_KEY: { required: false }
+    outputs:
+      verdict: { value: '${{ jobs.decide.outputs.verdict }}' }
+      next_action: { value: '${{ jobs.decide.outputs.next_action }}' }
+      stop_reason: { value: '${{ jobs.decide.outputs.stop_reason }}' }
+      fingerprints: { value: '${{ jobs.decide.outputs.fingerprints }}' }
+      commit: { value: '${{ jobs.decide.outputs.commit }}' }
+
+permissions:
+  contents: read
+
+env:
+  P: ai-${{ inputs.iteration }}
+
+jobs:
+  develop:
+    name: ${{ inputs.iteration }}회차 개발 (${{ inputs.dev_mode }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ inputs.branch }}', fetch-depth: 0, persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci && mkdir -p qa-output .ai
+      - name: 직전 회차 판정 받기
+        if: inputs.iteration > 1
+        uses: actions/download-artifact@v4
+        with: { name: 'ai-${{ inputs.prev_iteration }}-final', path: '${{ runner.temp }}/prev' }
+
+      - name: 자가 점검 개발 스텁 (AI 미사용)
+        if: inputs.dev_mode == 'stub'
+        run: node scripts/qa/qa.mjs stub-dev --scenario "${{ inputs.scenario }}" --iteration ${{ inputs.iteration }} --prev "$RUNNER_TEMP/prev/final.json"
+
+      - id: cred
+        if: inputs.dev_mode == 'claude'
+        env:
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          SIMULATE: ${{ inputs.simulate_missing_credentials }}
+        run: |
+          if [ "$HAS_KEY" != true ] || [ "$SIMULATE" = true ]; then
+            echo '{"status":"blocked","tool":"none","iteration":${{ inputs.iteration }},"reason":"ANTHROPIC_API_KEY 또는 CLAUDE_CODE_OAUTH_TOKEN 시크릿이 없음(credential missing)"}' > qa-output/develop.json
+            echo "::warning::Claude 인증정보 없음 → BLOCKED"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - id: prompt
+        if: steps.cred.outputs.ok == 'true'
+        env:
+          TASK: ${{ inputs.task }}
+          PREV_ITERATION: ${{ inputs.prev_iteration }}
+          FINAL_JSON_PATH: ${{ runner.temp }}/prev/final.json
+          MODEL: ${{ vars.CLAUDE_MODEL }}
+          MAX_TURNS: ${{ vars.CLAUDE_MAX_TURNS || '40' }}
+        run: |
+          t=.github/ai/prompts/claude-implement.md
+          [ "${{ inputs.iteration }}" -gt 1 ] && t=.github/ai/prompts/claude-fix.md
+          node scripts/qa/qa.mjs prompt --template "$t" --out "$RUNNER_TEMP/claude-prompt.md"
+          {
+            echo 'text<<__PROMPT_END__'; cat "$RUNNER_TEMP/claude-prompt.md"; echo; echo '__PROMPT_END__'
+            args="--max-turns ${MAX_TURNS}"
+            [ -n "$MODEL" ] && args="$args --model ${MODEL}"
+            args="$args --allowedTools Read,Edit,MultiEdit,Write,Glob,Grep,LS,TodoWrite,Bash(npm run typecheck),Bash(npm test),Bash(npm run test:*),Bash(npm run build),Bash(npx vitest:*),Bash(npx tsc:*),Bash(npx playwright test:*),Bash(git diff:*),Bash(git status:*),Bash(git log:*)"
+            args="$args --disallowedTools WebFetch,WebSearch,Bash(git push:*),Bash(git commit:*),Bash(curl:*),Bash(wget:*)"
+            echo "args=$args"
+          } >> "$GITHUB_OUTPUT"
+      - name: 브라우저 설치 (Claude 가 E2E 를 직접 돌릴 수 있게)
+        if: steps.cred.outputs.ok == 'true'
+        run: npx playwright install --with-deps chromium
+      - id: claude
+        if: steps.cred.outputs.ok == 'true'
+        continue-on-error: true
+        timeout-minutes: 35
+        uses: anthropics/claude-code-action@v1
+        with:
+          prompt: ${{ steps.prompt.outputs.text }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          claude_args: ${{ steps.prompt.outputs.args }}
+      - name: Claude 결과 정리
+        if: steps.cred.outputs.ok == 'true'
+        env:
+          OUTCOME: ${{ steps.claude.outcome }}
+          IT: ${{ inputs.iteration }}
+        run: |
+          node - <<'JS'
+          const fs = require('fs'); const { execSync } = require('child_process');
+          const it = Number(process.env.IT);
+          let d;
+          const conflict = fs.existsSync('.ai/conflict.md') ? fs.readFileSync('.ai/conflict.md', 'utf8') : '';
+          if (process.env.OUTCOME !== 'success') d = { status: 'error', tool: 'claude', iteration: it, reason: `claude-code-action ${process.env.OUTCOME}(인증·사용 한도·시간 초과·턴 한도 확인)` };
+          else if (/requirement_conflict/.test(conflict)) { execSync('git checkout -- . && git clean -fdq -e .ai -e qa-output -e node_modules'); d = { status: 'blocked', tool: 'claude', iteration: it, reason: `requirement_conflict: ${conflict.replace(/\s+/g, ' ').slice(0, 400)}` }; }
+          else d = { status: execSync('git status --porcelain').toString().trim() ? 'done' : 'no_change', tool: 'claude', iteration: it, reason: '' };
+          fs.writeFileSync('qa-output/develop.json', JSON.stringify(d, null, 2));
+          JS
+      - name: 변경을 패치로 넘기기 (이 작업은 push 권한이 없다)
+        if: always()
+        run: |
+          [ -f qa-output/develop.json ] || echo '{"status":"error","tool":"none","iteration":${{ inputs.iteration }},"reason":"개발 단계가 결과를 남기지 못함"}' > qa-output/develop.json
+          node scripts/qa/qa.mjs validate develop-result qa-output/develop.json
+          git add -A
+          git diff --cached --binary > qa-output/change.patch
+          [ -f .ai/summary.md ] && cp .ai/summary.md qa-output/claude-summary.md || true
+          echo "변경 파일:"; git diff --cached --stat | tail -20
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-${{ inputs.iteration }}-develop
+          path: |
+            qa-output/develop.json
+            qa-output/change.patch
+            qa-output/claude-summary.md
+          retention-days: 14
+
+  commit:
+    name: ${{ inputs.iteration }}회차 가드·커밋
+    needs: develop
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      sha: ${{ steps.push.outputs.sha }}
+      proceed: ${{ steps.push.outputs.proceed }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ inputs.branch }}', fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@v4
+        with: { name: 'ai-${{ inputs.iteration }}-develop', path: qa-output }
+      - name: 패치 적용
+        run: |
+          [ -s qa-output/change.patch ] && git apply --index --binary qa-output/change.patch || true
+          git status --short
+      - id: guard
+        name: 가드 (테스트 삭제·약화, 검사 기준 변경 차단)
+        run: node scripts/qa/qa.mjs guard --base "${{ inputs.base_sha }}"
+      - id: push
+        env:
+          DEV: ${{ needs.develop.result }}
+        run: |
+          status=$(node -p "require('./qa-output/develop.json').status")
+          if [ "${{ steps.guard.outputs.ok }}" = true ] && ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -qm "ai: ${{ inputs.iteration }}회차 ${{ inputs.dev_mode }} 변경" -m "자동 반복 실행 ${{ github.run_id }}"
+            git push origin "HEAD:${{ inputs.branch }}"
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          # 개발이 차단·오류였거나 가드 위반이면 검사를 돌리지 않고 판정으로 넘긴다
+          if [ "${{ steps.guard.outputs.ok }}" = true ] && { [ "$status" = done ] || [ "$status" = no_change ]; }; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-${{ inputs.iteration }}-guard
+          path: qa-output/guard.json
+          retention-days: 14
+
+  checks:
+    needs: commit
+    if: always() && needs.commit.outputs.proceed == 'true'
+    uses: ./.github/workflows/checks.yml
+    permissions:
+      contents: read
+    with:
+      ref: ${{ needs.commit.outputs.sha }}
+      artifact_prefix: ai-${{ inputs.iteration }}
+
+  verify:
+    needs: [commit, checks]
+    if: always() && needs.checks.outputs.verdict == 'PASS'
+    uses: ./.github/workflows/codex-verify.yml
+    permissions:
+      contents: read
+    with:
+      ref: ${{ needs.commit.outputs.sha }}
+      artifact_prefix: ai-${{ inputs.iteration }}
+      mode: ${{ inputs.verify_mode }}
+      task: ${{ inputs.task }}
+      simulate_missing_credentials: ${{ inputs.simulate_missing_credentials }}
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  decide:
+    name: ${{ inputs.iteration }}회차 판정
+    needs: [develop, commit, checks, verify]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      statuses: write
+    outputs:
+      verdict: ${{ steps.decide.outputs.verdict }}
+      next_action: ${{ steps.decide.outputs.next_action }}
+      stop_reason: ${{ steps.decide.outputs.stop_reason }}
+      fingerprints: ${{ steps.decide.outputs.fingerprints }}
+      commit: ${{ steps.sha.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ needs.commit.outputs.sha || inputs.branch }}', persist-credentials: false }
+      - id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@v4
+        with: { name: 'ai-${{ inputs.iteration }}-develop', path: qa-output }
+        continue-on-error: true
+      - uses: actions/download-artifact@v4
+        with: { name: 'ai-${{ inputs.iteration }}-guard', path: qa-output }
+        continue-on-error: true
+      - if: needs.checks.result != 'skipped'
+        uses: actions/download-artifact@v4
+        with: { name: 'ai-${{ inputs.iteration }}-checks', path: . }
+        continue-on-error: true
+      - if: needs.verify.result != 'skipped'
+        uses: actions/download-artifact@v4
+        with: { name: 'ai-${{ inputs.iteration }}-codex', path: qa-output }
+        continue-on-error: true
+      - id: decide
+        env:
+          COMMIT: ${{ steps.sha.outputs.sha }}
+          BRANCH: ${{ inputs.branch }}
+          ITERATION: ${{ inputs.iteration }}
+          MAX_ITERATIONS: ${{ inputs.max_iterations }}
+          PREV_FINGERPRINTS: ${{ inputs.prev_fingerprints }}
+          DRY_RUN: ${{ inputs.verify_mode == 'stub' }}
+          TASK: ${{ inputs.task }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node scripts/qa/qa.mjs decide
+      - name: 커밋 상태 게시
+        if: always() && steps.decide.outputs.verdict != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.decide.outputs.verdict }}
+        run: |
+          case "$V" in PASS) s=success;; FAIL) s=failure;; *) s=error;; esac
+          gh api "repos/${{ github.repository }}/statuses/${{ steps.sha.outputs.sha }}" \
+            -f state="$s" -f context="gojeon-qa/iteration" \
+            -f description="${{ inputs.iteration }}/${{ inputs.max_iterations }}회차 ${V} next=${{ steps.decide.outputs.next_action }}" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-${{ inputs.iteration }}-final
+          path: |
+            qa-output/final.json
+            qa-output/final.md
+          retention-days: 30

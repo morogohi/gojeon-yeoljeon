@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gojeon.local/qa/checks.schema.json",
+  "title": "필수 자동 검사 결과",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "commit",
+    "run_url",
+    "verdict",
+    "steps",
+    "unit",
+    "e2e",
+    "browsers_run",
+    "browsers_not_run",
+    "viewports",
+    "failures",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "run_url": {
+      "type": "string"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ]
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "command",
+          "status"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": [
+              "install",
+              "typecheck",
+              "unit",
+              "build",
+              "e2e"
+            ]
+          },
+          "command": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "failed",
+              "skipped",
+              "not_run"
+            ]
+          }
+        }
+      }
+    },
+    "unit": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/counts"
+        }
+      ]
+    },
+    "e2e": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/counts"
+        }
+      ]
+    },
+    "browsers_run": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "browsers_not_run": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "reason"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "viewports": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "title",
+          "file",
+          "message"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "step",
+              "unit",
+              "e2e"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "passed",
+        "failed",
+        "skipped",
+        "flaky"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "flaky": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

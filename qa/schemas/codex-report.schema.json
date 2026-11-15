@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gojeon.local/qa/codex-report.schema.json",
+  "title": "Codex 독립 검증 보고서",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool",
+    "commit",
+    "verdict",
+    "summary",
+    "requirements",
+    "defects",
+    "proposed_tests",
+    "blocked_reason"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "tool": {
+      "type": "string",
+      "enum": [
+        "codex",
+        "stub",
+        "none"
+      ],
+      "description": "codex: 실제 Codex · stub: 자가 점검용 결정적 검증기(dry-run) · none: 검증 도구를 실행하지 못함(BLOCKED)"
+    },
+    "commit": {
+      "type": "string"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "evidence",
+          "note"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "met",
+              "not_met",
+              "not_verified"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "defects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/defect"
+      }
+    },
+    "proposed_tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "description",
+          "scenario"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "qa-output/proposed-tests/ 아래 파일"
+          },
+          "description": {
+            "type": "string"
+          },
+          "scenario": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blocked_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "defect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "severity",
+        "classification",
+        "title",
+        "requirement_ids",
+        "commit",
+        "environment",
+        "preconditions",
+        "steps",
+        "expected",
+        "actual",
+        "evidence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "결함 ID. 예: D-001"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "major",
+            "minor",
+            "info"
+          ]
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "confirmed",
+            "suggestion",
+            "needs_verification"
+          ],
+          "description": "확정 결함 / 개선 제안 / 추가 검증 필요"
+        },
+        "title": {
+          "type": "string"
+        },
+        "requirement_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "commit": {
+          "type": "string",
+          "description": "검사한 커밋 SHA(40자)"
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "browser",
+            "viewport",
+            "base_url",
+            "state"
+          ],
+          "properties": {
+            "browser": {
+              "type": "string"
+            },
+            "viewport": {
+              "type": "string"
+            },
+            "base_url": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "신규 사용자/기존 학습 사용자 등 사전 상태"
+            }
+          }
+        },
+        "preconditions": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "expected": {
+          "type": "string"
+        },
+        "actual": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "증거 파일 경로(qa-output/…, playwright-report/…, test-results/…)"
+        }
+      }
+    }
+  }
+}

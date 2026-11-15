@@ -1,0 +1,93 @@
+# 필수 자동 검사(재사용). 합격/불합격은 여기의 Vitest·Playwright 결과가 정한다.
+# 비밀값을 받지 않는다. 결과는 qa-output/checks.json(스키마 검사됨)과 증거 아티팩트로 남긴다.
+name: 필수 검사
+
+on:
+  workflow_call:
+    inputs:
+      ref: { description: 검사할 커밋 SHA, type: string, required: true }
+      artifact_prefix: { description: 아티팩트 이름 앞부분(같은 실행 안에서 겹치지 않게), type: string, required: true }
+    outputs:
+      verdict: { description: PASS/FAIL/BLOCKED, value: '${{ jobs.checks.outputs.verdict }}' }
+      commit: { description: 검사한 커밋, value: '${{ jobs.checks.outputs.commit }}' }
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: typecheck → 단위·콘텐츠 → build → E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      verdict: ${{ steps.summary.outputs.verdict }}
+      commit: ${{ steps.sha.outputs.sha }}
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ inputs.ref }}', persist-credentials: false }
+      - id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: mkdir -p qa-output/logs
+      - id: install
+        continue-on-error: true
+        run: set -o pipefail; npm ci 2>&1 | tee qa-output/logs/install.log
+      - id: typecheck
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: set -o pipefail; npm run typecheck 2>&1 | tee qa-output/logs/typecheck.log
+      - id: unit
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: set -o pipefail; npm test 2>&1 | tee qa-output/logs/unit.log
+      - id: build
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        env:
+          BUILD_SHA: ${{ steps.sha.outputs.sha }}
+        run: set -o pipefail; npm run build 2>&1 | tee qa-output/logs/build.log
+      - name: 브라우저 설치 (chromium 전체 + WebKit 모바일 @smoke)
+        if: steps.build.outcome == 'success'
+        run: npx playwright install --with-deps chromium webkit
+      - id: e2e
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        run: set -o pipefail; npm run e2e 2>&1 | tee qa-output/logs/e2e.log
+      - id: summary
+        if: always()
+        env:
+          COMMIT: ${{ steps.sha.outputs.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          O_INSTALL: ${{ steps.install.outcome }}
+          O_TYPECHECK: ${{ steps.typecheck.outcome }}
+          O_UNIT: ${{ steps.unit.outcome }}
+          O_BUILD: ${{ steps.build.outcome }}
+          O_E2E: ${{ steps.e2e.outcome }}
+        run: |
+          node scripts/qa/qa.mjs summarize-checks
+          v=$(node -p "require('./qa-output/checks.json').verdict")
+          echo "::notice title=필수 검사 ${v}::commit=${COMMIT} typecheck=${O_TYPECHECK} unit=${O_UNIT} build=${O_BUILD} e2e=${O_E2E}"
+      - name: 증거 보관 (보고서·로그·스크린샷·trace)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-checks
+          path: |
+            qa-output/
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: 빌드 산출물 보관 (배포·독립 검증용)
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-site
+          path: dist-site/
+          retention-days: 7
+      - name: 판정
+        if: always()
+        run: test "${{ steps.summary.outputs.verdict }}" = PASS

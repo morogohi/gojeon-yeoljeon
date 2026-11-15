@@ -8,3 +8,7 @@ dist-site/
 android/app/build/
 android/.gradle/
 ios/App/build/
+qa-output/
+playwright-report-public/
+test-results-public/
+.ai/

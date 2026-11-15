@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const DAY = '/play/?e2e=1&today=2026-11-11';
+const DAY = 'play/?e2e=1&today=2026-11-11';
 
 test('E-09 원문 한자를 누르면 훈음·소리·단어장 팝업, 단어장에서 집중 복습', async ({ page }) => {
   // 아직 잠긴 고사(배수지진)는 원문 카드만 바로 열린다

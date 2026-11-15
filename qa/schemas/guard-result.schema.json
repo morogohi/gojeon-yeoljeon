@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gojeon.local/qa/guard-result.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ok",
+    "base",
+    "violations"
+  ],
+  "properties": {
+    "ok": {
+      "type": "boolean"
+    },
+    "base": {
+      "type": "string"
+    },
+    "violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule",
+          "file",
+          "detail"
+        ],
+        "properties": {
+          "rule": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

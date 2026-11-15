@@ -32,3 +32,10 @@ E2E는 `dist-site`를 띄워 실제 배포 구조로 검사한다(먼저 `npm ru
 - **웹:** `main`에 푸시하면 GitHub Actions가 타입 검사 → 단위 테스트 → 빌드 → E2E 후 `gh-pages`로 배포한다.
 - **Android:** 같은 워크플로가 디버그 APK와 AAB를 만들어 Actions 아티팩트로 올린다. 업로드 키 시크릿(`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`)이 있으면 서명된 AAB가 나온다.
 - **스토어 출시:** `codemagic.yaml` — iOS는 TestFlight, Android는 Play 내부 테스트로 올린다. 준비 사항은 `store/README.md`.
+
+## 품질 자동화 (Claude 개발 → 자동 테스트 → Codex 독립 검증)
+
+- 흐름·판정·운영: [docs/ops/ai-qa-loop.md](docs/ops/ai-qa-loop.md)
+- 제품 명세·합격 기준: [docs/spec/product-spec.md](docs/spec/product-spec.md), [docs/spec/requirements.md](docs/spec/requirements.md)
+- 역할 규칙: [CLAUDE.md](CLAUDE.md)(구현·수정), [AGENTS.md](AGENTS.md)(독립 검증)
+- 시작: Actions ▸ "AI 개발·검증 반복" ▸ Run workflow. 자동 병합하지 않는다.

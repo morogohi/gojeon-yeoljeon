@@ -1,8 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { STORIES } from '../../src/content/stories';
 
-const DAY1 = '/play/?e2e=1&today=2026-11-09';
-const DAY2 = '/play/?e2e=1&today=2026-11-10';
+const DAY1 = 'play/?e2e=1&today=2026-11-09';
+const DAY2 = 'play/?e2e=1&today=2026-11-10';
 
 function watchErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -40,7 +40,7 @@ test.describe.serial('첫 플레이 → 저장 → 복습', () => {
   });
   test.afterAll(async () => page.close());
 
-  test('E-01 첫 고사를 전부 맞히면 별 3개와 인상여 획득', async () => {
+  test('E-01 첫 고사를 전부 맞히면 별 3개와 인상여 획득 @smoke', async () => {
     await page.goto(`${DAY1}#home`);
     // 첫 방문: 기록 대신 첫 고사로 안내하고, 하단 탭에 용도를 풀어 쓴다
     await expect(page.getByTestId('home-first')).toBeVisible();

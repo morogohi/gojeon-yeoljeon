@@ -1,0 +1,253 @@
+# Claude 개발 → 필수 검사 → Codex 독립 검증 → Claude 수정 → 재검증 (최대 3회차)
+#
+# 시작 방법(신뢰된 사람만)
+#   1) Actions → "AI 개발·검증 반복" → Run workflow (작업 설명 입력)       ← 실제 AI 사용
+#   2) ai-selftest/<시나리오> 브랜치 push                                   ← 자동화 자가 점검(AI 미사용)
+# 회차는 GITHUB_TOKEN 이벤트에 기대지 않고 한 실행 안에서 needs 로 직접 잇는다.
+# 자동 병합하지 않는다. 결과는 PR(사람 검토)과 커밋 상태, 아티팩트로 남긴다.
+name: AI 개발·검증 반복
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 작업 설명 (무엇을, 어떤 요구사항 ID 기준으로)
+        type: string
+        required: true
+      branch:
+        description: 작업 브랜치 (비우면 ai/<실행번호> 를 base 에서 새로 만든다)
+        type: string
+        default: ''
+      base:
+        description: 기준 브랜치 (PR 대상)
+        type: string
+        default: main
+      max_iterations:
+        description: 자동 수정 최대 회차 (상한 3)
+        type: choice
+        options: ['3', '2', '1']
+        default: '3'
+      dry_run:
+        description: AI 를 부르지 않고 스텁으로 흐름만 점검
+        type: boolean
+        default: false
+  push:
+    branches: ['ai-selftest/**']
+
+concurrency:
+  group: ai-loop-${{ inputs.branch || github.ref_name }}-${{ inputs.branch == '' && github.event_name == 'workflow_dispatch' && github.run_id || 'b' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: 준비 (브랜치·모드)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    outputs:
+      branch: ${{ steps.cfg.outputs.branch }}
+      base: ${{ steps.cfg.outputs.base }}
+      base_sha: ${{ steps.cfg.outputs.base_sha }}
+      max: ${{ steps.cfg.outputs.max }}
+      dev_mode: ${{ steps.cfg.outputs.dev_mode }}
+      verify_mode: ${{ steps.cfg.outputs.verify_mode }}
+      scenario: ${{ steps.cfg.outputs.scenario }}
+      simulate: ${{ steps.cfg.outputs.simulate }}
+      task: ${{ steps.cfg.outputs.task }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - id: cfg
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          IN_TASK: ${{ inputs.task }}
+          IN_BRANCH: ${{ inputs.branch }}
+          IN_BASE: ${{ inputs.base }}
+          IN_MAX: ${{ inputs.max_iterations }}
+          IN_DRY: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          out() { echo "$1=$2" >> "$GITHUB_OUTPUT"; }
+          if [ "$EVENT" = push ]; then
+            # ai-selftest/<시나리오>: pass | fix-once | never-fix | repeat | weaken | nocreds | nocreds-codex
+            scenario="${REF_NAME#ai-selftest/}"; branch="$REF_NAME"; base=main; max=3; simulate=false
+            dev=stub; verify=stub
+            case "$scenario" in
+              nocreds) dev=claude; verify=codex; simulate=true;;
+              nocreds-codex) verify=codex; simulate=true;;
+            esac
+            task="자가 점검 시나리오 ${scenario}"
+          else
+            scenario=''; base="$IN_BASE"; max="$IN_MAX"; simulate=false; task="$IN_TASK"
+            if [ "$IN_DRY" = true ]; then dev=stub; verify=stub; scenario=pass; else dev=claude; verify=codex; fi
+            branch="${IN_BRANCH:-ai/${GITHUB_RUN_NUMBER}}"
+            case "$branch" in main|gh-pages) echo "::error::보호 브랜치($branch)에서는 실행하지 않는다"; exit 1;; esac
+            git fetch -q origin "$base"
+            if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+              echo "기존 브랜치 사용: $branch"
+            else
+              git push -q origin "origin/${base}:refs/heads/${branch}"
+              echo "::notice::새 작업 브랜치 ${branch} ← ${base}"
+            fi
+          fi
+          git fetch -q origin "$branch"
+          out branch "$branch"; out base "$base"; out base_sha "$(git rev-parse "origin/${branch}")"
+          out max "$max"; out dev_mode "$dev"; out verify_mode "$verify"; out scenario "$scenario"; out simulate "$simulate"
+          { echo 'task<<__T__'; echo "$task"; echo '__T__'; } >> "$GITHUB_OUTPUT"
+          echo "::notice title=AI 반복 시작::branch=${branch} dev=${dev} verify=${verify} max=${max} scenario=${scenario:-'-'}"
+
+  iter1:
+    needs: setup
+    uses: ./.github/workflows/ai-iteration.yml
+    permissions: { contents: write, statuses: write }
+    with:
+      iteration: 1
+      max_iterations: ${{ fromJSON(needs.setup.outputs.max) }}
+      branch: ${{ needs.setup.outputs.branch }}
+      base_sha: ${{ needs.setup.outputs.base_sha }}
+      task: ${{ needs.setup.outputs.task }}
+      dev_mode: ${{ needs.setup.outputs.dev_mode }}
+      verify_mode: ${{ needs.setup.outputs.verify_mode }}
+      scenario: ${{ needs.setup.outputs.scenario }}
+      simulate_missing_credentials: ${{ needs.setup.outputs.simulate == 'true' }}
+      prev_fingerprints: ''
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  iter2:
+    needs: [setup, iter1]
+    if: always() && needs.iter1.outputs.next_action == 'retry' && fromJSON(needs.setup.outputs.max) >= 2
+    uses: ./.github/workflows/ai-iteration.yml
+    permissions: { contents: write, statuses: write }
+    with:
+      iteration: 2
+      prev_iteration: 1
+      max_iterations: ${{ fromJSON(needs.setup.outputs.max) }}
+      branch: ${{ needs.setup.outputs.branch }}
+      base_sha: ${{ needs.setup.outputs.base_sha }}
+      task: ${{ needs.setup.outputs.task }}
+      dev_mode: ${{ needs.setup.outputs.dev_mode }}
+      verify_mode: ${{ needs.setup.outputs.verify_mode }}
+      scenario: ${{ needs.setup.outputs.scenario }}
+      simulate_missing_credentials: ${{ needs.setup.outputs.simulate == 'true' }}
+      prev_fingerprints: ${{ needs.iter1.outputs.fingerprints }}
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  iter3:
+    needs: [setup, iter2]
+    if: always() && needs.iter2.outputs.next_action == 'retry' && fromJSON(needs.setup.outputs.max) >= 3
+    uses: ./.github/workflows/ai-iteration.yml
+    permissions: { contents: write, statuses: write }
+    with:
+      iteration: 3
+      prev_iteration: 2
+      max_iterations: ${{ fromJSON(needs.setup.outputs.max) }}
+      branch: ${{ needs.setup.outputs.branch }}
+      base_sha: ${{ needs.setup.outputs.base_sha }}
+      task: ${{ needs.setup.outputs.task }}
+      dev_mode: ${{ needs.setup.outputs.dev_mode }}
+      verify_mode: ${{ needs.setup.outputs.verify_mode }}
+      scenario: ${{ needs.setup.outputs.scenario }}
+      simulate_missing_credentials: ${{ needs.setup.outputs.simulate == 'true' }}
+      prev_fingerprints: ${{ needs.iter2.outputs.fingerprints }}
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  finalize:
+    name: 최종 보고 (PR 생성·갱신, 자동 병합 없음)
+    needs: [setup, iter1, iter2, iter3]
+    if: always() && needs.setup.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ needs.setup.outputs.branch }}', fetch-depth: 0, persist-credentials: false }
+      - id: last
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          node - <<'JS' >> "$GITHUB_OUTPUT"
+          const n = JSON.parse(process.env.NEEDS);
+          const ran = ['iter3', 'iter2', 'iter1'].find((k) => n[k]?.outputs?.verdict);
+          const o = ran ? n[ran].outputs : {};
+          console.log(`iter=${ran ? ran.slice(4) : '0'}`);
+          console.log(`verdict=${o.verdict || 'BLOCKED'}`);
+          console.log(`stop=${o.stop_reason || (ran ? '' : 'blocked_tool_error')}`);
+          console.log(`commit=${o.commit || ''}`);
+          JS
+      - if: steps.last.outputs.iter != '0'
+        uses: actions/download-artifact@v4
+        with: { name: 'ai-${{ steps.last.outputs.iter }}-final', path: qa-output }
+      - name: 반복 요약
+        env:
+          V: ${{ steps.last.outputs.verdict }}
+          ITER: ${{ steps.last.outputs.iter }}
+          STOP: ${{ steps.last.outputs.stop }}
+          COMMIT: ${{ steps.last.outputs.commit }}
+        run: |
+          {
+            echo "# AI 개발·검증 반복 결과: ${V}"
+            echo
+            echo "- 브랜치: \`${{ needs.setup.outputs.branch }}\` · 모드: 개발 ${{ needs.setup.outputs.dev_mode }} / 검증 ${{ needs.setup.outputs.verify_mode }}"
+            echo "- 마지막 회차: ${ITER} / ${{ needs.setup.outputs.max }} · 중단 이유: ${STOP:-없음} · 최종 커밋: \`${COMMIT}\`"
+            for i in 1 2 3; do
+              case $i in 1) v='${{ needs.iter1.outputs.verdict }}'; a='${{ needs.iter1.outputs.next_action }}';; 2) v='${{ needs.iter2.outputs.verdict }}'; a='${{ needs.iter2.outputs.next_action }}';; 3) v='${{ needs.iter3.outputs.verdict }}'; a='${{ needs.iter3.outputs.next_action }}';; esac
+              [ -n "$v" ] && echo "- ${i}회차: ${v} → ${a}"
+            done
+            echo
+            [ -f qa-output/final.md ] && cat qa-output/final.md
+          } | tee qa-output/loop.md >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=AI 반복 최종 ${V}::iter=${ITER}/${{ needs.setup.outputs.max }} stop=${STOP:-none} commit=${COMMIT} branch=${{ needs.setup.outputs.branch }}"
+      - name: 최종 커밋 상태
+        if: steps.last.outputs.commit != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.last.outputs.verdict }}
+        run: |
+          case "$V" in PASS) s=success;; FAIL) s=failure;; *) s=error;; esac
+          gh api "repos/${{ github.repository }}/statuses/${{ steps.last.outputs.commit }}" -f state="$s" -f context="gojeon-qa/final" \
+            -f description="AI 반복 최종 ${V} (${{ steps.last.outputs.iter }}회차, ${{ needs.setup.outputs.verify_mode }})" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null
+      - name: PR 생성·갱신 (실제 실행만, 병합은 사람이)
+        if: needs.setup.outputs.verify_mode == 'codex' && needs.setup.outputs.dev_mode == 'claude' && github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.last.outputs.verdict }}
+          BR: ${{ needs.setup.outputs.branch }}
+          BASE: ${{ needs.setup.outputs.base }}
+          TASK: ${{ needs.setup.outputs.task }}
+        run: |
+          if [ "$(git rev-list --count "origin/${BASE}..HEAD")" = 0 ]; then echo "기준 브랜치와 차이가 없어 PR 을 만들지 않는다"; exit 0; fi
+          body="$RUNNER_TEMP/body.md"
+          { cat qa-output/loop.md; echo; echo "> 자동 병합하지 않습니다. 검토 후 사람이 병합·배포합니다."; echo; echo "🤖 Generated with [Claude Code](https://claude.com/claude-code)"; } > "$body"
+          title="[AI ${V}] ${TASK:0:60}"
+          num=$(gh pr list --head "$BR" --state open --json number -q '.[0].number')
+          if [ -n "$num" ]; then
+            gh pr edit "$num" --title "$title" --body-file "$body"
+            [ "$V" = PASS ] && gh pr ready "$num" || true
+          else
+            draft=--draft; [ "$V" = PASS ] && draft=
+            gh pr create --base "$BASE" --head "$BR" --title "$title" --body-file "$body" $draft
+          fi
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-loop-report
+          path: qa-output/
+          retention-days: 30
