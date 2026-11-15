@@ -59,7 +59,7 @@ jobs:
       simulate: ${{ steps.cfg.outputs.simulate }}
       task: ${{ steps.cfg.outputs.task }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { fetch-depth: 0 }
       - id: cfg
         env:
@@ -176,7 +176,7 @@ jobs:
       statuses: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { ref: '${{ needs.setup.outputs.branch }}', fetch-depth: 0, persist-credentials: false }
       - id: last
         env:
@@ -192,7 +192,7 @@ jobs:
           console.log(`commit=${o.commit || ''}`);
           JS
       - if: steps.last.outputs.iter != '0'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with: { name: 'ai-${{ steps.last.outputs.iter }}-final', path: qa-output }
       - name: 반복 요약
         env:
@@ -246,8 +246,11 @@ jobs:
             gh pr create --base "$BASE" --head "$BR" --title "$title" --body-file "$body" $draft
           fi
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ai-loop-report
           path: qa-output/
           retention-days: 30
+      - name: 실행 결과를 최종 판정에 맞춘다 (PASS 가 아니면 실패로 표시)
+        if: always()
+        run: test "${{ steps.last.outputs.verdict }}" = PASS

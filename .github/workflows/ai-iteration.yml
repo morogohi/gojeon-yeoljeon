@@ -46,14 +46,14 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { ref: '${{ inputs.branch }}', fetch-depth: 0, persist-credentials: false }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with: { node-version: 22, cache: npm }
       - run: npm ci && mkdir -p qa-output .ai
       - name: 직전 회차 판정 받기
         if: inputs.iteration > 1
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with: { name: 'ai-${{ inputs.prev_iteration }}-final', path: '${{ runner.temp }}/prev' }
 
       - name: 자가 점검 개발 스텁 (AI 미사용)
@@ -128,12 +128,13 @@ jobs:
         run: |
           [ -f qa-output/develop.json ] || echo '{"status":"error","tool":"none","iteration":${{ inputs.iteration }},"reason":"개발 단계가 결과를 남기지 못함"}' > qa-output/develop.json
           node scripts/qa/qa.mjs validate develop-result qa-output/develop.json
+          node -e "const d=require('./qa-output/develop.json');console.log('::notice title=${{ inputs.iteration }}회차 개발 '+d.status+'::'+d.tool+' '+d.reason)"
           git add -A
           git diff --cached --binary > qa-output/change.patch
           [ -f .ai/summary.md ] && cp .ai/summary.md qa-output/claude-summary.md || true
           echo "변경 파일:"; git diff --cached --stat | tail -20
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ai-${{ inputs.iteration }}-develop
           path: |
@@ -154,12 +155,12 @@ jobs:
       sha: ${{ steps.push.outputs.sha }}
       proceed: ${{ steps.push.outputs.proceed }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { ref: '${{ inputs.branch }}', fetch-depth: 0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with: { node-version: 22, cache: npm }
       - run: npm ci --ignore-scripts
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with: { name: 'ai-${{ inputs.iteration }}-develop', path: qa-output }
       - name: 패치 적용
         run: |
@@ -187,7 +188,7 @@ jobs:
             echo "proceed=false" >> "$GITHUB_OUTPUT"
           fi
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ai-${{ inputs.iteration }}-guard
           path: qa-output/guard.json
@@ -202,6 +203,7 @@ jobs:
     with:
       ref: ${{ needs.commit.outputs.sha }}
       artifact_prefix: ai-${{ inputs.iteration }}
+      fail_job: false
 
   verify:
     needs: [commit, checks]
@@ -234,25 +236,25 @@ jobs:
       fingerprints: ${{ steps.decide.outputs.fingerprints }}
       commit: ${{ steps.sha.outputs.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { ref: '${{ needs.commit.outputs.sha || inputs.branch }}', persist-credentials: false }
       - id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with: { node-version: 22, cache: npm }
       - run: npm ci --ignore-scripts
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with: { name: 'ai-${{ inputs.iteration }}-develop', path: qa-output }
         continue-on-error: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with: { name: 'ai-${{ inputs.iteration }}-guard', path: qa-output }
         continue-on-error: true
       - if: needs.checks.result != 'skipped'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with: { name: 'ai-${{ inputs.iteration }}-checks', path: . }
         continue-on-error: true
       - if: needs.verify.result != 'skipped'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with: { name: 'ai-${{ inputs.iteration }}-codex', path: qa-output }
         continue-on-error: true
       - id: decide
@@ -278,7 +280,7 @@ jobs:
             -f description="${{ inputs.iteration }}/${{ inputs.max_iterations }}회차 ${V} next=${{ steps.decide.outputs.next_action }}" \
             -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ai-${{ inputs.iteration }}-final
           path: |

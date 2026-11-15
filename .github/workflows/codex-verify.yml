@@ -29,16 +29,16 @@ jobs:
     env:
       COMMIT: ${{ inputs.ref }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { ref: '${{ inputs.ref }}', persist-credentials: false }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - name: 필수 검사 결과 받기
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with: { name: '${{ inputs.artifact_prefix }}-checks', path: . }
       - name: 빌드 산출물 받기
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with: { name: '${{ inputs.artifact_prefix }}-site', path: dist-site }
       - name: 검사 결과가 이 커밋의 것인지 확인
         run: node scripts/qa/qa.mjs validate checks qa-output/checks.json --commit "$COMMIT"
@@ -101,7 +101,7 @@ jobs:
             echo "verdict=INVALID" >> "$GITHUB_OUTPUT"
           fi
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.artifact_prefix }}-codex
           path: |
