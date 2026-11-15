@@ -54,11 +54,11 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: 22, cache: npm }
       - run: npm ci --ignore-scripts && mkdir -p qa-output
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with: { name: ci-checks, path: . }
         continue-on-error: true
       - if: needs.pr-verify.result != 'skipped'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with: { name: ci-codex, path: qa-output }
         continue-on-error: true
       - name: 외부 PR·검사 실패 시 검증 상태 기록
@@ -91,6 +91,9 @@ jobs:
           gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" -f state="$s" -f context="gojeon-qa/pr" \
             -f description="QA ${V} (필수 검사 + Codex 독립 검증)" \
             -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null
+      - name: PR 실행 결과를 판정에 맞춘다 (PASS 가 아니면 실패로 표시)
+        if: always()
+        run: test "${{ steps.decide.outputs.verdict }}" = PASS
       - if: always()
         uses: actions/upload-artifact@v6
         with:
@@ -110,7 +113,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with: { name: ci-site, path: dist-site }
       - name: gh-pages 브랜치에 배포 (검사를 통과한 바로 그 빌드)
         env:

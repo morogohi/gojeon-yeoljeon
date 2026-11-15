@@ -35,10 +35,10 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - name: 필수 검사 결과 받기
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with: { name: '${{ inputs.artifact_prefix }}-checks', path: . }
       - name: 빌드 산출물 받기
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with: { name: '${{ inputs.artifact_prefix }}-site', path: dist-site }
       - name: 검사 결과가 이 커밋의 것인지 확인
         run: node scripts/qa/qa.mjs validate checks qa-output/checks.json --commit "$COMMIT"

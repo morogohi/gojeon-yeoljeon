@@ -53,7 +53,7 @@ jobs:
       - run: npm ci && mkdir -p qa-output .ai
       - name: 직전 회차 판정 받기
         if: inputs.iteration > 1
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with: { name: 'ai-${{ inputs.prev_iteration }}-final', path: '${{ runner.temp }}/prev' }
 
       - name: 자가 점검 개발 스텁 (AI 미사용)
@@ -160,7 +160,7 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: 22, cache: npm }
       - run: npm ci --ignore-scripts
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with: { name: 'ai-${{ inputs.iteration }}-develop', path: qa-output }
       - name: 패치 적용
         run: |
@@ -243,18 +243,18 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: 22, cache: npm }
       - run: npm ci --ignore-scripts
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with: { name: 'ai-${{ inputs.iteration }}-develop', path: qa-output }
         continue-on-error: true
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with: { name: 'ai-${{ inputs.iteration }}-guard', path: qa-output }
         continue-on-error: true
       - if: needs.checks.result != 'skipped'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with: { name: 'ai-${{ inputs.iteration }}-checks', path: . }
         continue-on-error: true
       - if: needs.verify.result != 'skipped'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with: { name: 'ai-${{ inputs.iteration }}-codex', path: qa-output }
         continue-on-error: true
       - id: decide

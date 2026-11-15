@@ -192,7 +192,7 @@ jobs:
           console.log(`commit=${o.commit || ''}`);
           JS
       - if: steps.last.outputs.iter != '0'
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with: { name: 'ai-${{ steps.last.outputs.iter }}-final', path: qa-output }
       - name: 반복 요약
         env:
