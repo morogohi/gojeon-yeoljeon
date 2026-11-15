@@ -52,7 +52,10 @@ export function applyLog(save: SaveData, log: { cardKey: string; correct: boolea
   const merged = new Map<string, boolean>();
   for (const { cardKey, correct } of log) merged.set(cardKey, (merged.get(cardKey) ?? true) && correct);
   for (const [k, correct] of merged) cards[k] = review(cards[k], correct, today);
-  return { ...save, cards };
+  // 풀어 본 한자는 맞혔든 틀렸든 '만난 한자'로 누적한다(오답으로 줄지 않는다)
+  const met = [...merged.keys()].filter((k) => k.startsWith('h:')).map((k) => k.slice(2));
+  const seen = met.some((c) => !save.seen.includes(c)) ? [...new Set([...save.seen, ...met])] : save.seen;
+  return { ...save, cards, seen };
 }
 
 export function isUnlocked(save: SaveData, story: Story): boolean {
@@ -65,9 +68,30 @@ export function unlockedStories(save: SaveData): Story[] {
   return STORIES.filter((s) => isUnlocked(save, s));
 }
 
+/**
+ * 한자 지표(홈·도감·기록 공통)
+ * - seen 만난 한자: 대전·복습에서 한 번이라도 풀어 본 44자 중 글자 수. 누적이라 오답으로 줄지 않는다.
+ * - remembered 기억하는 한자: 만난 한자 중 가장 최근 답이 정답인 글자(복습 카드 reps ≥ 1).
+ * - toReview 다시 볼 한자: 만난 한자 중 최근에 틀려서 다시 익히는 글자. 복습에서 맞히면 기억하는 한자로 돌아간다.
+ */
+export function hanjaStats(save: SaveData): { seen: number; remembered: number; toReview: number; total: number } {
+  const seenSet = new Set(save.seen);
+  const seen = HANJA.filter((x) => seenSet.has(x.char));
+  const remembered = seen.filter((x) => (save.cards[`h:${x.char}`]?.reps ?? 0) >= 1).length;
+  return { seen: seen.length, remembered, toReview: seen.length - remembered, total: HANJA.length };
+}
+
+/** 한 글자의 기억 상태: none(아직 안 만남) / review(다시 볼) / remembered(기억함) / strong(오래 기억함, reps ≥ 3) */
+export function memoryOf(save: SaveData, char: string): 'none' | 'review' | 'remembered' | 'strong' {
+  const reps = save.cards[`h:${char}`]?.reps ?? 0;
+  if (!save.seen.includes(char)) return reps >= 1 ? 'remembered' : 'none';
+  return reps >= 3 ? 'strong' : reps >= 1 ? 'remembered' : 'review';
+}
+
+/** 서고 복원율 = 만난 한자 ÷ 전체 44자. 누적 성취라 오답으로 줄지 않는다. */
 export function restoration(save: SaveData): number {
-  const learned = HANJA.filter((h) => (save.cards[`h:${h.char}`]?.reps ?? 0) >= 1).length;
-  return Math.round((learned / HANJA.length) * 100);
+  const { seen, total } = hanjaStats(save);
+  return Math.round((seen / total) * 100);
 }
 
 export function rankOf(pct: number): { name: string; hanja: string } {

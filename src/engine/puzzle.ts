@@ -17,12 +17,18 @@ export interface PuzzleState {
 
 export type TapEvent = 'keep' | 'reset' | 'complete' | 'done' | 'ignored';
 
-export type PuzzleScope = 'learned' | 'all';
+export type PuzzleScope = 'learned' | 'all' | 'sample';
+export const MAX_IDIOMS = 4;
 
-/** learned: 복원한 고사에서만(4편 미만이면 전체로), all: 12편 전체에서 4개 */
+/**
+ * learned: 복원한 고사에서만. 배운 성어 수만큼(최대 4개) — 1편이면 성어 1개·패 4개. 안 배운 성어는 섞지 않는다.
+ * all: 12편 전체에서 4개.
+ * sample: 아직 배운 성어가 없을 때 보여 주는 예제(첫 고사 성어 1개).
+ */
 export function puzzlePool(rng: Rng, scope: PuzzleScope, learned: Story[], all: Story[]): Story[] {
-  const pool = scope === 'learned' && learned.length >= 4 ? learned : all;
-  return shuffle(rng, pool).slice(0, 4);
+  if (scope === 'sample') return all.slice(0, 1);
+  if (scope === 'learned') return shuffle(rng, learned).slice(0, MAX_IDIOMS);
+  return shuffle(rng, all).slice(0, MAX_IDIOMS);
 }
 
 export function pickPuzzleStories(rng: Rng, unlocked: Story[], all: Story[]): Story[] {

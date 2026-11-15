@@ -1,6 +1,11 @@
 import { h } from '../dom';
-import { app } from '../../state/store';
-import { restoration, rankOf, todaysStory, unlockedStories } from '../../engine/rewards';
+import { app, commit, applySettingsToPage } from '../../state/store';
+import { restoration, rankOf, todaysStory, unlockedStories, hanjaStats, memoryOf } from '../../engine/rewards';
+import { isResumable, sessionLabel } from '../../engine/session';
+import { getStory } from '../../content/stories';
+import { EASY } from '../../content/learn';
+import type { LearnLevel } from '../../state/save';
+import { go } from '../../state/router';
 import { dueQueue } from '../../engine/srs';
 import { HANJA } from '../../content/hanja';
 import type { Screen } from '../../state/router';
@@ -14,17 +19,56 @@ export function homeScreen(): Screen {
   const due = dueQueue(app.save.cards, app.today).length;
   const open = unlockedStories(app.save);
   const next = open.find((s) => !(app.save.stars[s.id] ?? 0)) ?? open.find((s) => (app.save.stars[s.id] ?? 0) < 3);
-  const learned = HANJA.filter((x) => (app.save.cards[`h:${x.char}`]?.reps ?? 0) >= 1).length;
+  const hs = hanjaStats(app.save);
+  const sess = app.save.session;
+  const resumeStory = isResumable(sess) ? getStory(sess.storyId) : undefined;
+  // 멈춘 고사가 있으면 그 지점으로 바로 이어 간다
+  const resume = sess && resumeStory
+    ? h('a', { class: 'continue resume', href: `#story-${resumeStory.id}`, 'data-testid': 'resume-session' },
+      h('span', { class: 'continue-label' }, '멈춘 곳에서 이어 하기'),
+      h('span', { class: 'continue-idiom' }, resumeStory.idiom),
+      h('span', { class: 'continue-reading' }, resumeStory.reading),
+      h('span', { class: 'continue-source', 'data-testid': 'resume-session-where' }, sessionLabel(sess, resumeStory)),
+    )
+    : null;
   const goal = todayProgress(app.save, app.today);
   const week = weekReport(app.save, app.today);
 
   // 서고 두루마리: 한자 하나가 죽간 하나. 익힌 글자만 먹으로 쓰인다.
-  const scroll = h('div', { class: 'scroll', role: 'img', 'aria-label': `서고 복원 ${learned}/${HANJA.length}자` },
+  // 만난 한자는 먹으로 쓰이고, 다시 볼 한자는 옅게 쓰인다
+  const scroll = h('div', { class: 'scroll', role: 'img', 'aria-label': `서고 복원: 만난 한자 ${hs.seen}/${HANJA.length}자, 그중 다시 볼 한자 ${hs.toReview}자` },
     ...HANJA.map((x) => {
-      const inked = (app.save.cards[`h:${x.char}`]?.reps ?? 0) >= 1;
-      return h('span', { class: `slip${inked ? ' inked' : ''}` }, inked ? x.char : '');
+      const m = memoryOf(app.save, x.char);
+      const inked = m !== 'none' && app.save.seen.includes(x.char);
+      return h('span', { class: `slip${inked ? ' inked' : ''}${m === 'review' ? ' faded' : ''}` }, inked ? x.char : '');
     }),
   );
+  const metricHelp = h('details', { class: 'metric-help', 'data-testid': 'metric-help' },
+    h('summary', null, '숫자는 무슨 뜻인가요?'),
+    h('ul', null,
+      h('li', null, h('b', null, '만난 한자'), ' 대전·복습에서 한 번이라도 풀어 본 글자. 틀려도 줄지 않아요.'),
+      h('li', null, h('b', null, '기억하는 한자'), ' 가장 최근에 맞힌 글자.'),
+      h('li', null, h('b', null, '다시 볼 한자'), ' 최근에 틀린 글자. 복습에서 맞히면 기억하는 한자로 돌아가요.'),
+      h('li', null, h('b', null, '서고 복원'), ` 만난 한자 ÷ 전체 ${HANJA.length}자.`),
+    ),
+  );
+  const levelPick = () => {
+    const pick = (v: LearnLevel, title: string, desc: string) => h('button', {
+      class: `pick${app.save.settings.level === v ? ' on' : ''}`, role: 'radio', 'aria-checked': String(app.save.settings.level === v), 'data-testid': `level-${v}`,
+      onclick: () => { commit({ ...app.save, settings: { ...app.save.settings, level: v } }); go('home'); },
+    }, h('b', null, title), h('small', null, desc));
+    return h('section', { class: 'card level-pick', 'data-testid': 'level-pick' },
+      h('p', { class: 'pick-label' }, '어떻게 배워 볼까요? (나중에 설정에서 바꿀 수 있어요)'),
+      h('div', { class: 'picks', role: 'radiogroup', 'aria-label': '학습 경험' },
+        pick('new', '한자가 처음이에요', '쉬운 뜻과 글자 풀이를 먼저 보여 줘요'),
+        pick('some', '조금 알고 있어요', '기본 흐름으로 배워요'),
+        pick('deep', '고전을 깊게 읽고 싶어요', '원뜻과 출전을 펼쳐 보여 줘요'),
+      ),
+      app.save.settings.level === 'new' && !app.save.settings.large
+        ? h('button', { class: 'btn small', 'data-testid': 'level-large', onclick: () => { commit({ ...app.save, settings: { ...app.save.settings, large: true } }); applySettingsToPage(); go('home'); } }, '큰 글씨로 보기')
+        : null,
+    );
+  };
 
   const gear = h('a', { class: 'gear', href: '#settings', 'data-testid': 'open-settings' }, h('span', { class: 'gear-hanja', 'aria-hidden': 'true' }, '設'), '설정');
 
@@ -39,10 +83,13 @@ export function homeScreen(): Screen {
           h('p', { class: 'first-sub' }, '사기와 논어의 장면 속 인물이 되어 선택하고, 원문을 읽고, 한자 대전으로 익힌다.'),
         ),
       ),
+      resume,
+      levelPick(),
       h('a', { class: 'first-start', href: '#story-sagi-01', 'data-testid': 'first-start' },
         artEl('sagi-01', { plain: true, cls: 'first-art' }),
         h('span', { class: 'first-hook' }, '인상여는 진나라 왕에게서 보물을 되찾을 수 있을까요?'),
         h('span', { class: 'first-cta' }, '첫 고사 시작 · 완벽귀조'),
+        h('span', { class: 'first-easy' }, `쉬운 뜻: ${EASY['sagi-01']}`),
       ),
       h('ol', { class: 'first-steps', 'aria-label': '한 고사의 진행' },
         h('li', null, h('b', null, '장면'), h('span', null, '인물의 선택을 고른다')),
@@ -67,8 +114,10 @@ export function homeScreen(): Screen {
       ),
     ),
     scroll,
-    h('p', { class: 'scroll-note', 'data-testid': 'learned-count' }, `익힌 한자 ${learned}자 / ${HANJA.length}자`),
-    next
+    h('p', { class: 'scroll-note', 'data-testid': 'learned-count' }, `만난 한자 ${hs.seen}자 / ${HANJA.length}자 · 기억하는 한자 ${hs.remembered}자 · 다시 볼 한자 ${hs.toReview}자`),
+    metricHelp,
+    resume,
+    next && next.id !== resumeStory?.id
       ? h('a', { class: 'continue', href: `#story-${next.id}`, 'data-testid': 'continue-story' },
         h('span', { class: 'continue-label' }, (app.save.stars[next.id] ?? 0) ? '별 3개에 도전하기' : '다음 고사 이어 하기'),
         h('span', { class: 'continue-idiom' }, next.idiom),

@@ -44,8 +44,8 @@ test.describe.serial('첫 플레이 → 저장 → 복습', () => {
     await page.goto(`${DAY1}#home`);
     // 첫 방문: 기록 대신 첫 고사로 안내하고, 하단 탭에 용도를 풀어 쓴다
     await expect(page.getByTestId('home-first')).toBeVisible();
-    await expect(page.getByTestId('tab-home')).toContainText('내 학습 현황');
-    await expect(page.getByTestId('tab-map')).toContainText('고사 목록');
+    await expect(page.getByTestId('tab-home')).toContainText('오늘의 학습');
+    await expect(page.getByTestId('tab-map')).toContainText('이야기 배우기');
     await page.getByTestId('first-start').click();
     await playScenes(page, true);
     await expect(page.locator('.life.on')).toHaveCount(4);
@@ -57,7 +57,7 @@ test.describe.serial('첫 플레이 → 저장 → 복습', () => {
     await expect(page.getByTestId('funnel').locator('li.reached')).toHaveCount(15);
     await page.goto(`${DAY1}#home`);
     await expect(page.getByTestId('home-first')).toHaveCount(0);
-    await expect(page.getByTestId('tab-home')).not.toContainText('내 학습 현황');
+    await expect(page.getByTestId('tab-home')).not.toContainText('오늘의 학습');
     expect(errors).toEqual([]);
   });
 
@@ -113,9 +113,12 @@ test('E-03 오답 3번이면 패배하고 진행은 저장되지 않는다', asy
 
 test('E-05 성어 퍼즐: 시작 화면에서 고르고, 네 개를 완성하면 완료 화면', async ({ page }) => {
   await page.goto(`${DAY1}#puzzle`);
-  // 처음에는 배운 성어가 없으므로 '배운 성어'는 잠기고 '전체 성어'가 골라져 있다. 시작 전에는 시간이 흐르지 않는다.
+  // 처음에는 배운 성어가 없으므로 '배운 성어'는 잠기고 '예제'가 골라져 있다(v0.8 기본값). 시작 전에는 시간이 흐르지 않는다.
   await expect(page.getByTestId('scope-learned')).toBeDisabled();
-  await expect(page.getByTestId('scope-all')).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByTestId('scope-sample')).toHaveAttribute('aria-checked', 'true');
+  // 이 테스트는 전체 성어 4개 + 60초 도전 흐름을 직접 골라서 검사한다
+  await page.getByTestId('scope-all').click();
+  await page.getByTestId('mode-timed').click();
   await page.waitForTimeout(1200);
   await page.getByTestId('puzzle-start').click();
   await expect(page.getByTestId('clock')).toHaveText('60초');

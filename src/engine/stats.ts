@@ -1,7 +1,7 @@
-import { HANJA } from '../content/hanja';
 import { STORIES } from '../content/stories';
 import type { SaveData } from '../state/save';
 import { addDays, newCard } from './srs';
+import { hanjaStats } from './rewards';
 
 const KEEP_DAYS = 60;
 
@@ -27,7 +27,8 @@ export interface WeekReport {
   correct: number;
   accuracy: number; // %
   activeDays: number;
-  learnedHanja: number;
+  learnedHanja: number;   // 만난 한자(누적)
+  rememberedHanja: number; // 기억하는 한자
   restoredStories: number;
   goalDays: number;
 }
@@ -44,7 +45,8 @@ export function weekReport(save: SaveData, today: string): WeekReport {
     days, answered, correct,
     accuracy: answered ? Math.round((correct / answered) * 100) : 0,
     activeDays: days.filter((d) => d.answered > 0).length,
-    learnedHanja: HANJA.filter((h) => (save.cards[`h:${h.char}`]?.reps ?? 0) >= 1).length,
+    learnedHanja: hanjaStats(save).seen,
+    rememberedHanja: hanjaStats(save).remembered,
     restoredStories: STORIES.filter((s) => (save.stars[s.id] ?? 0) > 0).length,
     goalDays: days.filter((d) => d.answered >= save.settings.dailyGoal).length,
   };
@@ -55,7 +57,7 @@ export function reportText(r: WeekReport, rankName: string): string {
     '「고전열전」 이번 주 학습 기록',
     `· 공부한 날 ${r.activeDays}일 / 7일 (목표 달성 ${r.goalDays}일)`,
     `· 푼 문제 ${r.answered}개, 정답률 ${r.accuracy}%`,
-    `· 익힌 한자 ${r.learnedHanja}자, 복원한 고사 ${r.restoredStories}편`,
+    `· 만난 한자 ${r.learnedHanja}자(그중 기억하는 한자 ${r.rememberedHanja}자), 복원한 고사 ${r.restoredStories}편`,
     `· 지금 등급: ${rankName}`,
   ].join('\n');
 }

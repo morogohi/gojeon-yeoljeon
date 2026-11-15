@@ -1,6 +1,6 @@
 import { h, replace, topbar } from '../dom';
 import { app, commit, applySettingsToPage } from '../../state/store';
-import { DAILY_GOALS, defaultSave, exportCode, importCode, type Settings } from '../../state/save';
+import { DAILY_GOALS, defaultSave, exportCode, importCode, loadIssues, type LearnLevel, type Settings } from '../../state/save';
 import { reminderSupported, scheduleReminder } from '../reminder';
 import { speak } from '../speech';
 import { SITE_URL } from '../shareCard';
@@ -43,8 +43,14 @@ export function settingsScreen(): Screen {
         toggle('큰 글씨', '이야기·문제·보기를 크게 보여 준다', st.large, () => set({ large: !st.large }), 'set-large'),
         toggle('읽어 주기', '한자 팝업과 원문의 소리 듣기', st.sound, () => { set({ sound: !st.sound }); if (!st.sound) speak('소리를 켰습니다'); }, 'set-sound'),
       ),
+      loadIssues.brokenSave
+        ? h('p', { class: 'session-notice', role: 'status', 'data-testid': 'broken-save' }, '이전에 저장된 기록을 읽지 못해 새로 시작했어요. 읽지 못한 기록은 지우지 않고 이 기기에 따로 보관해 두었어요.')
+        : null,
       h('section', { class: 'group' },
         h('h2', null, '학습'),
+        segmented('학습 방식', [{ value: 'new', text: '처음이에요' }, { value: 'some', text: '조금 알아요' }, { value: 'deep', text: '깊게 읽기' }], st.level ?? 'some',
+          (v) => set({ level: v as LearnLevel }), 'set-level'),
+        h('p', { class: 'row-note' }, '처음이에요: 쉬운 뜻·글자 풀이·메뉴 설명을 늘 보여 줘요. 깊게 읽기: 원뜻과 출전을 펼쳐 둬요.'),
         segmented('하루 목표', DAILY_GOALS.map((g) => ({ value: String(g), text: `${g}문제` })), String(st.dailyGoal), (v) => set({ dailyGoal: Number(v) }), 'set-goal'),
         reminderSupported()
           ? segmented('매일 알림', [{ value: '', text: '끔' }, ...REMINDER_TIMES.map((t) => ({ value: t, text: t }))], st.reminder ?? '', async (v) => {
@@ -66,7 +72,7 @@ export function settingsScreen(): Screen {
         backupIn,
         h('button', { class: 'btn', 'data-testid': 'restore-apply', onclick: () => {
           const data = importCode(backupIn.value);
-          if (!data) { msg.textContent = '코드를 읽지 못했다. GJ1: 로 시작하는 전체 코드를 붙여 넣었는지 확인하자.'; return; }
+          if (!data) { msg.textContent = '코드를 읽지 못했다. 지금 기록은 그대로 두었다. GJ1: 로 시작하는 전체 코드를 붙여 넣었는지 확인하자.'; return; }
           commit(data);
           applySettingsToPage();
           backupIn.value = '';

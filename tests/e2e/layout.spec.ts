@@ -28,7 +28,7 @@ for (const width of WIDTHS) {
       await seedReturningUser(page);
       await page.goto(`${PLAY()}#home`);
       await expect(page.getByTestId('home-first')).toHaveCount(0);
-      await expect(page.getByTestId('learned-count')).toHaveText('익힌 한자 12자 / 44자');
+      await expect(page.getByTestId('learned-count')).toHaveText('만난 한자 12자 / 44자 · 기억하는 한자 12자 · 다시 볼 한자 0자');
       await expect(page.getByTestId('continue-story')).toBeVisible();
       expect(await overflowX(page)).toBeLessThanOrEqual(0);
       for (const route of ['report', 'codex-words', 'map-nonyu']) {

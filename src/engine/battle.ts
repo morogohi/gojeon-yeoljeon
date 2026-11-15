@@ -82,6 +82,16 @@ export function answer(s: BattleState, choice: number): AnswerResult {
   return { state, correct, blocked };
 }
 
+/**
+ * 화면에 떠 있던 문제 번호(qIndex)에 대한 답만 받는다. 연속 클릭·다시 그리기로 다음 문제가 대신 채점되지 않게 한다.
+ */
+export function answerAt(s: BattleState, qIndex: number, choice: number): AnswerResult & { ignored: boolean } {
+  if (s.over || qIndex !== s.index || !Number.isInteger(choice) || choice < 0 || choice >= (current(s)?.options.length ?? 0) || s.removed.includes(choice)) {
+    return { state: s, correct: false, blocked: false, ignored: true };
+  }
+  return { ...answer(s, choice), ignored: false };
+}
+
 export function canUseSkill(s: BattleState): boolean {
   if (s.over || !s.skill || s.skill === 'shield' || s.skillUses <= 0) return false;
   if (s.skill === 'heal') return s.hp < s.maxHp;

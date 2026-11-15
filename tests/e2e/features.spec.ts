@@ -128,10 +128,11 @@ test('E-13 결과·홈·기록의 한자 수가 같고, 집중 복습의 뒤로�
     await page.locator('.opt[data-correct="1"]').click();
   }
   const met = page.getByTestId('met-hanja');
-  await expect(met).toContainText('이번 고사에서 만난 한자 4자 · 익힘 3 · 다시 볼 글자 1');
+  await expect(met).toContainText('이번 고사에서 만난 한자 4자 · 기억 3 · 다시 볼 글자 1');
 
   await page.goto(`${DAY}#home`);
-  await expect(page.getByTestId('learned-count')).toHaveText('익힌 한자 3자 / 44자');
+  // v0.8: 누적(만난 한자)과 현재 기억 상태를 나눠 보여 준다
+  await expect(page.getByTestId('learned-count')).toHaveText('만난 한자 4자 / 44자 · 기억하는 한자 3자 · 다시 볼 한자 1자');
   await page.goto(`${DAY}#report`);
   await expect(page.getByTestId('report-stats')).toContainText('3자');
 

@@ -1,6 +1,7 @@
 import { h, replace, topbar } from '../dom';
 import { app, commit } from '../../state/store';
-import { dueQueue, review } from '../../engine/srs';
+import { dueQueue } from '../../engine/srs';
+import { applyLog } from '../../engine/rewards';
 import { reviewQuestion } from '../../engine/questions';
 import { createRng } from '../../engine/rng';
 import { questionView } from '../quiz';
@@ -60,18 +61,24 @@ export function reviewScreen(args: string[] = []): Screen {
     const key = queue[i];
     const q = reviewQuestion(rng, key);
     progress.textContent = `${i + 1} / ${queue.length}`;
+    let answered = false;
     const view = questionView(q, {}, (choice) => {
+      if (answered) return; // 연속 클릭으로 두 번 채점하지 않는다
+      answered = true;
       const ok = choice === q.answer;
       view.reveal(choice);
       if (ok) right += 1;
-      commit(recordAnswers({ ...app.save, cards: { ...app.save.cards, [key]: review(app.save.cards[key], ok, app.today) } }, app.today, 1, ok ? 1 : 0));
+      // 대전과 같은 규칙으로 기록: 복습 카드 갱신 + 만난 한자 누적(오답이어도 줄지 않음)
+      commit(recordAnswers(applyLog(app.save, [{ cardKey: key, correct: ok }], app.today), app.today, 1, ok ? 1 : 0));
       if (isNextDayReview(app.save, app.today)) track('review_next_day');
       i += 1;
       if (ok) {
-        replace(fb, h('p', { class: 'good' }, '기억났다! ', q.explain));
+        replace(fb, h('p', { class: 'good' }, '✓ 기억났다! ', q.explain));
         timers.push(window.setTimeout(() => { replace(fb); next(); }, 650));
       } else {
-        replace(fb, h('p', { class: 'bad' }, `정답: ${q.explain}`), h('button', { class: 'btn', 'data-testid': 'continue', onclick: () => { replace(fb); next(); } }, '다음'));
+        replace(fb, h('p', { class: 'bad' }, `✗ 조금 달라요. 정답: ${q.explain}`),
+          key.startsWith('h:') ? h('p', { class: 'effect' }, '이 글자는 ‘다시 볼 한자’로 옮겨 가요. 만난 한자 수는 그대로예요.') : null,
+          h('button', { class: 'btn', 'data-testid': 'continue', onclick: () => { replace(fb); next(); } }, '다음'));
       }
     });
     replace(qBox, view.el);
@@ -82,6 +89,7 @@ export function reviewScreen(args: string[] = []): Screen {
       h('div', { class: 'hero-big' }, '習'),
       h('h2', null, '복습 완료'),
       h('p', null, `${queue.length}장 중 ${right}장을 기억했다. 틀린 카드는 내일 다시 나온다.`),
+      h('p', { class: 'chip-note' }, '틀린 글자는 ‘다시 볼 한자’가 되고, 만난 한자 수와 서고 복원율은 줄지 않는다.'),
       h('a', { class: 'btn primary', href: '#home' }, '홈으로'),
     ));
   };

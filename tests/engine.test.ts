@@ -291,14 +291,15 @@ describe('그림 문제', () => {
 
 import { puzzlePool } from '../src/engine/puzzle';
 describe('퍼즐 범위', () => {
-  it('U-37 배운 성어만: 4편 이상이면 그 안에서, 모자라면 전체에서', () => {
+  // v0.8 요구 변경: 배운 성어가 4편 미만이어도 전체로 채우지 않고 배운 성어만 쓴다(1편이면 성어 1개)
+  it('U-37 배운 성어만: 4편 이상이면 그 안에서 4개, 모자라면 배운 만큼만', () => {
     const learned = STORIES.slice(0, 5);
     for (let seed = 0; seed < 20; seed++) {
       const p = puzzlePool(createRng(seed), 'learned', learned, STORIES);
       expect(p).toHaveLength(4);
       p.forEach((s) => expect(learned).toContain(s));
     }
-    expect(puzzlePool(createRng(1), 'learned', STORIES.slice(0, 2), STORIES)).toHaveLength(4);
+    expect(puzzlePool(createRng(1), 'learned', STORIES.slice(0, 2), STORIES)).toHaveLength(2);
     expect(new Set(puzzlePool(createRng(2), 'all', [], STORIES).map((s) => s.id)).size).toBe(4);
   });
 });

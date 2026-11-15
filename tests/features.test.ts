@@ -46,7 +46,7 @@ describe('U-18 단어장·오답 노트', () => {
 
 describe('U-19 백업 코드·예전 세이브 호환', () => {
   it('F-06 내보내기 → 가져오기 왕복 (한글·한자 포함)', () => {
-    const s = { ...toggleWord(defaultSave(), '璧', T), settings: { large: true, sound: false, dailyGoal: 20, reminder: '20:00' } };
+    const s = { ...toggleWord(defaultSave(), '璧', T), settings: { large: true, sound: false, dailyGoal: 20, reminder: '20:00', level: null, puzzle: null } };
     const code = exportCode(s);
     expect(code.startsWith('GJ1:')).toBe(true);
     expect(importCode(code)).toEqual(s);
@@ -54,7 +54,8 @@ describe('U-19 백업 코드·예전 세이브 호환', () => {
   it('F-07 잘못된 코드는 null', () => {
     expect(importCode('hello')).toBeNull();
     expect(importCode('GJ1:@@@')).toBeNull();
-    expect(importCode(`GJ1:${btoa('{"version":2}')}`)).toBeNull();
+    // 앞으로 나올 모르는 버전(현재 저장 형식은 2)
+    expect(importCode(`GJ1:${btoa('{"version":3}')}`)).toBeNull();
   });
   it('F-08 v0.4 세이브(새 항목 없음)는 기본값으로 채운다', () => {
     const map = new Map<string, string>();
@@ -67,7 +68,7 @@ describe('U-19 백업 코드·예전 세이브 호환', () => {
   });
   it('F-09 설정 값이 허용 범위를 벗어나면 기본값', () => {
     const bad = { ...defaultSave(), settings: { large: 'yes', sound: false, dailyGoal: 999, reminder: '7시' } };
-    expect(importCode(exportCode(bad as never))!.settings).toEqual({ large: false, sound: false, dailyGoal: 10, reminder: null });
+    expect(importCode(exportCode(bad as never))!.settings).toEqual({ large: false, sound: false, dailyGoal: 10, reminder: null, level: null, puzzle: null });
   });
   it('F-10 사전 note: 원문에서 다르게 읽는 글자를 알려 준다', () => {
     expect(glossOf('見')!.note).toContain('현');
