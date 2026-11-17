@@ -1,6 +1,7 @@
 # PR·main 공통 파이프라인. 필수 검사는 checks.yml 하나만 쓴다(중복 워크플로 없음).
-#   PR      : 필수 검사 → (같은 저장소 PR만) Codex 독립 검증 → 판정·커밋 상태
+#   PR      : 필수 검사(typecheck → 단위·콘텐츠 → build → E2E). 통과하지 못하면 PR 검사가 실패로 표시된다.
 #   main    : 필수 검사 → gh-pages 배포 → 공개 주소 핵심 기능 확인, Android 빌드
+# Codex 독립 검증은 자동으로 돌리지 않는다(필요할 때 "AI 개발·검증 반복"에서 직접 켠다).
 # 외부(fork) PR 은 pull_request 이벤트라 비밀값이 없고 쓰기 권한도 없다. pull_request_target 은 쓰지 않는다.
 name: 테스트·웹 배포·앱 빌드
 
@@ -23,86 +24,6 @@ jobs:
     with:
       ref: ${{ github.event.pull_request.head.sha || github.sha }}
       artifact_prefix: ci
-
-  pr-verify:
-    needs: checks
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      needs.checks.outputs.verdict == 'PASS'
-    uses: ./.github/workflows/codex-verify.yml
-    with:
-      ref: ${{ github.event.pull_request.head.sha }}
-      artifact_prefix: ci
-      mode: codex
-      task: 'PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}'
-    secrets:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-  pr-verdict:
-    name: PR 판정 (PASS/FAIL/BLOCKED)
-    needs: [checks, pr-verify]
-    if: always() && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      statuses: write
-    steps:
-      - uses: actions/checkout@v6
-        with: { ref: '${{ github.event.pull_request.head.sha }}', fetch-depth: 0, persist-credentials: false }
-      - uses: actions/setup-node@v6
-        with: { node-version: 22, cache: npm }
-      - run: npm ci --ignore-scripts && mkdir -p qa-output
-      - uses: actions/download-artifact@v7
-        with: { name: ci-checks, path: . }
-        continue-on-error: true
-      - if: needs.pr-verify.result != 'skipped'
-        uses: actions/download-artifact@v7
-        with: { name: ci-codex, path: qa-output }
-        continue-on-error: true
-      - name: 외부 PR·검사 실패 시 검증 상태 기록
-        if: needs.pr-verify.result == 'skipped'
-        env:
-          FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
-        run: |
-          if [ "$FORK" = true ]; then
-            node scripts/qa/qa.mjs blocked --reason "외부(fork) PR: 비밀값을 주지 않으므로 독립 검증을 하지 않음. 유지보수자가 내용을 확인한 뒤 브랜치로 옮겨 실행"
-          fi
-      - name: '가드 (사람 PR은 테스트 약화만 검사)'
-        run: |
-          echo '{"status":"skipped","tool":"none","iteration":1,"reason":"사람이 연 PR"}' > qa-output/develop.json
-          node scripts/qa/qa.mjs guard --base "${{ github.event.pull_request.base.sha }}" --human
-      - id: decide
-        env:
-          BRANCH: ${{ github.head_ref }}
-          ITERATION: '1'
-          MAX_ITERATIONS: '1'
-          TASK: 'PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}'
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: node scripts/qa/qa.mjs decide
-      - name: 커밋 상태 게시 (같은 저장소 PR)
-        if: github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          GH_TOKEN: ${{ github.token }}
-          V: ${{ steps.decide.outputs.verdict }}
-        run: |
-          case "$V" in PASS) s=success;; FAIL) s=failure;; *) s=error;; esac
-          gh api "repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" -f state="$s" -f context="gojeon-qa/pr" \
-            -f description="QA ${V} (필수 검사 + Codex 독립 검증)" \
-            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null
-      - name: PR 실행 결과를 판정에 맞춘다 (PASS 가 아니면 실패로 표시)
-        if: always()
-        run: test "${{ steps.decide.outputs.verdict }}" = PASS
-      - if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: ci-final
-          path: |
-            qa-output/final.json
-            qa-output/final.md
-            qa-output/guard.json
-          retention-days: 30
 
   deploy:
     name: gh-pages 배포

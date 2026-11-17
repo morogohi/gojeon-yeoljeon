@@ -143,6 +143,14 @@ describe('Q 최종 판정', () => {
     const dry = qa.decide(base({ codex: codex({ tool: 'stub' }), dryRun: true }));
     expect([dry.verdict, dry.dry_run]).toEqual(['PASS', true]);
   });
+  it('Q-26 Codex 검증을 켜지 않은 실행은 필수 검사로만 판정한다(검사 실패·미실행은 그대로 FAIL·BLOCKED)', () => {
+    const ok = qa.decide(base({ codex: null, checksOnly: true }));
+    expect([ok.verdict, ok.next_action, ok.codex_verdict]).toEqual(['PASS', 'pr', 'NOT_RUN']);
+    expect(qa.decide(base({ codex: null, checksOnly: true, checks: checks({ vitest: vitest(1) }) })).verdict).toBe('FAIL');
+    expect(qa.decide(base({ codex: null, checksOnly: true, checks: checks({ playwright: null }) })).verdict).toBe('BLOCKED');
+    // 끄지 않았는데 Codex 결과가 없으면 여전히 BLOCKED
+    expect(qa.decide(base({ codex: null })).verdict).toBe('BLOCKED');
+  });
   it('Q-21 요구사항 충돌은 사람 결정으로 넘긴다', () => {
     const f = qa.decide(base({ develop: { status: 'blocked', tool: 'claude', iteration: 1, reason: 'requirement_conflict: REQ-A 와 REQ-B 충돌' }, checks: null, codex: null }));
     expect([f.verdict, f.stop_reason]).toEqual(['BLOCKED', 'requirement_conflict']);

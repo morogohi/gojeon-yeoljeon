@@ -576,3 +576,26 @@ body:has(.tabbar.with-hints) .screen { padding-bottom: calc(108px + env(safe-are
 .tile-wrap.n1 .tile-grid, .tile-wrap.n2 .tile-grid { grid-template-columns: repeat(4, minmax(0, 72px)); justify-content: center; }
 .quiz-prompt.sentence { font-family: var(--sans); font-size: 17px; font-weight: 700; line-height: 1.6; text-align: left; place-items: start; }
 .hanja-cell { position: relative; }
+
+/* ── v0.9 그림으로 보는 유래 · 기억 노트 ── */
+.storyboard .panels { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.storyboard .panel { position: relative; margin: 0; }
+.panel-img svg { display: block; width: 100%; height: auto; border-radius: 6px; }
+.panel-no { position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--seal, #b5372a); color: #fbefe4; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.panel-cap { margin: 6px 2px 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); word-break: keep-all; }
+@media (max-width: 380px) { .storyboard .panels { grid-template-columns: 1fr; } }
+@media (min-width: 900px) { .storyboard .panels { grid-template-columns: repeat(4, 1fr); } }
+.lesson h4 { margin: 14px 0 4px; font-size: 15px; color: var(--celadon-ink); }
+.lesson p { margin: 4px 0 0; line-height: 1.65; word-break: keep-all; }
+.lesson-title { margin: 2px 0 0; font-size: 19px; }
+.lesson-title .hanja-sm { font-family: var(--serif); font-weight: 900; letter-spacing: .06em; }
+.lesson-easy { font-weight: 700; }
+.lesson-hook { padding: 8px 12px; border-radius: 8px; background: rgba(208, 168, 79, .12); }
+.lesson-examples { margin: 4px 0 0; padding-left: 18px; line-height: 1.6; }
+.lesson-examples li { margin: 4px 0; word-break: keep-all; }
+.lesson-examples b { color: var(--celadon-ink); margin-right: 2px; }
+.lesson-caution { font-size: 14px; color: var(--ink-2); }
+.lesson-think { padding: 8px 12px; border-left: 3px solid var(--celadon-ink, #4f8f78); background: rgba(79, 143, 120, .08); }
+.album-more { margin-top: 10px; text-align: left; }
+.album-more summary { cursor: pointer; font-weight: 700; color: var(--celadon-ink); }
+.album-more .card { box-shadow: none; padding-left: 0; padding-right: 0; background: transparent; }

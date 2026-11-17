@@ -147,7 +147,7 @@ switch (cmd) {
       commit: head(), branch: e.BRANCH ?? '', iteration: Number(e.ITERATION ?? 1), maxIterations: Number(e.MAX_ITERATIONS ?? 3),
       develop: readJson(`${OUT}/develop.json`), guard: readJson(`${OUT}/guard.json`),
       checks: readJson(`${OUT}/checks.json`), codex: readJson(`${OUT}/codex.json`),
-      previousFingerprints: prev, dryRun: e.DRY_RUN === 'true',
+      previousFingerprints: prev, dryRun: e.DRY_RUN === 'true', checksOnly: e.CHECKS_ONLY === 'true',
     });
     mustValid('final-report', final, 'final.json');
     writeJson(`${OUT}/final.json`, final);

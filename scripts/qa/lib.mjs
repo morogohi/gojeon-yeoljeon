@@ -196,7 +196,7 @@ function defectsFromGuard(g, commit) {
  * 한 회차 판정.
  * 반환 next_action: pr(통과, PR 준비) | retry(수정 단계로) | stop(사람 판단 필요)
  */
-export function decide({ commit, branch, iteration, maxIterations, develop, guard: g, checks, codex, previousFingerprints = [], dryRun = false }) {
+export function decide({ commit, branch, iteration, maxIterations, develop, guard: g, checks, codex, previousFingerprints = [], dryRun = false, checksOnly = false }) {
   const max = Math.min(Math.max(1, maxIterations | 0), MAX_ITERATIONS_CAP);
   const notes = [];
   let defects = [];
@@ -242,6 +242,10 @@ export function decide({ commit, branch, iteration, maxIterations, develop, guar
     verdict = 'BLOCKED';
     stop = 'blocked_tool_error';
     notes.push('필수 검사가 끝까지 실행되지 않았다');
+  } else if (checksOnly && !codex) {
+    // Codex 검증을 켜지 않은 실행: 필수 검사(Vitest·Playwright) 통과로 판정한다
+    verdict = 'PASS';
+    notes.push('Codex 독립 검증은 켜지 않았다(필수 검사 결과로만 판정)');
   } else if (!codex) {
     verdict = 'BLOCKED';
     stop = 'blocked_tool_error';

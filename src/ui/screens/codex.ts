@@ -9,6 +9,7 @@ import { openHanjaSheet } from '../hanjaSheet';
 import { glossOf } from '../../content/gloss';
 import { mistakes } from '../../engine/stats';
 import { hanjaStats, memoryOf } from '../../engine/rewards';
+import { lessonEl, storyboardEl } from '../learnCards';
 
 export function codexScreen(args: string[]): Screen {
   const tab = ['hanja', 'album', 'words'].includes(args[0]) ? args[0] : 'heroes';
@@ -53,7 +54,8 @@ export function codexScreen(args: string[]): Screen {
   const restored = STORIES.filter((s) => (app.save.stars[s.id] ?? 0) > 0);
   const album = h('div', { class: 'album' },
     ...STORIES.map((s) => (app.save.stars[s.id] ?? 0) > 0
-      ? h('section', { class: 'card art-card' }, h('p', { class: 'album-title' }, h('b', null, s.idiom), h('span', null, `${s.reading} · ${s.source}`)), artEl(s.id, { caption: true }))
+      ? h('section', { class: 'card art-card' }, h('p', { class: 'album-title' }, h('b', null, s.idiom), h('span', null, `${s.reading} · ${s.source}`)), artEl(s.id, { caption: true }),
+        h('details', { class: 'album-more', 'data-testid': `album-more-${s.id}` }, h('summary', null, '그림 유래·기억 노트 다시 보기'), storyboardEl(s), lessonEl(s, { compact: true })))
       : h('section', { class: 'card' }, h('p', { class: 'album-title' }, h('b', null, '？？？？'), h('span', null, s.source)), h('div', { class: 'locked-art' }, '고사를 복원하면 그림이 채워진다'))),
   );
 
