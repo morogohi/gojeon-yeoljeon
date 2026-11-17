@@ -7,7 +7,7 @@
 | `ios-6.7/` | 1290 × 2796 | App Store iPhone 6.7형(필수) |
 | `android/` | 1080 × 2340 | Google Play 휴대전화 |
 | `../assets/icon-only.png` | 1024 × 1024 | App Store 아이콘 원본 |
-| `../android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png` | 192 × 192 | Play 아이콘은 512 × 512로 따로 내보낼 것 |
+| `android/play-icon-512.png` | 512 × 512 | Play 스토어 아이콘(A안 붉은 낙관) |
 
 ## 기본 정보
 
