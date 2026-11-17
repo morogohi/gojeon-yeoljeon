@@ -17,7 +17,7 @@ on:
       base_sha: { description: 반복 시작 시점의 커밋(가드 비교 기준), type: string, required: true }
       task: { type: string, default: '' }
       dev_mode: { description: 'claude | stub', type: string, required: true }
-      verify_mode: { description: 'codex | stub', type: string, required: true }
+      verify_mode: { description: 'codex | stub | none(필수 검사로만 판정)', type: string, required: true }
       scenario: { type: string, default: '' }
       simulate_missing_credentials: { type: boolean, default: false }
       prev_fingerprints: { type: string, default: '' }
@@ -207,7 +207,7 @@ jobs:
 
   verify:
     needs: [commit, checks]
-    if: always() && needs.checks.outputs.verdict == 'PASS'
+    if: always() && needs.checks.outputs.verdict == 'PASS' && inputs.verify_mode != 'none'
     uses: ./.github/workflows/codex-verify.yml
     permissions:
       contents: read
@@ -265,6 +265,7 @@ jobs:
           MAX_ITERATIONS: ${{ inputs.max_iterations }}
           PREV_FINGERPRINTS: ${{ inputs.prev_fingerprints }}
           DRY_RUN: ${{ inputs.verify_mode == 'stub' }}
+          CHECKS_ONLY: ${{ inputs.verify_mode == 'none' }}
           TASK: ${{ inputs.task }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: node scripts/qa/qa.mjs decide

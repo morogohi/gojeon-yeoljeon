@@ -22,7 +22,9 @@ npm run e2e         # playwright: dist-site 를 /gojeon-yeoljeon/ 하위 경로�
 3. 새 기능·수정에는 테스트를 추가하고, 테스트 제목 앞에 ID(`U-`/`F-`/`E-`…)를 붙인다. 요구사항 표 연결은 사람에게 제안만 한다.
 4. 요구사항끼리 충돌하거나 명세에 없는 정책 결정(문구, 학습 내용, 저장 형식 버전, 외부 전송)이 필요하면 `.ai/conflict.md` 에 `requirement_conflict:` 로 시작하는 한 줄과 근거를 쓰고 변경 없이 멈춘다.
 5. 비밀값을 출력·저장하지 않는다. 네트워크로 무언가를 보내는 코드를 추가하지 않는다.
-6. git commit/push 는 하지 않는다. 변경은 작업 트리에만 남긴다(워크플로가 가드 후 커밋한다).
+6. 기본 방식은 대화로 Claude 가 개발하는 것이다. 사용자가 요청하면 Claude 가 테스트를 모두 통과시킨 뒤 커밋·push·배포한다.
+   단, 자동 반복 실행(ai-loop) 안에서는 commit/push 를 하지 않는다(워크플로가 가드 후 커밋한다).
+7. Codex 독립 검증은 자동으로 돌리지 않는다. 사용자가 요청할 때만 ai-loop 의 codex_verify 를 켜서 쓴다.
 
 ## 코드 관례
 - 프레임워크 없는 DOM UI(`src/ui/dom.ts` 의 `h()`), 화면은 `src/ui/screens/*`, 상태는 `src/state/*`, 규칙은 `src/engine/*`(순수 함수).

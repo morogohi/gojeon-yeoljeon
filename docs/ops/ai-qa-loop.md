@@ -1,5 +1,9 @@
 # AI 개발·검증 반복 — 운영 안내
 
+> **현재 운영 방식(2026-11-16 결정):** 개발은 대화로 Claude 가 하고, 합격 여부는 필수 검사(Vitest·Playwright)가 정한다.
+> Codex 독립 검증은 자동으로 돌리지 않는다. PR 에는 필수 검사만 돈다. 필요할 때만 "AI 개발·검증 반복"을 Run workflow 로 시작하며
+> `codex_verify` 를 켜야 Codex 가 돈다(기본 끔 → 필수 검사로만 판정).
+
 기준: 요구사항은 [product-spec](../spec/product-spec.md)와 [requirements](../spec/requirements.md)에만 있다. 이 문서는 흐름·판정·운영만 다룬다.
 
 ## 1. 흐름

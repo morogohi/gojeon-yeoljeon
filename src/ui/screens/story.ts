@@ -16,6 +16,7 @@ import { questionView } from '../quiz';
 import { artEl } from '../art';
 import { tappableText, openHanjaSheet } from '../hanjaSheet';
 import { speakWithNotice } from '../speech';
+import { lessonEl, storyboardEl } from '../learnCards';
 import { shareIdiomCard } from '../shareCard';
 import { track } from '../../state/track';
 import { FIRST_STORY, type FunnelKey } from '../../engine/funnel';
@@ -193,6 +194,7 @@ export function storyScreen(args: string[]): Screen {
     if (playable) step('s1_original');
     const sound = h('p', { class: 'listen-status', role: 'status', 'data-testid': 'listen-status' });
     replace(body, notice,
+      storyboardEl(s),
       h('section', { class: 'original card' },
         h('p', { class: 'eyebrow' }, `원문 ${s.source}`),
         tappableText(s.original.text, 'original-text'),
@@ -413,7 +415,7 @@ export function storyScreen(args: string[]): Screen {
           missed.size ? h('p', { class: 'chip-note' }, '틀린 글자는 내일 복습에 다시 나오고, 맞히면 기억하는 한자로 돌아간다. 만난 한자 수는 줄지 않는다.') : null,
         )
         : null,
-      h('section', { class: 'card modern' },
+      lessonEl(story) ?? h('section', { class: 'card modern' },
         h('p', { class: 'eyebrow' }, '오늘날의 쓰임'),
         h('p', null, story.modern),
       ),

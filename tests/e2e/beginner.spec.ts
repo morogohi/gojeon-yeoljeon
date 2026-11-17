@@ -327,3 +327,41 @@ test('E-27 날짜 경계: 다음 날에는 목표를 새로 세고 복습이 열
   await expect(page.getByTestId('daily-goal')).toContainText('0 / 10문제');
   await expect(page.getByTestId('review-badge')).toBeVisible();
 });
+
+test('E-28 원문 화면에 그림으로 보는 유래 네 컷, 결과 화면에 기억 노트(오늘날 예시·교훈·가르침)', async ({ page }) => {
+  await page.goto(`${DAY}#story-sagi-01`);
+  await page.locator('.scene').waitFor();
+  while (!(await page.locator('.choice').first().isVisible())) await page.getByTestId('next').click();
+  await page.locator('.choice[data-correct="1"]').click();
+  await page.getByTestId('to-original').click();
+  const board = page.getByTestId('storyboard');
+  await expect(board.locator('.panel')).toHaveCount(4);
+  await expect(board.locator('.panel svg')).toHaveCount(4);
+  await expect(board.locator('.panel-cap').first()).toContainText('화씨벽');
+  await expect(board.locator('.panel-cap').last()).toContainText('‘완벽’이라는 말이 생겼어요');
+  await page.getByTestId('start-battle').click();
+  for (let i = 1; i <= 8; i++) {
+    await expect(page.locator('.q-progress')).toHaveText(`${i} / 8`);
+    await page.locator('.opt[data-correct="1"]').click();
+  }
+  const lesson = page.getByTestId('lesson');
+  await expect(lesson).toBeVisible();
+  await expect(page.getByTestId('lesson-hook')).toContainText('기억 고리');
+  await expect(page.getByTestId('lesson-examples').locator('li')).toHaveCount(4);
+  await expect(page.getByTestId('lesson-examples')).toContainText('학교');
+  await expect(page.getByTestId('lesson-examples')).toContainText('예문');
+  await expect(page.getByTestId('lesson-lesson')).not.toBeEmpty();
+  await expect(page.getByTestId('lesson-teaching')).toContainText('약속');
+  await expect(page.getByTestId('lesson-think')).toContainText('생각해 보기');
+  // 도감 앨범에서 다시 볼 수 있다
+  await page.goto(`${DAY}#codex-album`);
+  await page.getByTestId('album-more-sagi-01').locator('summary').click();
+  await expect(page.getByTestId('album-more-sagi-01').getByTestId('lesson')).toBeVisible();
+  await expect(page.getByTestId('album-more-sagi-01').locator('.panel')).toHaveCount(4);
+  for (const width of [360, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto(`${DAY}#story-sagi-05`);
+    await page.waitForTimeout(100);
+    expect(await overflowX(page), `${width}`).toBeLessThanOrEqual(0);
+  }
+});

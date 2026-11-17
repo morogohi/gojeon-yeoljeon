@@ -1,4 +1,5 @@
-# Claude 개발 → 필수 검사 → Codex 독립 검증 → Claude 수정 → 재검증 (최대 3회차)
+# Claude 개발 → 필수 검사 → (선택) Codex 독립 검증 → Claude 수정 → 재검증 (최대 3회차)
+# Codex 검증은 기본으로 끄고, Run workflow 의 codex_verify 를 켤 때만 돈다.
 #
 # 시작 방법(신뢰된 사람만)
 #   1) Actions → "AI 개발·검증 반복" → Run workflow (작업 설명 입력)       ← 실제 AI 사용
@@ -29,6 +30,10 @@ on:
         default: '3'
       dry_run:
         description: AI 를 부르지 않고 스텁으로 흐름만 점검
+        type: boolean
+        default: false
+      codex_verify:
+        description: Codex 독립 검증까지 돌리기(기본 끔 — 필수 검사 결과로만 판정)
         type: boolean
         default: false
   push:
@@ -70,6 +75,7 @@ jobs:
           IN_BASE: ${{ inputs.base }}
           IN_MAX: ${{ inputs.max_iterations }}
           IN_DRY: ${{ inputs.dry_run }}
+          IN_CODEX: ${{ inputs.codex_verify }}
         run: |
           set -euo pipefail
           out() { echo "$1=$2" >> "$GITHUB_OUTPUT"; }
@@ -84,7 +90,8 @@ jobs:
             task="자가 점검 시나리오 ${scenario}"
           else
             scenario=''; base="$IN_BASE"; max="$IN_MAX"; simulate=false; task="$IN_TASK"
-            if [ "$IN_DRY" = true ]; then dev=stub; verify=stub; scenario=pass; else dev=claude; verify=codex; fi
+            if [ "$IN_DRY" = true ]; then dev=stub; verify=stub; scenario=pass
+            else dev=claude; verify=none; [ "$IN_CODEX" = true ] && verify=codex; fi
             branch="${IN_BRANCH:-ai/${GITHUB_RUN_NUMBER}}"
             case "$branch" in main|gh-pages) echo "::error::보호 브랜치($branch)에서는 실행하지 않는다"; exit 1;; esac
             git fetch -q origin "$base"
@@ -225,7 +232,7 @@ jobs:
             -f description="AI 반복 최종 ${V} (${{ steps.last.outputs.iter }}회차, ${{ needs.setup.outputs.verify_mode }})" \
             -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null
       - name: PR 생성·갱신 (실제 실행만, 병합은 사람이)
-        if: needs.setup.outputs.verify_mode == 'codex' && needs.setup.outputs.dev_mode == 'claude' && github.event_name == 'workflow_dispatch'
+        if: needs.setup.outputs.dev_mode == 'claude' && github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
           V: ${{ steps.last.outputs.verdict }}

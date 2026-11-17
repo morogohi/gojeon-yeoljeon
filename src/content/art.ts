@@ -222,3 +222,6 @@ export const ART: Record<string, { svg: string; caption: string }> = {
 export function artFor(storyId: string): { svg: string; caption: string } | undefined {
   return ART[storyId];
 }
+
+// 그림으로 보는 유래(storyboard.ts)에서 같은 붓질을 쓴다
+export { INK, WASH, RED, JADE, GOLD, PAPER, WOOD, fig, arrow, flame, shaft };
