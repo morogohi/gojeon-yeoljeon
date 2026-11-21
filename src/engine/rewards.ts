@@ -1,6 +1,7 @@
-import { HANJA } from '../content/hanja';
-import { STORIES, storiesOf } from '../content/stories';
-import type { Story } from '../content/types';
+import { HANJA, PACK_HANJA } from '../content/hanja';
+import { ALL_STORIES, STORIES, storiesOf } from '../content/stories';
+import { getPack } from '../content/packs';
+import type { Hanja, Story } from '../content/types';
 import type { SaveData } from '../state/save';
 import { review, addDays } from './srs';
 
@@ -58,14 +59,35 @@ export function applyLog(save: SaveData, log: { cardKey: string; correct: boolea
   return { ...save, cards, seen };
 }
 
+/** 확장팩을 가졌는지(구매·복원으로 save.owned 에 기록) */
+export function ownsPack(save: SaveData, packId: string): boolean {
+  return save.owned.includes(packId);
+}
+
+/** 이 고사를 열 수 있는 권리: 무료 고사, 보유한 팩, 팩의 체험 고사 */
+export function isEntitled(save: SaveData, story: Story): boolean {
+  if (!story.pack) return true;
+  const pack = getPack(story.pack);
+  return !!pack && (ownsPack(save, pack.id) || pack.trialIds.includes(story.id));
+}
+
+/** 권리가 있고, 같은 원전(책)의 앞 고사를 복원했으면 열린다 */
 export function isUnlocked(save: SaveData, story: Story): boolean {
+  if (!isEntitled(save, story)) return false;
   const list = storiesOf(story.book);
   const i = list.findIndex((s) => s.id === story.id);
   return i <= 0 || (save.stars[list[i - 1].id] ?? 0) >= 1;
 }
 
 export function unlockedStories(save: SaveData): Story[] {
-  return STORIES.filter((s) => isUnlocked(save, s));
+  return ALL_STORIES.filter((s) => isUnlocked(save, s));
+}
+
+/** 서고 지표에 들어가는 한자: 무료 44자 + 보유한 팩의 한자 */
+export function libraryHanja(save: SaveData): Hanja[] {
+  // 팩끼리 겹치는 글자(先 등)는 한 번만 센다
+  const all = [...HANJA, ...save.owned.flatMap((id) => PACK_HANJA[id] ?? [])];
+  return all.filter((x, i) => all.findIndex((y) => y.char === x.char) === i);
 }
 
 /**
@@ -76,9 +98,10 @@ export function unlockedStories(save: SaveData): Story[] {
  */
 export function hanjaStats(save: SaveData): { seen: number; remembered: number; toReview: number; total: number } {
   const seenSet = new Set(save.seen);
-  const seen = HANJA.filter((x) => seenSet.has(x.char));
+  const lib = libraryHanja(save);
+  const seen = lib.filter((x) => seenSet.has(x.char));
   const remembered = seen.filter((x) => (save.cards[`h:${x.char}`]?.reps ?? 0) >= 1).length;
-  return { seen: seen.length, remembered, toReview: seen.length - remembered, total: HANJA.length };
+  return { seen: seen.length, remembered, toReview: seen.length - remembered, total: lib.length };
 }
 
 /** 한 글자의 기억 상태: none(아직 안 만남) / review(다시 볼) / remembered(기억함) / strong(오래 기억함, reps ≥ 3) */

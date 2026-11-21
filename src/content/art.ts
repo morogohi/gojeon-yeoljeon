@@ -217,6 +217,83 @@ export const ART: Record<string, { svg: string; caption: string }> = {
       sl(262, 146, '後生') + sl(228, 36, '可畏'),
     ),
   },
+  // ── 확장팩 「사기의 명장들」 ──
+  'mj-01': {
+    caption: '먼저(先) 움직이면 곧(則) 남을 누른다(制人). 뒤처지면 남에게 눌린다.',
+    svg: svg(
+      fig(70, 162, 1, 1, 'point', '#7a2e22') + fig(110, 162, .9, 1, 'up') +
+      `<path d="M140 120 Q190 100 240 112" stroke="${INK}" stroke-width="2" fill="none"/>` + arrow(200, 104, 246, 112) +
+      fig(262, 162, .9, -1, 'down', '#6a6a6a') +
+      `<path d="M150 70 h36 l-6 6 l6 6 h-36z" fill="${RED}"/><path d="M150 70 V160" stroke="${INK}" stroke-width="2"/>` +
+      sl(90, 40, '先') + sl(200, 60, '則') + sl(262, 80, '制人'),
+    ),
+  },
+  'mj-02': {
+    caption: '솥(釜)을 깨뜨리고(破) 배(舟)를 가라앉힌다(沈). 돌아갈 마음을 남기지 않는다.',
+    svg: svg(
+      `<path d="M0 140 Q40 132 80 140 T160 140 T240 140 T320 140 V180 H0Z" fill="#6b9bb5" opacity=".45"/>` +
+      `<path d="M40 150 L60 130 L110 130 L126 150Z" fill="${WOOD}" opacity=".6" transform="rotate(14 80 140)"/>` +
+      `<path d="M180 152 q-4 -26 22 -28 h20 q26 2 22 28z" fill="${INK}" opacity=".8"/><path d="M196 140 l10 10 l-6 8 M214 128 l-6 14" stroke="${PAPER}" stroke-width="3"/>` +
+      fig(276, 150, 1, -1, 'up', '#7a2e22') + flame(140, 118, 1.4) +
+      sl(90, 104, '沈舟') + sl(212, 96, '破釜'),
+    ),
+  },
+  'mj-03': {
+    caption: '홍문(鴻門)의 잔치(宴). 칼춤 뒤에 숨은 뜻을 알아챈 사람만 살아 나온다.',
+    svg: svg(
+      `<rect x="40" y="58" width="240" height="8" fill="${WOOD}"/><path d="M48 66 V162 M272 66 V162" stroke="${WOOD}" stroke-width="5"/>` +
+      `<rect x="120" y="128" width="80" height="10" rx="3" fill="${WOOD}"/><circle cx="140" cy="124" r="5" fill="${GOLD}"/><circle cx="178" cy="124" r="5" fill="${GOLD}"/>` +
+      fig(84, 162, .95, 1, 'up', '#3a3a5a') + `<path d="M98 100 l22 -30" stroke="#8d97a3" stroke-width="3" stroke-linecap="round"/>` +
+      fig(236, 162, .95, -1, 'reach') + fig(160, 162, .8, 1, 'down', GOLD) +
+      sl(160, 36, '鴻門') + sl(160, 150, '宴'),
+    ),
+  },
+  'mj-04': {
+    caption: '나라(國) 안의 선비(士) 가운데 둘(雙)도 없다(無). 소하는 그 한 사람을 쫓았다.',
+    svg: svg(
+      fig(250, 162, 1, 1, 'down') + `<path d="M266 140 l26 0" stroke="${INK}" stroke-width="1.5" stroke-dasharray="3 4"/>` +
+      fig(150, 162, 1, 1, 'reach', '#2f5d7a') + arrow(176, 120, 226, 120, true) +
+      `<path d="M40 162 V120 h14 v-8 h12 v8 h14 V162" fill="${INK}" opacity=".5"/>` +
+      sl(250, 70, '國士') + sl(150, 60, '無雙'),
+    ),
+  },
+  // ── 확장팩 「전국시대의 책사들」 ──
+  'cs-01': {
+    caption: '닭(鷄)의 부리(口)가 될지언정 소(牛)의 꼬리(後)는 되지 마라.',
+    svg: svg(
+      `<g transform="translate(70,150)"><ellipse cx="0" cy="-18" rx="20" ry="15" fill="${WOOD}"/><circle cx="16" cy="-36" r="9" fill="${WOOD}"/><path d="M24 -38 l10 3 l-10 3z" fill="${GOLD}"/><path d="M14 -46 q4 -8 8 0" fill="${RED}"/><path d="M-6 -4 V12 M6 -4 V12" stroke="${INK}" stroke-width="2.5"/></g>` +
+      `<g transform="translate(220,150)"><ellipse cx="0" cy="-26" rx="52" ry="22" fill="${INK}" opacity=".7"/><circle cx="50" cy="-40" r="14" fill="${INK}" opacity=".7"/><path d="M58 -54 l8 -10 M44 -54 l-4 -10" stroke="${INK}" stroke-width="3"/><path d="M-50 -26 q-20 10 -16 30" stroke="${INK}" stroke-width="3" fill="none"/><path d="M-36 -8 V12 M-14 -6 V12 M16 -6 V12 M36 -8 V12" stroke="${INK}" stroke-width="5"/></g>` +
+      sl(86, 92, '鷄口') + sl(154, 136, '牛後'),
+    ),
+  },
+  'cs-02': {
+    caption: '먼저(先) 곽외(隗)부터(從) 시작하라(始). 그러면 더 어진 이가 천 리 길을 온다.',
+    svg: svg(
+      `<rect x="40" y="70" width="90" height="8" fill="${WOOD}"/><path d="M48 78 V162 M122 78 V162" stroke="${WOOD}" stroke-width="5"/><path d="M30 70 Q85 46 140 70Z" fill="${INK}" opacity=".8"/>` +
+      fig(70, 162, .95, 1, 'reach', GOLD) + fig(104, 162, .95, -1, 'down') +
+      `<path d="M150 150 Q220 120 300 140" stroke="${INK}" stroke-dasharray="4 5" fill="none"/>` + fig(230, 150, .7, -1) + fig(262, 156, .7, -1) + fig(292, 160, .7, -1) +
+      sl(88, 40, '先從隗') + sl(250, 100, '始'),
+    ),
+  },
+  'cs-03': {
+    caption: '닭(鷄)이 울면(鳴) 문이 열리고, 개(狗)처럼 숨어드는 도둑(盜)이 털옷을 찾아온다.',
+    svg: svg(
+      `<path d="M200 162 V70 h70 V162" fill="${INK}" opacity=".75"/><rect x="214" y="96" width="42" height="66" fill="${PAPER}" opacity=".25"/>` +
+      `<circle cx="40" cy="34" r="12" fill="#f5e6b8"/>` +
+      fig(150, 162, .95, 1, 'up') + `<path d="M162 96 q10 -8 18 -2 M164 102 q14 -4 22 4" stroke="${GOLD}" stroke-width="2" fill="none"/>` +
+      `<g transform="translate(80,162)"><ellipse cx="0" cy="-12" rx="16" ry="7" fill="${INK}" opacity=".75"/><circle cx="16" cy="-20" r="6" fill="${INK}" opacity=".75"/><path d="M-10 -6 V0 M10 -6 V0" stroke="${INK}" stroke-width="3"/></g>` +
+      sl(150, 50, '鷄鳴') + sl(80, 122, '狗盜'),
+    ),
+  },
+  'cs-04': {
+    caption: '진기한(奇) 물건(貨)은 사 둘(居) 만하다(可). 여불위는 볼모 왕손에게서 그 값을 보았다.',
+    svg: svg(
+      `<rect x="40" y="120" width="110" height="10" fill="${WOOD}"/>` + `<g fill="${GOLD}">${[60, 80, 100, 120].map((x) => `<ellipse cx="${x}" cy="116" rx="8" ry="3"/>`).join('')}</g>` +
+      fig(80, 162, .95, 1, 'point', '#5a4a3a') + fig(230, 162, .95, -1, 'down', '#7a7a7a') +
+      `<circle cx="230" cy="70" r="16" fill="none" stroke="${GOLD}" stroke-width="2" stroke-dasharray="3 3"/>` +
+      sl(150, 50, '奇貨') + sl(230, 34, '可居'),
+    ),
+  },
 };
 
 export function artFor(storyId: string): { svg: string; caption: string } | undefined {

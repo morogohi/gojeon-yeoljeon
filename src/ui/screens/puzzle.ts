@@ -1,6 +1,7 @@
 import { h, replace, topbar } from '../dom';
 import { app, commit } from '../../state/store';
-import { STORIES } from '../../content/stories';
+import { STORIES, ALL_STORIES } from '../../content/stories';
+import { isEntitled } from '../../engine/rewards';
 import { createRng } from '../../engine/rng';
 import { createPuzzle, puzzlePool, tap, timeUp, PUZZLE_SECONDS, MAX_IDIOMS, type PuzzleScope, type PuzzleState } from '../../engine/puzzle';
 import type { Screen } from '../../state/router';
@@ -9,7 +10,9 @@ type Mode = 'timed' | 'practice';
 
 export function puzzleScreen(): Screen {
   const rng = createRng(app.seed());
-  const learned = STORIES.filter((x) => (app.save.stars[x.id] ?? 0) > 0);
+  const learned = ALL_STORIES.filter((x) => (app.save.stars[x.id] ?? 0) > 0 && isEntitled(app.save, x));
+  // 전체: 무료 12편 + 가진 확장팩
+  const pool = ALL_STORIES.filter((x) => !x.pack || app.save.owned.includes(x.pack));
   const pref = app.save.settings.puzzle;
   // 기본값: 배운 성어 + 시간 제한 없음. 배운 성어가 없으면 예제. 사용자가 직접 고른 방식은 기억한다.
   let scope: PuzzleScope = pref?.scope === 'all' ? 'all' : learned.length ? 'learned' : 'sample';
@@ -48,7 +51,7 @@ export function puzzleScreen(): Screen {
           choice('scope', 'learned', scope, `배운 성어 ${learned.length}편`,
             learned.length ? `배운 성어 ${n}개 · 한자 패 ${n * 4}개` : '첫 이야기를 마치면 열린다',
             !learned.length, () => { scope = 'learned'; savePref(); intro(); }),
-          choice('scope', 'all', scope, `전체 성어 ${STORIES.length}편`, '아직 안 배운 성어도 나온다', false, () => { scope = 'all'; savePref(); intro(); }),
+          choice('scope', 'all', scope, `전체 성어 ${pool.length}편`, '아직 안 배운 성어도 나온다', false, () => { scope = 'all'; savePref(); intro(); }),
         ),
         learned.length ? null : h('a', { class: 'btn small', href: `#story-${STORIES[0].id}`, 'data-testid': 'puzzle-first-story' }, '첫 이야기 시작하기'),
         h('p', { class: 'pick-label' }, '어떻게 할까'),
@@ -92,7 +95,7 @@ export function puzzleScreen(): Screen {
 
   function start() {
     clearInterval(timer);
-    const stories = puzzlePool(rng, scope, learned, STORIES);
+    const stories = puzzlePool(rng, scope, learned, pool);
     s = createPuzzle(rng, stories);
     left = PUZZLE_SECONDS;
     replace(body,

@@ -1,30 +1,33 @@
 import { h, tabs, topbar } from '../dom';
 import { app, commit } from '../../state/store';
-import { HEROES } from '../../content/heroes';
-import { HANJA, hunEum } from '../../content/hanja';
-import { STORIES } from '../../content/stories';
+import { ALL_HEROES as HEROES } from '../../content/heroes';
+import { ALL_STORIES } from '../../content/stories';
+import { packOf } from '../../content/packs';
+import { hunEum } from '../../content/hanja';
 import { go, type Screen } from '../../state/router';
 import { artEl } from '../art';
 import { openHanjaSheet } from '../hanjaSheet';
 import { glossOf } from '../../content/gloss';
 import { mistakes } from '../../engine/stats';
-import { hanjaStats, memoryOf } from '../../engine/rewards';
+import { hanjaStats, memoryOf, libraryHanja } from '../../engine/rewards';
 import { lessonEl, storyboardEl } from '../learnCards';
 
 export function codexScreen(args: string[]): Screen {
   const tab = ['hanja', 'album', 'words'].includes(args[0]) ? args[0] : 'heroes';
   const owned = Object.keys(app.save.heroes).length;
   const hs = hanjaStats(app.save);
+  // 무료 12편 + 가진 확장팩(체험으로 복원한 고사 포함)
+  const STORIES = ALL_STORIES.filter((s) => !s.pack || app.save.owned.includes(s.pack) || (app.save.stars[s.id] ?? 0) > 0);
 
   const heroes = h('div', { class: 'hero-grid' },
     ...HEROES.map((hero) => {
       const mine = app.save.heroes[hero.id];
-      const from = STORIES.find((s) => s.heroId === hero.id)!;
+      const from = ALL_STORIES.find((s) => s.heroId === hero.id)!;
       if (!mine) {
         return h('div', { class: 'hero-card locked' },
           h('div', { class: 'hero-big' }, '？'),
           h('p', { class: 'hero-name' }, '미합류'),
-          h('p', { class: 'hero-from' }, `「${from.reading}」 복원 시 합류`),
+          h('p', { class: 'hero-from' }, `「${from.reading}」 복원 시 합류${from.pack ? ` · 확장팩 「${packOf(from.id)?.title}」` : ''}`),
         );
       }
       const party = app.save.partyHeroId === hero.id;
@@ -42,7 +45,7 @@ export function codexScreen(args: string[]): Screen {
   );
 
   const hanja = h('div', { class: 'hanja-grid' },
-    ...HANJA.map((x) => {
+    ...libraryHanja(app.save).map((x) => {
       const m = memoryOf(app.save, x.char);
       const level = { none: 0, review: 1, remembered: 2, strong: 3 }[m];
       const label = { none: '아직 안 만남', review: '다시 볼 한자', remembered: '기억하는 한자', strong: '오래 기억하는 한자' }[m];
@@ -82,7 +85,7 @@ export function codexScreen(args: string[]): Screen {
 
   const hints: Record<string, string> = {
     heroes: `합류한 인물 ${owned}/${HEROES.length}. 인물을 누르면 대전에 출전한다. 같은 고사를 다시 깰수록 성급이 오른다.`,
-    hanja: `만난 한자 ${hs.seen}/${HANJA.length} · 기억하는 한자 ${hs.remembered} · 다시 볼 한자 ${hs.toReview}. 진한 칸일수록 오래 기억하고 있다. ‘다시’ 표시는 최근에 틀린 글자. 누르면 뜻과 소리가 나온다.`,
+    hanja: `만난 한자 ${hs.seen}/${hs.total} · 기억하는 한자 ${hs.remembered} · 다시 볼 한자 ${hs.toReview}. 진한 칸일수록 오래 기억하고 있다. ‘다시’ 표시는 최근에 틀린 글자. 누르면 뜻과 소리가 나온다.`,
     album: `복원한 고사 ${restored.length}/${STORIES.length}. 붉은 낙관이 그 한자다.`,
     words: '담아 둔 글자와 자주 틀린 글자를 한곳에서 다시 본다.',
   };

@@ -1,5 +1,8 @@
-import { STORIES } from '../content/stories';
-import { HEROES } from '../content/heroes';
+import { ALL_STORIES as STORIES } from '../content/stories';
+import { ALL_HEROES as HEROES } from '../content/heroes';
+import { PACKS } from '../content/packs';
+
+const PACK_IDS = new Set(PACKS.map((p) => p.id));
 import type { SrsCard } from '../engine/srs';
 import type { PlaySession, Phase } from '../engine/session';
 import type { BattleState } from '../engine/battle';
@@ -27,6 +30,8 @@ export interface SaveData {
   seen: string[];
   /** 진행 중인 고사(한 번에 하나) */
   session: PlaySession | null;
+  /** 보유한 확장팩 id(구매·복원). 형식 2에 추가된 선택 항목: 없으면 빈 목록 */
+  owned: string[];
 }
 
 export type LearnLevel = 'new' | 'some' | 'deep';
@@ -57,7 +62,7 @@ export function defaultSave(): SaveData {
   return {
     version: 2, stars: {}, heroes: {}, cards: {}, streak: { last: '', count: 0 }, puzzleBest: 0, partyHeroId: null,
     wordbook: [], settings: { large: false, sound: true, dailyGoal: 10, reminder: null, level: null, puzzle: null }, daily: {}, events: {},
-    seen: [], session: null,
+    seen: [], session: null, owned: [],
   };
 }
 
@@ -170,6 +175,7 @@ function sanitize(raw: unknown): SaveData {
   d.seen = r.version === 2
     ? (Array.isArray(r.seen) ? [...new Set(r.seen.filter((c) => typeof c === 'string' && [...c].length === 1))] : migrateSeen(d.cards, d.stars))
     : migrateSeen(d.cards, d.stars);
+  d.owned = Array.isArray(r.owned) ? [...new Set(r.owned.filter((x) => typeof x === 'string' && PACK_IDS.has(x)))] : [];
   if (r.version === 2 && r.session) {
     d.session = sanitizeSession(r.session, storyIds);
     if (!d.session) loadIssues.droppedSession = true;
@@ -195,7 +201,8 @@ export function importCode(code: string): SaveData | null {
     const raw = JSON.parse(json);
     if (!raw || (raw.version !== 1 && raw.version !== 2)) return null;
     // 다른 기기의 진행 중 대전은 옮기지 않는다(백업은 기록을 옮기는 용도)
-    return { ...sanitize({ ...raw, session: null }), session: null };
+    // 구매한 확장팩은 백업 코드로 옮기지 않는다(새 기기에서는 스토어의 ‘구매 복원’으로 연다)
+    return { ...sanitize({ ...raw, session: null }), session: null, owned: [] };
   } catch {
     return null;
   }

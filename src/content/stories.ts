@@ -1,4 +1,6 @@
 import type { Story, ChoiceOption } from './types';
+import { GENERALS_STORIES } from './pack-generals';
+import { STRATEGISTS_STORIES } from './pack-strategists';
 
 const ok = (label: string, feedback: string): ChoiceOption => ({ label, correct: true, feedback });
 const no = (label: string, feedback: string): ChoiceOption => ({ label, correct: false, feedback });
@@ -9,7 +11,7 @@ export const STORIES: Story[] = [
   {
     id: 'sagi-01', book: 'sagi', idiom: '完璧歸趙', reading: '완벽귀조',
     meaning: '구슬을 흠 없이 조나라로 돌려보냄. 빌린 것을 온전히 돌려주거나 일을 결함 없이 해냄. ‘완벽’이란 말이 여기서 나왔다.',
-    source: '『사기』 염파인상여열전', heroId: 'insangyeo',
+    source: '『사기』 염파인상여열전', heroId: 'insangyeo', era: '전국시대 · 기원전 283년 무렵',
     scenes: [
       { text: '전국시대, 조나라 혜문왕은 천하의 보물 ‘화씨벽’을 손에 넣었다.' },
       { text: '강대국 진나라 소양왕이 성 열다섯 개와 구슬을 바꾸자고 했다. 거절하면 침략의 구실이 되고, 응하면 구슬만 빼앗길 수도 있었다.' },
@@ -37,7 +39,7 @@ export const STORIES: Story[] = [
   {
     id: 'sagi-02', book: 'sagi', idiom: '刎頸之交', reading: '문경지교',
     meaning: '목이 베여도 후회하지 않을 만큼 생사를 함께하는 깊은 사귐.',
-    source: '『사기』 염파인상여열전', heroId: 'yeompa',
+    source: '『사기』 염파인상여열전', heroId: 'yeompa', era: '전국시대 · 기원전 279년 무렵',
     scenes: [
       { text: '구슬을 지켜 낸 공으로 인상여는 상경(上卿)에 올라 노장 염파보다 높은 자리에 섰다.' },
       { text: '염파는 말재주로 자기보다 높아졌다며, 인상여를 만나면 모욕을 주겠다고 별렀다. 인상여는 그를 피했고, 길에서 마주치면 수레를 돌렸다.' },
@@ -65,7 +67,7 @@ export const STORIES: Story[] = [
   {
     id: 'sagi-03', book: 'sagi', idiom: '囊中之錐', reading: '낭중지추',
     meaning: '주머니 속 송곳은 끝이 드러나듯, 재능 있는 사람은 저절로 드러남.',
-    source: '『사기』 평원군우경열전', heroId: 'mosu',
+    source: '『사기』 평원군우경열전', heroId: 'mosu', era: '전국시대 · 기원전 257년',
     scenes: [
       { text: '진나라 군대가 조나라 수도 한단을 에워쌌다. 평원군은 초나라에 구원을 청하러 갈 식객 스무 명을 골랐는데, 한 사람이 모자랐다.' },
       { text: '모수가 스스로 나섰다. 평원군은 현명한 선비는 주머니 속 송곳처럼 끝이 곧 드러나는 법인데, 그대는 3년 동안 이름이 들리지 않았다고 했다.' },
@@ -92,7 +94,7 @@ export const STORIES: Story[] = [
   {
     id: 'sagi-04', book: 'sagi', idiom: '指鹿爲馬', reading: '지록위마',
     meaning: '사슴을 가리켜 말이라 함. 윗사람을 속여 권세를 부리거나, 옳고 그름을 억지로 뒤바꿈.',
-    source: '『사기』 진시황본기', heroId: 'jogo',
+    source: '『사기』 진시황본기', heroId: 'jogo', era: '진나라 말 · 기원전 207년',
     scenes: [
       { text: '진시황이 죽은 뒤, 환관 조고는 이세 황제를 세우고 권력을 쥐었다.' },
       { text: '반란을 꾀하던 조고는 신하들이 자기를 따를지 시험하려고, 이세에게 사슴 한 마리를 바치며 말이라고 했다.' },
@@ -119,7 +121,7 @@ export const STORIES: Story[] = [
   {
     id: 'sagi-05', book: 'sagi', idiom: '背水之陣', reading: '배수지진',
     meaning: '물을 등지고 친 진. 물러설 곳 없이 목숨을 걸고 맞서는 각오.',
-    source: '『사기』 회음후열전', heroId: 'hansin',
+    source: '『사기』 회음후열전', heroId: 'hansin', era: '초한전쟁 · 기원전 204년 무렵',
     scenes: [
       { text: '한나라 장수 한신은 수만의 군사로, 20만이라 일컫는 조나라 군대와 맞서야 했다.' },
       { text: '한신은 1만 명을 먼저 보내 강을 등지고 진을 치게 했다. 조나라 군사들은 병법도 모른다며 비웃었다.' },
@@ -146,7 +148,7 @@ export const STORIES: Story[] = [
   {
     id: 'sagi-06', book: 'sagi', idiom: '四面楚歌', reading: '사면초가',
     meaning: '사방이 적에게 둘러싸여 도움받을 곳 없는 외로운 처지.',
-    source: '『사기』 항우본기', heroId: 'hangu',
+    source: '『사기』 항우본기', heroId: 'hangu', era: '초한전쟁 · 기원전 202년',
     scenes: [
       { text: '천하를 다투던 초나라 항우는 해하에서 한나라 군대에 겹겹이 포위되었다. 군사는 줄고 식량도 떨어졌다.' },
       { text: '밤이 깊자 사방의 한나라 진영에서 초나라 노래가 들려왔다.' },
@@ -173,7 +175,7 @@ export const STORIES: Story[] = [
   {
     id: 'sagi-07', book: 'sagi', idiom: '兔死狗烹', reading: '토사구팽',
     meaning: '토끼를 잡고 나면 사냥개를 삶는다. 쓸모 있을 때 쓰고 필요가 없어지면 버림.',
-    source: '『사기』 월왕구천세가', heroId: 'beomnyeo',
+    source: '『사기』 월왕구천세가', heroId: 'beomnyeo', era: '춘추시대 말 · 기원전 473년 무렵',
     scenes: [
       { text: '월왕 구천은 오랜 복수 끝에 오나라를 무너뜨렸다. 그 곁에는 일등 공신 범려와 문종이 있었다.' },
       { text: '범려는 승리 직후 벼슬을 버리고 떠났다. 그리고 남아 있던 문종에게 편지를 보냈다.' },
@@ -200,7 +202,7 @@ export const STORIES: Story[] = [
   {
     id: 'sagi-08', book: 'sagi', idiom: '管鮑之交', reading: '관포지교',
     meaning: '관중과 포숙아의 사귐. 서로 깊이 이해하고 믿는 변함없는 우정.',
-    source: '『사기』 관안열전', heroId: 'posuka',
+    source: '『사기』 관안열전', heroId: 'posuka', era: '춘추시대 · 기원전 7세기',
     scenes: [
       { text: '제나라의 관중과 포숙아는 젊어서부터 벗이었다. 함께 장사하면 관중이 이익을 더 가져갔지만, 포숙아는 관중이 가난한 줄 알았기에 탓하지 않았다.' },
       { text: '관중이 싸움에서 세 번 달아나도, 벼슬에서 세 번 쫓겨나도 포숙아는 그를 겁쟁이나 못난이로 여기지 않았다. 늙은 어머니가 있고, 아직 때를 만나지 못했을 뿐이라 보았다.' },
@@ -227,7 +229,7 @@ export const STORIES: Story[] = [
   {
     id: 'nonyu-01', book: 'nonyu', idiom: '溫故知新', reading: '온고지신',
     meaning: '옛것을 익혀 새것을 앎. 지난 배움을 되새겨 새로운 이치를 깨달음.',
-    source: '『논어』 위정편', heroId: 'gongja',
+    source: '『논어』 위정편', heroId: 'gongja', era: '춘추시대 · 공자(기원전 551~479년)의 가르침',
     scenes: [
       { text: '노나라의 스승 공자 곁에는 언제나 배우려는 이들이 모였다.' },
       { text: '공자는 스승이 될 만한 사람의 조건을 한 문장으로 말했다. 많이 아는 것만으로는 부족하다는 뜻이었다.' },
@@ -254,7 +256,7 @@ export const STORIES: Story[] = [
   {
     id: 'nonyu-02', book: 'nonyu', idiom: '過猶不及', reading: '과유불급',
     meaning: '지나침은 미치지 못함과 같다. 알맞은 정도(중용)가 중요함.',
-    source: '『논어』 선진편', heroId: 'jagong',
+    source: '『논어』 선진편', heroId: 'jagong', era: '춘추시대 · 공자(기원전 551~479년)의 가르침',
     scenes: [
       { text: '공자의 제자 자공은 말솜씨가 뛰어나고 사람을 견주어 보기를 좋아했다.' },
       { text: '자공이 자장(師)과 자하(商) 중 누가 더 나은지 물었다. 공자는 자장은 지나치고 자하는 미치지 못한다고 답했다.' },
@@ -281,7 +283,7 @@ export const STORIES: Story[] = [
   {
     id: 'nonyu-03', book: 'nonyu', idiom: '巧言令色', reading: '교언영색',
     meaning: '남의 환심을 사려고 교묘하게 꾸민 말과 얼굴빛.',
-    source: '『논어』 학이편', heroId: 'gongja',
+    source: '『논어』 학이편', heroId: 'gongja', era: '춘추시대 · 공자(기원전 551~479년)의 가르침',
     scenes: [
       { text: '공자에게 인(仁)은 사람을 진심으로 아끼는 마음이었다.' },
       { text: '그래서 공자는 번드르르한 말과 꾸민 표정을 늘 경계했다.' },
@@ -308,7 +310,7 @@ export const STORIES: Story[] = [
   {
     id: 'nonyu-04', book: 'nonyu', idiom: '後生可畏', reading: '후생가외',
     meaning: '뒤에 태어난 사람은 두려워할 만하다. 젊은 후배의 가능성을 존중함.',
-    source: '『논어』 자한편', heroId: 'gongja',
+    source: '『논어』 자한편', heroId: 'gongja', era: '춘추시대 · 공자(기원전 551~479년)의 가르침',
     scenes: [
       { text: '공자는 나이로 사람을 재단하지 않았다.' },
       { text: '지금은 서툰 젊은이도 언젠가 앞사람을 넘어설 수 있다고 보았다.' },
@@ -334,12 +336,15 @@ export const STORIES: Story[] = [
   },
 ];
 
-const byId = new Map(STORIES.map((s) => [s.id, s]));
+/** 무료 12편 + 확장팩 고사. 무료 학습 지표·퍼즐 '전체'·문제 보기는 STORIES(무료)를 쓴다. */
+export const ALL_STORIES: Story[] = [...STORIES, ...GENERALS_STORIES, ...STRATEGISTS_STORIES];
+
+const byId = new Map(ALL_STORIES.map((s) => [s.id, s]));
 
 export function getStory(id: string): Story | undefined {
   return byId.get(id);
 }
 
 export function storiesOf(book: string): Story[] {
-  return STORIES.filter((s) => s.book === book);
+  return ALL_STORIES.filter((s) => s.book === book);
 }
