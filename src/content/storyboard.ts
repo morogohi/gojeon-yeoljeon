@@ -85,6 +85,21 @@ const bag = (x: number, y: number) =>
   `<g transform="translate(${x},${y})"><path d="M-14 -4 Q-18 18 0 20 Q18 18 14 -4 Q0 -10 -14 -4Z" fill="#b9a789" stroke="${INK}" stroke-width="1.2"/><path d="M-12 -4 Q0 2 12 -4" stroke="${INK}" stroke-width="1.2" fill="none"/>` +
   `<path d="M6 -6 L14 -26" stroke="#8d97a3" stroke-width="3" stroke-linecap="round"/><path d="M13 -24 l2 -6 l1 6" fill="#8d97a3"/></g>`;
 
+
+const fox = (x: number, y = 92) =>
+  `<g transform="translate(${x},${y})" fill="#c8742e"><ellipse cx="0" cy="-9" rx="11" ry="5.5"/><circle cx="11" cy="-16" r="5"/><path d="M9 -20 l1 -6 l4 5z M13 -20 l4 -5 l1 6z"/><path d="M-11 -9 q-11 -4 -12 -14 q7 3 11 8"/><path d="M-6 -5 V0 M6 -5 V0" stroke="#c8742e" stroke-width="2"/></g>`;
+const tiger = (x: number, y = 92) =>
+  `<g transform="translate(${x},${y})"><ellipse cx="0" cy="-16" rx="22" ry="10" fill="#d9a441"/><path d="M-12 -25 v16 M-3 -26 v18 M6 -26 v18 M14 -24 v14" stroke="${INK}" stroke-width="2" opacity=".7"/>` +
+  `<circle cx="22" cy="-24" r="9" fill="#d9a441"/><circle cx="25" cy="-26" r="1.3" fill="${INK}"/><path d="M-14 -7 V0 M-5 -6 V0 M7 -6 V0 M15 -7 V0" stroke="#d9a441" stroke-width="4"/><path d="M-22 -16 q-10 -4 -9 -14" stroke="#d9a441" stroke-width="3" fill="none"/></g>`;
+const snake = (x: number, y: number) =>
+  `<path d="M${x - 24} ${y} q8 -10 16 0 t16 0 t16 0" stroke="${JADE}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="${x + 25}" cy="${y - 2}" r="3.5" fill="${JADE}"/>`;
+const clam = (x: number, y = 88) =>
+  `<g transform="translate(${x},${y})"><path d="M-11 0 Q0 -12 11 0Z" fill="#b9a789" stroke="${INK}" stroke-width="1"/><path d="M-11 0 Q0 5 11 0" fill="#d8cbb0" stroke="${INK}" stroke-width="1"/></g>`;
+const snipe = (x: number, y = 70) =>
+  `<g transform="translate(${x},${y})"><ellipse cx="0" cy="0" rx="9" ry="5" fill="${WOOD}"/><circle cx="-8" cy="-4" r="3.5" fill="${WOOD}"/><path d="M-11 -3 L-22 14" stroke="${INK}" stroke-width="1.6"/><path d="M2 5 V12 M-2 5 V12" stroke="${INK}" stroke-width="1"/></g>`;
+const mountain = (x: number, top: number) =>
+  `<path d="M${x - 44} 92 L${x} ${top} L${x + 44} 92Z" fill="${INK}" opacity=".55"/><path d="M${x + 4} 92 L${x + 30} ${top + 24} L${x + 56} 92Z" fill="${INK}" opacity=".35"/>`;
+
 export const STORYBOARD: Record<string, Panel[]> = {
   'sagi-01': [
     { caption: '조나라 왕이 세상에 둘도 없는 보물 구슬 ‘화씨벽’을 얻었어요.', svg: panel(roof(52, 46, 50) + p(52, 92, 0.6, 1, 'up', '#7a2e22') + jade(66, 40, 8) + sparkle(84, 30) + sparkle(42, 28) + label(122, 40, '조나라', INK, 11)) },
@@ -207,6 +222,31 @@ export const STORYBOARD: Record<string, Panel[]> = {
     { caption: '조나라에는 진나라 왕손 자초가 볼모로 와 있었어요. 형제가 많은 데다 대접도 받지 못해 가난하게 지냈어요.', svg: panel(castle(130, 92, 30) + p(80, 92, 0.6, 1, 'down', '#8a8070') + label(80, 24, '자초', INK, 10)) },
     { caption: '자초를 본 여불위가 말했어요. “이것은 사 둘 만한 귀한 물건이다!” 남들은 못 본 가능성을 본 거예요.', svg: panel(p(40, 92, 0.6, 1, 'point', '#5a4a3a') + bubble(70, 20, '귀한 물건!', 66) + p(120, 92, 0.6, -1, 'down', '#8a8070') + sparkle(140, 40)) },
     { caption: '여불위는 재산을 들여 자초를 진나라 왕의 후계자로 세웠어요. 자초는 왕이 되었고, 여불위는 승상이 되었어요.', svg: panel(roof(80, 44, 60) + p(80, 92, 0.65, 1, 'up', GOLD) + p(124, 92, 0.6, -1, 'reach', '#5a4a3a') + label(80, 18, '왕', RED, 12)) },
+  ],
+  // ── 확장팩 「우화 속 지혜」 ──
+  'uh-01': [
+    { caption: '초나라 선왕이 물었어요. “북쪽 나라들이 재상 소해휼을 두려워한다는데 정말이오?” 아무도 대답하지 못했어요.', svg: panel(roof(50, 46, 50) + p(50, 92, 0.6, 1, 'point', GOLD) + p(110, 92, 0.55, -1) + p(132, 92, 0.55, -1) + label(121, 34, '…', INK, 14)) },
+    { caption: '강을이 이야기를 들려주었어요. 호랑이에게 잡힌 여우가 말했어요. “하늘이 나를 짐승들의 우두머리로 정했다!”', svg: panel(fox(56) + tiger(116) + bubble(58, 26, '내가 우두머리!', 84)) },
+    { caption: '“못 믿겠으면 내 뒤를 따라와 봐.” 여우가 앞서고 호랑이가 뒤따라 숲을 걸었어요.', svg: panel(tree(18, 92, 0.7) + fox(56) + tiger(112) + arrow(74, 40, 96, 40)) },
+    { caption: '짐승들이 모두 달아났어요. 정말 무서웠던 건 여우가 아니라 뒤에 오는 호랑이였는데, 호랑이는 그걸 몰랐어요.', svg: panel(fox(70) + tiger(124) + deer(22) + rabbit(36) + arrow(30, 56, 6, 56) + label(124, 20, '?', RED, 14)) },
+  ],
+  'uh-02': [
+    { caption: '초나라 장군 소양이 위나라를 이기고 제나라까지 치려 했어요. 진진이 찾아가 이야기를 들려주었어요.', svg: panel(tent(40) + p(80, 92, 0.65, 1, 'up', '#5a3a2a') + flag(120, 40, '楚') + p(140, 92, 0.6, -1, 'point')) },
+    { caption: '술은 딱 한 잔. 일꾼들은 땅에 뱀을 먼저 그리는 사람이 마시기로 했어요.', svg: panel(cup(80, 50, 0.8) + p(30, 92, 0.5) + p(130, 92, 0.5, -1) + snake(80, 84)) },
+    { caption: '가장 먼저 다 그린 사람이 잔을 들고 말했어요. “나는 발까지 그릴 수 있지!”', svg: panel(p(40, 92, 0.6, 1, 'reach') + cup(32, 40, 0.8) + snake(100, 84) + `<path d="M92 84 l-4 8 M110 84 l4 8" stroke="${RED}" stroke-width="2"/>` + bubble(70, 18, '발도 그릴래!', 76)) },
+    { caption: '그 사이 다른 사람이 뱀을 다 그리고 잔을 빼앗아 마셨어요. “뱀에게 발이 어디 있소?”', svg: panel(p(40, 92, 0.6, 1, 'down') + p(120, 92, 0.6, -1, 'up', JADE) + cup(126, 30, 0.8) + snake(70, 86) + label(40, 24, '헉!', RED, 12)) },
+  ],
+  'uh-03': [
+    { caption: '조나라가 연나라를 치려 하자, 소대가 조나라 혜문왕을 찾아가 이야기를 들려주었어요.', svg: panel(roof(110, 46, 50) + p(110, 92, 0.6, -1, 'down', GOLD) + p(50, 92, 0.6, 1, 'point') + label(50, 24, '소대', INK, 10)) },
+    { caption: '강가에서 볕을 쬐던 조개의 살을 도요새가 쪼자, 조개가 껍데기를 닫아 도요새 부리를 꽉 물었어요.', svg: panel(river(84) + clam(76) + snipe(100)) },
+    { caption: '“비가 안 오면 넌 말라 죽을걸!” “놓아주지 않으면 넌 굶어 죽을걸!” 둘은 서로 놓지 않았어요.', svg: panel(river(84) + clam(70) + snipe(94) + bubble(40, 22, '안 놔!', 46) + bubble(124, 22, '안 놔!', 46)) },
+    { caption: '그때 지나가던 어부가 둘을 한꺼번에 잡아갔어요. 소대는 “두 나라가 싸우면 진나라가 어부가 됩니다.”라고 했어요.', svg: panel(river(84) + p(120, 92, 0.65, -1, 'reach', '#4a5a66') + clam(60) + snipe(82) + `<path d="M104 46 Q84 56 76 80" stroke="${INK}" stroke-width="1.2" fill="none"/>` + label(120, 18, '어부', INK, 10)) },
+  ],
+  'uh-04': [
+    { caption: '아흔 살 가까운 우공의 집 앞을 큰 산 두 개가 막고 있었어요. 드나들 때마다 멀리 돌아가야 했지요.', svg: panel(mountain(110, 36) + roof(36, 70, 34) + p(36, 92, 0.55, 1, 'down', '#6b5a48')) },
+    { caption: '우공은 가족과 함께 돌을 깨고 흙을 퍼서 바닷가까지 날랐어요. 한 번 다녀오는 데 한 해가 걸렸어요.', svg: panel(mountain(130, 46) + p(30, 92, 0.55, 1, 'reach', '#6b5a48') + p(54, 92, 0.48, 1, 'reach') + p(74, 92, 0.4, 1, 'reach', JADE) + arrow(92, 70, 112, 70)) },
+    { caption: '이웃 지수가 비웃었어요. “그 나이에 풀 한 포기도 못 뽑을 텐데 산을 옮긴다고?”', svg: panel(mountain(130, 46) + p(40, 92, 0.55, 1, 'down', '#6b5a48') + p(86, 92, 0.6, -1, 'point', '#7a5a8a') + bubble(86, 22, '어리석구려!', 70)) },
+    { caption: '“내가 죽어도 자손은 끝없이 이어지고 산은 더 자라지 않소.” 그 정성에 감동한 하늘이 산을 옮겨 주었어요.', svg: panel(p(30, 92, 0.6, 1, 'up', '#6b5a48') + p(52, 92, 0.5) + p(70, 92, 0.42) + p(86, 92, 0.36) + `<g opacity=".45">` + mountain(136, 60) + `</g>` + arrow(126, 40, 150, 22, true) + sparkle(140, 50)) },
   ],
 };
 
