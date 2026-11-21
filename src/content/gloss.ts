@@ -4,6 +4,7 @@ import { GENERALS_GLOSS, GENERALS_HANJA } from './pack-generals';
 import { STRATEGISTS_GLOSS, STRATEGISTS_HANJA } from './pack-strategists';
 import { FABLES_GLOSS, FABLES_HANJA } from './pack-fables';
 import { HANFEI_GLOSS, HANFEI_HANJA } from './pack-hanfei';
+import { THREE_KINGDOMS_GLOSS, THREE_KINGDOMS_HANJA } from './pack-threekingdoms';
 
 export interface Gloss extends Hanja {
   /** 다른 훈음이나 이 원문에서의 쓰임 */
@@ -129,7 +130,7 @@ const EXTRA: Gloss[] = [
   { char: '能', hun: '능할', eum: '능' },
 ];
 
-const ALL = new Map<string, Gloss>([...EXTRA, ...GENERALS_GLOSS, ...STRATEGISTS_GLOSS, ...FABLES_GLOSS, ...HANFEI_GLOSS, ...GENERALS_HANJA, ...STRATEGISTS_HANJA, ...FABLES_HANJA, ...HANFEI_HANJA, ...HANJA].map((g) => [g.char, g] as const));
+const ALL = new Map<string, Gloss>([...EXTRA, ...GENERALS_GLOSS, ...STRATEGISTS_GLOSS, ...FABLES_GLOSS, ...HANFEI_GLOSS, ...THREE_KINGDOMS_GLOSS, ...GENERALS_HANJA, ...STRATEGISTS_HANJA, ...FABLES_HANJA, ...HANFEI_HANJA, ...THREE_KINGDOMS_HANJA, ...HANJA].map((g) => [g.char, g] as const));
 
 export function glossOf(char: string): Gloss | undefined {
   return ALL.get(char);

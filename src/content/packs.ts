@@ -4,6 +4,7 @@ import { GENERALS_STORIES, PACK_GENERALS } from './pack-generals';
 import { STRATEGISTS_STORIES, PACK_STRATEGISTS } from './pack-strategists';
 import { FABLES_STORIES, PACK_FABLES } from './pack-fables';
 import { HANFEI_STORIES, PACK_HANFEI } from './pack-hanfei';
+import { THREE_KINGDOMS_STORIES, PACK_THREE_KINGDOMS } from './pack-threekingdoms';
 import type { Story } from './types';
 
 export interface Pack {
@@ -78,6 +79,21 @@ export const PACKS: Pack[] = [
       '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
       '새 한자 13자와 원문 한자 풀이',
       '새 인물 4명(한비·남곽 선비·방공·관중)',
+      '한 번 구매하면 계속 이용, 광고 없음',
+    ],
+  },
+  {
+    id: PACK_THREE_KINGDOMS,
+    productId: 'gojeon.pack.threekingdoms',
+    title: '삼국지 정사',
+    hanja: '三國',
+    lead: '소설이 아닌 역사책 『삼국지』로 만나는 유비·제갈량·여몽·맹획. 사람을 얻고, 믿고, 배우고, 마음으로 따르게 한 네 고사를 만난다.',
+    stories: THREE_KINGDOMS_STORIES,
+    trialIds: ['sg-01'],
+    includes: [
+      '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
+      '새 한자 12자와 원문 한자 풀이',
+      '새 인물 4명(유비·제갈량·여몽·맹획)',
       '한 번 구매하면 계속 이용, 광고 없음',
     ],
   },

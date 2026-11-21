@@ -376,6 +376,50 @@ export const ART: Record<string, { svg: string; caption: string }> = {
       sl(110, 40, '老馬') + sl(200, 40, '之智'),
     ),
   },
+  // ── 확장팩 「삼국지 정사」 ──
+  'sg-01': {
+    caption: '초가(草廬)를 세 번(三) 찾아가(顧) 마침내 제갈량을 만난 유비.',
+    svg: svg(
+      `<path d="M190 112 Q240 80 290 112Z" fill="#c9a96a"/><path d="M196 112 h88 v50 h-88z" fill="#e2d3b2" stroke="${WOOD}"/><rect x="230" y="128" width="20" height="34" fill="${WOOD}" opacity=".7"/>` +
+      `<g transform="translate(300,162) scale(.7)"><path d="M0 0 V-30" stroke="${WOOD}" stroke-width="5"/><circle cy="-40" r="16" fill="${JADE}" opacity=".9"/></g>` +
+      fig(176, 162, .9, -1, 'down', '#d8c59c') +
+      fig(110, 162, 1, 1, 'reach', GOLD) +
+      `<path d="M30 150 q20 -6 40 0" stroke="${INK}" stroke-dasharray="4 4" fill="none" opacity=".5"/>` +
+      `<text x="46" y="138" font-size="13" fill="${RED}" text-anchor="middle">×3</text>` +
+      sl(80, 40, '三顧') + sl(190, 40, '草廬'),
+    ),
+  },
+  'sg-02': {
+    caption: '물(水)과 물고기(魚)처럼 떨어질 수 없는 사귐(交). “나에게 공명은 물고기의 물이다.”',
+    svg: svg(
+      `<path d="M70 140 Q160 128 250 140 V180 H70Z" fill="#6b9bb5" opacity=".4"/>` +
+      `<g transform="translate(150,158)"><ellipse rx="26" ry="11" fill="${GOLD}"/><path d="M24 0 l16 -12 v24z" fill="${GOLD}"/><circle cx="-14" cy="-3" r="2.5" fill="${INK}"/></g>` +
+      `<circle cx="196" cy="146" r="3" fill="none" stroke="${INK}" opacity=".5"/><circle cx="204" cy="138" r="2" fill="none" stroke="${INK}" opacity=".5"/>` +
+      fig(40, 162, .9, 1, 'reach', GOLD) + fig(280, 162, .9, -1, 'reach', '#d8c59c') +
+      sl(100, 40, '水魚') + sl(220, 40, '之交'),
+    ),
+  },
+  'sg-03': {
+    caption: '사흘 만에 몰라보게 달라진 여몽. 눈(目)을 비비고(刮) 서로(相) 다시 대했다(對).',
+    svg: svg(
+      fig(90, 162, 1, 1, 'reach', '#4a5a66') +
+      `<g transform="translate(60,104)"><path d="M-14 0 Q-7 -4 0 0 Q7 -4 14 0 V14 Q7 10 0 14 Q-7 10 -14 14Z" fill="${JADE}" opacity=".85"/></g>` +
+      fig(210, 162, 1, -1, 'up', RED) +
+      `<path d="M196 98 q-8 -4 -12 2" stroke="${INK}" stroke-width="2" fill="none"/>` +
+      `<text x="150" y="92" text-anchor="middle" font-size="18" fill="${RED}">!</text>` +
+      sl(80, 40, '刮目') + sl(200, 40, '相對'),
+    ),
+  },
+  'sg-04': {
+    caption: '일곱(七) 번 놓아주고(縱) 일곱 번 사로잡아(擒) 마음으로 따르게 한 제갈량.',
+    svg: svg(
+      `<path d="M30 162 L70 100 L110 162Z" fill="${INK}" opacity=".25"/>` +
+      fig(110, 162, 1, 1, 'reach', '#e2d3b2') + fig(210, 162, 1, -1, 'down', '#7a4a2a') +
+      Array.from({ length: 7 }, (_, i) => `<circle cx="${110 + i * 16}" cy="70" r="5" fill="${i % 2 ? GOLD : RED}" opacity=".8"/>`).join('') +
+      `<path d="M140 120 q20 -14 40 0" stroke="${INK}" fill="none" stroke-dasharray="4 4"/><path d="M176 114 l6 6 l-8 2" stroke="${INK}" fill="none"/>` +
+      sl(90, 40, '七縱') + sl(210, 40, '七擒'),
+    ),
+  },
 };
 
 export function artFor(storyId: string): { svg: string; caption: string } | undefined {

@@ -25,6 +25,7 @@ test('E-29 열전 지도 「명장」: 확장팩 안내, 체험 고사는 열리
   await expect(page.getByTestId('season-teaser')).toContainText('鷄口牛後');
   await expect(page.getByTestId('season-teaser')).toContainText('狐假虎威');
   await expect(page.getByTestId('season-teaser')).toContainText('守株待兔');
+  await expect(page.getByTestId('season-teaser')).toContainText('三顧草廬');
   await page.getByTestId('book-myeongjang').click();
   await expect(page.getByTestId('pack-banner')).toContainText('사기의 명장들');
   await expect(page.locator('[data-story="mj-01"]')).toBeVisible();
@@ -99,7 +100,7 @@ test('E-33 구매 복원: 스토어에 산 기록이 있으면 다시 열린다'
 test('E-34 홍보 페이지: 확장팩 4편, 광고 없음·보호자 구매·단체 문의 안내, 안내·개인정보 페이지에 연락처', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('#slip-list .slip-item')).toHaveCount(12);
-  await expect(page.locator('#pack-list .slip-pack')).toHaveCount(16); // 확장팩 4종 × 4편
+  await expect(page.locator('#pack-list .slip-pack')).toHaveCount(20); // 확장팩 5종 × 4편
   await expect(page.locator('#pack-list')).toContainText('무료 체험');
   await expect(page.locator('#pricing')).toContainText('광고도 회원가입도 없습니다');
   await page.goto('support.html');
@@ -155,4 +156,20 @@ test('E-37 확장팩 4 「한비자의 이야기」: 한비자 탭, 체험 고�
   await page.locator('[data-story="hb-04"]').click();
   await expect(page.getByTestId('storyboard')).toContainText('늙은 말');
   await expect(page.getByTestId('to-pack')).toHaveAttribute('href', '#pack-pack-hanfei');
+});
+
+test('E-38 확장팩 5 「삼국지 정사」: 삼국지 탭, 체험 고사 「삼고초려」 완주, 2편부터 확장팩, 그림으로 보는 유래', async ({ page }) => {
+  await page.goto(`${DAY}#map-sagi`);
+  await page.getByTestId('season-pack-threekingdoms').click();
+  await expect(page.getByTestId('pack-screen')).toContainText('확장팩 5');
+  await expect(page.getByTestId('pack-list')).toContainText('七縱七擒');
+  await playToResult(page, 'sg-01');
+  await expect(page.getByTestId('hero-reward')).toContainText('劉備');
+  await expect(page.getByTestId('lesson')).toContainText('삼고초려');
+  await page.goto(`${DAY}#map-samguk`);
+  await expect(page.getByTestId('pack-banner')).toContainText('삼국지 정사');
+  await expect(page.locator('[data-story="sg-02"]')).toHaveAttribute('data-paid', '1');
+  await page.locator('[data-story="sg-02"]').click();
+  await expect(page.getByTestId('storyboard')).toContainText('물고기');
+  await expect(page.getByTestId('to-pack')).toHaveAttribute('href', '#pack-pack-threekingdoms');
 });
