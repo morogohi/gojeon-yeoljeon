@@ -107,6 +107,19 @@ const horse = (x: number, y = 92, color = '#9a8a78') =>
   `<path d="M-11 -14 V0 M-4 -14 V0 M5 -14 V0 M12 -14 V0" stroke="${color}" stroke-width="3"/><path d="M-16 -21 q-7 3 -6 11" stroke="${color}" stroke-width="2" fill="none"/></g>`;
 const flute = (x: number, y: number) => `<path d="M${x} ${y} l9 -6" stroke="${GOLD}" stroke-width="2.4" stroke-linecap="round"/>`;
 
+const hut = (x: number, y = 92) =>
+  `<path d="M${x - 24} ${y - 26} Q${x} ${y - 44} ${x + 24} ${y - 26}Z" fill="#c9a96a"/><rect x="${x - 20}" y="${y - 26}" width="40" height="26" fill="#e2d3b2" stroke="${WOOD}"/><rect x="${x - 5}" y="${y - 16}" width="10" height="16" fill="${WOOD}" opacity=".7"/>`;
+const fish = (x: number, y: number, color = GOLD) =>
+  `<g transform="translate(${x},${y})"><ellipse rx="10" ry="4.5" fill="${color}"/><path d="M9 0 l7 -5 v10z" fill="${color}"/><circle cx="-5" cy="-1" r="1.2" fill="${INK}"/></g>`;
+
+const seedling = (x: number, y = 92, wilted = false) =>
+  wilted
+    ? `<path d="M${x} ${y} V${y - 10} q-2 -4 -8 -2 M${x} ${y - 10} q4 -2 6 4" stroke="#a89a6a" stroke-width="1.8" fill="none"/>`
+    : `<path d="M${x} ${y} V${y - 10}" stroke="${JADE}" stroke-width="1.8"/><path d="M${x} ${y - 8} q-6 -5 -8 0 M${x} ${y - 8} q6 -5 8 0" stroke="${JADE}" stroke-width="1.8" fill="none"/>`;
+const snowflake = (x: number, y: number) => `<text x="${x}" y="${y}" font-size="10" fill="#6b9bb5">❄</text>`;
+const go = (x: number, y: number) =>
+  `<rect x="${x - 18}" y="${y - 10}" width="36" height="20" fill="#d8b77a" stroke="${WOOD}"/>` + [[-8, -3, INK], [4, -3, '#f4f1ea'], [-2, 4, INK], [10, 4, '#f4f1ea']].map(([dx, dy, c]) => `<circle cx="${x + Number(dx)}" cy="${y + Number(dy)}" r="2.6" fill="${c}" stroke="${INK}" stroke-width=".4"/>`).join('');
+
 export const STORYBOARD: Record<string, Panel[]> = {
   'sagi-01': [
     { caption: '조나라 왕이 세상에 둘도 없는 보물 구슬 ‘화씨벽’을 얻었어요.', svg: panel(roof(52, 46, 50) + p(52, 92, 0.6, 1, 'up', '#7a2e22') + jade(66, 40, 8) + sparkle(84, 30) + sparkle(42, 28) + label(122, 40, '조나라', INK, 11)) },
@@ -279,6 +292,56 @@ export const STORYBOARD: Record<string, Panel[]> = {
     { caption: '봄에 떠난 군대가 겨울이 되어 돌아오는 길, 낯선 산속에서 그만 길을 잃었어요.', svg: panel(mountain(60, 40) + mountain(130, 50) + p(80, 92, 0.5, 1, 'down') + label(80, 24, '어느 쪽?', RED, 11)) },
     { caption: '관중이 말했어요. “늙은 말의 지혜를 빌립시다.” 그리고 늙은 말을 풀어 앞장세웠어요.', svg: panel(horse(100) + p(40, 92, 0.6, 1, 'point', GOLD) + bubble(50, 20, '늙은 말을 따르자', 96)) },
     { caption: '늙은 말은 지나온 길을 기억하고 있었어요. 군대는 말을 따라가 마침내 길을 찾았어요.', svg: panel(horse(110) + p(70, 92, 0.5) + p(48, 92, 0.5, 1, 'down', '#4a5a66') + p(26, 92, 0.5, 1, 'down', GOLD) + arrow(130, 60, 154, 60) + sparkle(146, 40)) },
+  ],
+  // ── 확장팩 「삼국지 정사」 ──
+  'sg-01': [
+    { caption: '서서가 유비에게 말했어요. “제갈공명은 누워 있는 용, 와룡입니다. 직접 찾아가셔야 만날 수 있습니다.”', svg: panel(p(50, 92, 0.6, 1, 'point') + p(110, 92, 0.6, -1, 'down', GOLD) + bubble(56, 20, '와룡이 있습니다', 92)) },
+    { caption: '유비는 몸을 낮추어 제갈량이 사는 초가로 직접 찾아갔어요.', svg: panel(hut(124) + p(40, 92, 0.6, 1, 'down', GOLD) + arrow(58, 66, 92, 66)) },
+    { caption: '한 번, 두 번으로는 만나지 못했어요. 세 번째 찾아가서야 비로소 마주 앉을 수 있었어요.', svg: panel(hut(124) + [26, 50, 74].map((x, i) => p(x, 92, 0.45, 1, 'down', i === 2 ? GOLD : '#b9a789')).join('') + label(50, 24, '1 · 2 · 3번째', RED, 10)) },
+    { caption: '제갈량은 형주와 익주를 얻고 손권과 손잡아 조조에 맞서라는 계책을 들려주었어요.', svg: panel(p(44, 92, 0.6, 1, 'down', GOLD) + p(116, 92, 0.6, -1, 'point', '#e2d3b2') + [60, 80, 100].map((x, i) => `<circle cx="${x}" cy="28" r="9" fill="${[RED, JADE, '#4a5a66'][i]}" opacity=".8"/>`).join('') + label(80, 50, '셋으로 나누기', INK, 9)) },
+  ],
+  'sg-02': [
+    { caption: '유비는 날마다 제갈량과 나랏일을 의논했어요. 둘은 날이 갈수록 가까워졌어요.', svg: panel(p(56, 92, 0.6, 1, 'reach', GOLD) + p(104, 92, 0.6, -1, 'reach', '#e2d3b2') + heart(80, 30, 1.4)) },
+    { caption: '오래 함께 싸워 온 관우와 장비는 새로 온 젊은이를 너무 아낀다며 못마땅해했어요.', svg: panel(p(40, 92, 0.6, 1, 'down', '#2f6b4a') + p(70, 92, 0.6, 1, 'down', '#3a3a3a') + p(124, 92, 0.6, -1, 'down', GOLD) + label(55, 26, '흥!', RED, 12)) },
+    { caption: '유비가 말했어요. “나에게 공명이 있는 것은 물고기에게 물이 있는 것과 같다.”', svg: panel(`<rect x="0" y="62" width="160" height="30" fill="#6b9bb5" opacity=".4"/>` + fish(110, 76) + p(40, 92, 0.6, 1, 'point', GOLD) + bubble(80, 20, '물고기와 물!', 72)) },
+    { caption: '물 없이 살 수 없는 물고기처럼, 유비에게 제갈량은 꼭 필요한 사람이었어요. 관우와 장비도 불평을 멈추었어요.', svg: panel(`<rect x="0" y="62" width="160" height="30" fill="#6b9bb5" opacity=".4"/>` + fish(50, 76) + fish(110, 74, '#c8742e') + sparkle(80, 30)) },
+  ],
+  'sg-03': [
+    { caption: '오나라 장수 여몽은 싸움은 잘했지만 공부는 하지 않았어요. “군대 일이 바빠서 책 읽을 시간이 없습니다.”', svg: panel(p(60, 92, 0.6, 1, 'down', '#4a5a66') + sword(84, 70) + book(124, 64) + label(124, 50, '?', RED, 12)) },
+    { caption: '손권이 말했어요. “나도 바쁘지만 늘 책을 읽어 큰 도움을 받았다.” 여몽은 그때부터 부지런히 공부했어요.', svg: panel(p(40, 92, 0.6, 1, 'point', GOLD) + p(110, 92, 0.6, -1, 'reach', '#4a5a66') + book(96, 58) + book(126, 40, '#8a5a33')) },
+    { caption: '얼마 뒤 여몽을 만난 노숙이 깜짝 놀랐어요. “이제 그대는 예전의 아몽이 아니구려!”', svg: panel(p(50, 92, 0.6, 1, 'up', RED) + p(110, 92, 0.6, -1, 'reach', '#4a5a66') + bubble(56, 20, '아니, 이럴 수가!', 92)) },
+    { caption: '“선비는 사흘만 헤어져 있어도 눈을 비비고 다시 보아야 합니다.” 노숙은 여몽과 벗이 되었어요.', svg: panel(p(56, 92, 0.6, 1, 'reach', RED) + p(104, 92, 0.6, -1, 'reach', '#4a5a66') + heart(80, 34) + label(80, 18, '사흘', INK, 10)) },
+  ],
+  'sg-04': [
+    { caption: '촉한의 승상 제갈량이 남쪽 지방을 평정하러 나섰고, 그곳 우두머리 맹획을 사로잡았어요.', svg: panel(flag(30, 40, '蜀') + p(60, 92, 0.6, 1, 'point', '#e2d3b2') + p(116, 92, 0.6, -1, 'down', '#7a4a2a')) },
+    { caption: '진영을 둘러본 맹획이 말했어요. “이 정도라면 다음엔 쉽게 이기겠소!” 제갈량은 웃으며 풀어 주었어요.', svg: panel(tent(130) + p(50, 92, 0.6, 1, 'down', '#e2d3b2') + p(90, 92, 0.6, 1, 'point', '#7a4a2a') + bubble(90, 20, '이길 수 있소!', 78)) },
+    { caption: '놓아주면 다시 싸우고, 또 사로잡고… 그렇게 일곱 번을 놓아주고 일곱 번을 사로잡았어요.', svg: panel(Array.from({ length: 7 }, (_, i) => `<circle cx="${26 + i * 18}" cy="30" r="6" fill="${i % 2 ? GOLD : RED}" opacity=".8"/>`).join('') + p(50, 92, 0.55, 1, 'reach', '#e2d3b2') + p(110, 92, 0.55, -1, 'down', '#7a4a2a') + label(80, 56, '×7', INK, 12)) },
+    { caption: '일곱 번째에 맹획은 떠나지 않았어요. “남쪽 사람들은 다시는 배반하지 않겠습니다.” 마음으로 따른 거예요.', svg: panel(p(50, 92, 0.6, 1, 'reach', '#e2d3b2') + p(110, 92, 0.55, -1, 'reach', '#7a4a2a') + heart(80, 34, 1.3)) },
+  ],
+  // ── 확장팩 「맹자의 가르침」 ──
+  'mz-01': [
+    { caption: '송나라 농부는 자기가 심은 싹이 빨리 자라지 않아 속이 탔어요.', svg: panel([80, 98, 116, 134, 152].map((x) => seedling(x)).join('') + p(40, 92, 0.6, 1, 'down', '#6b5a48') + label(40, 24, '언제 커?', RED, 10)) },
+    { caption: '농부는 논에 나가 싹을 하나하나 조금씩 뽑아 올렸어요. “이러면 금방 크겠지!”', svg: panel([80, 98, 116, 134, 152].map((x) => seedling(x, 86)).join('') + p(50, 92, 0.6, 1, 'up', '#6b5a48') + arrow(88, 60, 88, 46)) },
+    { caption: '집에 돌아온 농부가 말했어요. “오늘 정말 힘들었다. 싹이 자라도록 도와주었거든!”', svg: panel(roof(110, 50, 50) + p(60, 92, 0.6, 1, 'down', '#6b5a48') + p(116, 92, 0.5, -1) + bubble(64, 20, '도와줬지!', 60)) },
+    { caption: '아들이 달려가 보니 싹은 모두 말라 시들어 있었어요. 억지로 돕다가 오히려 망친 거예요.', svg: panel([60, 78, 96, 114, 132].map((x) => seedling(x, 92, true)).join('') + p(30, 92, 0.5, 1, 'up', JADE) + label(96, 30, '아이고!', RED, 12)) },
+  ],
+  'mz-02': [
+    { caption: '제자 공손추가 물었어요. “선생님은 무엇을 잘하십니까?” “나는 호연지기를 잘 기른다.”', svg: panel(p(50, 92, 0.6, 1, 'reach', '#4a5a66') + p(110, 92, 0.65, -1, 'point', JADE) + bubble(110, 20, '호연지기!', 60)) },
+    { caption: '호연지기는 아주 크고 굳센 기운이에요. 곧게 기르면 하늘과 땅 사이를 가득 채운대요.', svg: panel(mountain(80, 50) + `<circle cx="134" cy="22" r="9" fill="#f2c14e"/>` + p(80, 92, 0.6, 1, 'up', JADE) + `<path d="M50 40 q30 -20 60 0" stroke="${GOLD}" fill="none" stroke-width="1.6"/>`) },
+    { caption: '이 기운은 옳은 일을 하나하나 꾸준히 쌓을 때 자라나요. 부끄러운 일을 하면 시들어 버려요.', svg: panel([30, 50, 70, 90, 110].map((x, i) => `<rect x="${x}" y="${84 - i * 8}" width="16" height="${8 + i * 8}" fill="${JADE}" opacity="${0.4 + i * 0.12}"/>`).join('') + p(140, 92, 0.55, -1, 'up', JADE)) },
+    { caption: '맹자는 “잊지도 말고, 억지로 서두르지도 말라”고 하며 싹을 뽑아 올린 농부 이야기를 들려주었어요.', svg: panel(p(40, 92, 0.6, 1, 'point', JADE) + seedling(100) + seedling(116) + seedling(132, 92, true) + label(116, 50, '천천히, 꾸준히', INK, 9)) },
+  ],
+  'mz-03': [
+    { caption: '제나라 선왕은 군대를 일으켜 이웃 나라를 굴복시키고 천하를 차지하고 싶어 했어요.', svg: panel(roof(50, 46, 40) + p(50, 92, 0.6, 1, 'point', GOLD) + flag(100, 40, '齊') + castle(136, 92, 24)) },
+    { caption: '맹자가 말했어요. “지금 방법으로 그것을 구하는 건 나무에 올라가 물고기를 찾는 것과 같습니다.”', svg: panel(tree(110, 92, 1.1) + p(110, 60, 0.4, 1, 'reach', GOLD) + p(40, 92, 0.6, 1, 'point', JADE) + label(134, 30, '물고기?', RED, 10)) },
+    { caption: '“그렇게까지 심하단 말이오?” 놀란 왕에게 맹자는 더 나쁜 점이 있다고 했어요.', svg: panel(p(50, 92, 0.6, 1, 'up', GOLD) + p(110, 92, 0.6, -1, 'point', JADE) + bubble(50, 20, '그렇게나?', 60)) },
+    { caption: '“나무 위에선 물고기를 못 얻을 뿐이지만, 전쟁으로 천하를 얻으려 하면 반드시 재앙이 옵니다. 어진 정치를 하십시오.”', svg: panel(p(40, 92, 0.6, 1, 'point', JADE) + [86, 106, 126, 146].map((x) => p(x, 92, 0.45, -1, 'down', '#8a8070')).join('') + heart(116, 34)) },
+  ],
+  'mz-04': [
+    { caption: '“아무리 잘 자라는 식물도 하루 볕을 쬐고 열흘 춥게 두면 자랄 수 없다.”', svg: panel(`<circle cx="30" cy="26" r="9" fill="#f2c14e"/>` + [70, 86, 102, 118, 134, 150].map((x, i) => snowflake(x - 4, 24 + (i % 2) * 14)).join('') + seedling(80, 92, true)) },
+    { caption: '맹자가 말했어요. “내가 왕을 만나는 날은 드물고, 내가 물러나면 왕의 마음을 차갑게 하는 사람들이 몰려온다.”', svg: panel(roof(120, 46, 40) + p(120, 92, 0.55, -1, 'down', GOLD) + p(40, 92, 0.55, 1, 'point', JADE) + snowflake(80, 40) + snowflake(96, 30)) },
+    { caption: '바둑 명인 혁추가 두 사람을 가르쳤어요. 한 사람은 온 마음을 다해 들었고, 한 사람은 날아오는 고니를 쏠 생각만 했어요.', svg: panel(go(80, 80) + p(40, 92, 0.55, 1, 'reach') + p(122, 92, 0.55, -1, 'down', '#6b5a48') + bubble(132, 20, '고니다…', 52)) },
+    { caption: '같이 배웠지만 두 번째 사람은 따라가지 못했어요. 머리가 나빠서가 아니라 마음을 쏟지 않았기 때문이에요.', svg: panel(p(50, 92, 0.6, 1, 'up', JADE) + p(114, 92, 0.55, -1, 'down', '#6b5a48') + sparkle(50, 24) + label(114, 30, '…', INK, 14)) },
   ],
 };
 

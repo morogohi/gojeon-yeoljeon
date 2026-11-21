@@ -3,6 +3,8 @@ import { GENERALS_STORIES } from './pack-generals';
 import { STRATEGISTS_STORIES } from './pack-strategists';
 import { FABLES_STORIES } from './pack-fables';
 import { HANFEI_STORIES } from './pack-hanfei';
+import { THREE_KINGDOMS_STORIES } from './pack-threekingdoms';
+import { MENCIUS_STORIES } from './pack-mencius';
 
 const ok = (label: string, feedback: string): ChoiceOption => ({ label, correct: true, feedback });
 const no = (label: string, feedback: string): ChoiceOption => ({ label, correct: false, feedback });
@@ -339,7 +341,7 @@ export const STORIES: Story[] = [
 ];
 
 /** 무료 12편 + 확장팩 고사. 무료 학습 지표·퍼즐 '전체'·문제 보기는 STORIES(무료)를 쓴다. */
-export const ALL_STORIES: Story[] = [...STORIES, ...GENERALS_STORIES, ...STRATEGISTS_STORIES, ...FABLES_STORIES, ...HANFEI_STORIES];
+export const ALL_STORIES: Story[] = [...STORIES, ...GENERALS_STORIES, ...STRATEGISTS_STORIES, ...FABLES_STORIES, ...HANFEI_STORIES, ...THREE_KINGDOMS_STORIES, ...MENCIUS_STORIES];
 
 const byId = new Map(ALL_STORIES.map((s) => [s.id, s]));
 

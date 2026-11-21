@@ -22,8 +22,8 @@ describe('K 확장팩 콘텐츠', () => {
   it('K-01 4편, 무료 12편과 ID가 겹치지 않고 무료 목록(STORIES)에는 들어가지 않는다', () => {
     expect(GENERALS_STORIES).toHaveLength(4);
     expect(STORIES).toHaveLength(12);
-    expect(ALL_STORIES).toHaveLength(28); // 무료 12 + 확장팩 4종 × 4
-    expect(new Set(ALL_STORIES.map((s) => s.id)).size).toBe(28);
+    expect(ALL_STORIES).toHaveLength(36); // 무료 12 + 확장팩 6종 × 4
+    expect(new Set(ALL_STORIES.map((s) => s.id)).size).toBe(36);
     for (const s of GENERALS_STORIES) {
       expect(s.pack).toBe('pack-generals');
       expect(s.book).toBe('myeongjang');
@@ -52,7 +52,7 @@ describe('K 확장팩 콘텐츠', () => {
     const p = getPack('pack-generals')!;
     expect(p.productId).toMatch(/^[a-z0-9.]+$/);
     expect(p.trialIds).toEqual(['mj-01']);
-    expect(PACKS.map((x) => x.id)).toEqual(['pack-generals', 'pack-strategists', 'pack-fables', 'pack-hanfei']);
+    expect(PACKS.map((x) => x.id)).toEqual(['pack-generals', 'pack-strategists', 'pack-fables', 'pack-hanfei', 'pack-threekingdoms', 'pack-mencius']);
     expect(new Set(PACKS.map((x) => x.productId)).size).toBe(PACKS.length);
   });
 
@@ -151,6 +151,68 @@ describe('K 확장팩 4 「한비자의 이야기」', () => {
     const own = { ...s, owned: [...s.owned, 'pack-hanfei'] };
     expect(isUnlocked(own, getStory('hb-02')!)).toBe(true);
     expect(isUnlocked(own, getStory('hb-03')!)).toBe(false);
+  });
+});
+
+describe('K 확장팩 5 「삼국지 정사」', () => {
+  const sg = ALL_STORIES.filter((s) => s.pack === 'pack-threekingdoms');
+  it('K-19 4편, 첫 고사 체험, 성어 한자는 무료 44자와 겹치지 않고(水·之·交 제외) 사전·풀이·독음이 맞으며 출전은 정사·배송지 주', () => {
+    expect(sg.map((s) => s.id)).toEqual(['sg-01', 'sg-02', 'sg-03', 'sg-04']);
+    expect(getPack('pack-threekingdoms')!.trialIds).toEqual(['sg-01']);
+    expect(getPack('pack-threekingdoms')!.productId).toBe('gojeon.pack.threekingdoms');
+    const free = new Set(HANJA.map((h) => h.char));
+    const pack = PACK_HANJA['pack-threekingdoms'];
+    expect(pack).toHaveLength(12);
+    for (const h of pack) expect(free.has(h.char), h.char).toBe(false);
+    for (const s of sg) for (const c of s.idiom) expect(free.has(c) || pack.some((h) => h.char === c), `${s.id} ${c}`).toBe(true);
+    expect(new Set(sg.map((x) => x.heroId)).size).toBe(4);
+    for (const s of sg) {
+      expect(s.source, s.id).toMatch(/^『삼국지』/); // 소설 『삼국지연의』가 아닌 정사
+      expect([...s.idiom].map((c, i) => READING_EXCEPTIONS[`${s.idiom}:${i}`] ?? getHanja(c).eum).join(''), s.id).toBe(s.reading);
+      for (const c of [...s.original.text, ...s.related.flatMap((r) => [...r.word])].filter(isHan)) expect(glossOf(c), `${s.id} ${c}`).toBeDefined();
+    }
+  });
+  it('K-20 서고 지표: 5팩만 있으면 56자, 다섯 팩을 모두 가지면 겹치는 三을 한 번만 세어 107자', () => {
+    expect(hanjaStats({ ...defaultSave(), owned: ['pack-threekingdoms'] }).total).toBe(56);
+    expect(hanjaStats({ ...defaultSave(), owned: ['pack-generals', 'pack-strategists', 'pack-fables', 'pack-hanfei', 'pack-threekingdoms'] }).total).toBe(107);
+  });
+  it('K-21 5팩 보유권: 다른 팩만 사면 체험(sg-01)만 열리고, 5팩을 사면 차례로 열린다', () => {
+    const s = applyClear({ ...defaultSave(), owned: ['pack-hanfei'] }, getStory('sg-01')!, 3).save;
+    expect(isUnlocked(s, getStory('sg-02')!)).toBe(false);
+    const own = { ...s, owned: [...s.owned, 'pack-threekingdoms'] };
+    expect(isUnlocked(own, getStory('sg-02')!)).toBe(true);
+    expect(isUnlocked(own, getStory('sg-03')!)).toBe(false);
+  });
+});
+
+describe('K 확장팩 6 「맹자의 가르침」', () => {
+  const mz = ALL_STORIES.filter((s) => s.pack === 'pack-mencius');
+  it('K-22 4편, 첫 고사 체험, 성어 한자는 무료 44자와 겹치지 않고(之 제외) 사전·풀이·독음이 맞으며 출전은 『맹자』', () => {
+    expect(mz.map((s) => s.id)).toEqual(['mz-01', 'mz-02', 'mz-03', 'mz-04']);
+    expect(getPack('pack-mencius')!.trialIds).toEqual(['mz-01']);
+    expect(getPack('pack-mencius')!.productId).toBe('gojeon.pack.mencius');
+    const free = new Set(HANJA.map((h) => h.char));
+    const pack = PACK_HANJA['pack-mencius'];
+    expect(pack).toHaveLength(15);
+    for (const h of pack) expect(free.has(h.char), h.char).toBe(false);
+    for (const s of mz) for (const c of s.idiom) expect(free.has(c) || pack.some((h) => h.char === c), `${s.id} ${c}`).toBe(true);
+    expect(new Set(mz.map((x) => x.heroId)).size).toBe(4);
+    for (const s of mz) {
+      expect(s.source, s.id).toMatch(/^『맹자』/);
+      expect([...s.idiom].map((c, i) => READING_EXCEPTIONS[`${s.idiom}:${i}`] ?? getHanja(c).eum).join(''), s.id).toBe(s.reading);
+      for (const c of [...s.original.text, ...s.related.flatMap((r) => [...r.word])].filter(isHan)) expect(glossOf(c), `${s.id} ${c}`).toBeDefined();
+    }
+  });
+  it('K-23 서고 지표: 6팩만 있으면 59자, 여섯 팩을 모두 가지면 겹치는 魚를 한 번만 세어 121자', () => {
+    expect(hanjaStats({ ...defaultSave(), owned: ['pack-mencius'] }).total).toBe(59);
+    expect(hanjaStats({ ...defaultSave(), owned: PACKS.map((p) => p.id) }).total).toBe(121);
+  });
+  it('K-24 6팩 보유권: 다른 팩만 사면 체험(mz-01)만 열리고, 6팩을 사면 차례로 열린다', () => {
+    const s = applyClear({ ...defaultSave(), owned: ['pack-threekingdoms'] }, getStory('mz-01')!, 3).save;
+    expect(isUnlocked(s, getStory('mz-02')!)).toBe(false);
+    const own = { ...s, owned: [...s.owned, 'pack-mencius'] };
+    expect(isUnlocked(own, getStory('mz-02')!)).toBe(true);
+    expect(isUnlocked(own, getStory('mz-03')!)).toBe(false);
   });
 });
 
