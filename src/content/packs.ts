@@ -5,6 +5,7 @@ import { STRATEGISTS_STORIES, PACK_STRATEGISTS } from './pack-strategists';
 import { FABLES_STORIES, PACK_FABLES } from './pack-fables';
 import { HANFEI_STORIES, PACK_HANFEI } from './pack-hanfei';
 import { THREE_KINGDOMS_STORIES, PACK_THREE_KINGDOMS } from './pack-threekingdoms';
+import { MENCIUS_STORIES, PACK_MENCIUS } from './pack-mencius';
 import type { Story } from './types';
 
 export interface Pack {
@@ -94,6 +95,21 @@ export const PACKS: Pack[] = [
       '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
       '새 한자 12자와 원문 한자 풀이',
       '새 인물 4명(유비·제갈량·여몽·맹획)',
+      '한 번 구매하면 계속 이용, 광고 없음',
+    ],
+  },
+  {
+    id: PACK_MENCIUS,
+    productId: 'gojeon.pack.mencius',
+    title: '맹자의 가르침',
+    hanja: '孟子',
+    lead: '싹을 뽑아 올린 농부, 하늘과 땅을 채우는 기운, 나무 위의 물고기, 하루 볕과 열흘 추위. 맹자가 제자와 왕에게 들려준 네 비유를 만난다.',
+    stories: MENCIUS_STORIES,
+    trialIds: ['mz-01'],
+    includes: [
+      '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
+      '새 한자 15자와 원문 한자 풀이',
+      '새 인물 4명(공손추·맹자·제 선왕·혁추)',
       '한 번 구매하면 계속 이용, 광고 없음',
     ],
   },

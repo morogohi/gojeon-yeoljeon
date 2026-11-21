@@ -26,6 +26,7 @@ test('E-29 열전 지도 「명장」: 확장팩 안내, 체험 고사는 열리
   await expect(page.getByTestId('season-teaser')).toContainText('狐假虎威');
   await expect(page.getByTestId('season-teaser')).toContainText('守株待兔');
   await expect(page.getByTestId('season-teaser')).toContainText('三顧草廬');
+  await expect(page.getByTestId('season-teaser')).toContainText('揠苗助長');
   await page.getByTestId('book-myeongjang').click();
   await expect(page.getByTestId('pack-banner')).toContainText('사기의 명장들');
   await expect(page.locator('[data-story="mj-01"]')).toBeVisible();
@@ -100,7 +101,7 @@ test('E-33 구매 복원: 스토어에 산 기록이 있으면 다시 열린다'
 test('E-34 홍보 페이지: 확장팩 4편, 광고 없음·보호자 구매·단체 문의 안내, 안내·개인정보 페이지에 연락처', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('#slip-list .slip-item')).toHaveCount(12);
-  await expect(page.locator('#pack-list .slip-pack')).toHaveCount(20); // 확장팩 5종 × 4편
+  await expect(page.locator('#pack-list .slip-pack')).toHaveCount(24); // 확장팩 6종 × 4편
   await expect(page.locator('#pack-list')).toContainText('무료 체험');
   await expect(page.locator('#pricing')).toContainText('광고도 회원가입도 없습니다');
   await page.goto('support.html');
@@ -172,4 +173,20 @@ test('E-38 확장팩 5 「삼국지 정사」: 삼국지 탭, 체험 고사 「�
   await page.locator('[data-story="sg-02"]').click();
   await expect(page.getByTestId('storyboard')).toContainText('물고기');
   await expect(page.getByTestId('to-pack')).toHaveAttribute('href', '#pack-pack-threekingdoms');
+});
+
+test('E-39 확장팩 6 「맹자의 가르침」: 맹자 탭, 체험 고사 「알묘조장」 완주, 2편부터 확장팩, 그림으로 보는 유래', async ({ page }) => {
+  await page.goto(`${DAY}#map-sagi`);
+  await page.getByTestId('season-pack-mencius').click();
+  await expect(page.getByTestId('pack-screen')).toContainText('확장팩 6');
+  await expect(page.getByTestId('pack-list')).toContainText('一曝十寒');
+  await playToResult(page, 'mz-01');
+  await expect(page.getByTestId('hero-reward')).toContainText('公孫丑');
+  await expect(page.getByTestId('lesson')).toContainText('알묘조장');
+  await page.goto(`${DAY}#map-maengja`);
+  await expect(page.getByTestId('pack-banner')).toContainText('맹자의 가르침');
+  await expect(page.locator('[data-story="mz-02"]')).toHaveAttribute('data-paid', '1');
+  await page.locator('[data-story="mz-04"]').click();
+  await expect(page.getByTestId('storyboard')).toContainText('혁추');
+  await expect(page.getByTestId('to-pack')).toHaveAttribute('href', '#pack-pack-mencius');
 });

@@ -420,6 +420,47 @@ export const ART: Record<string, { svg: string; caption: string }> = {
       sl(90, 40, '七縱') + sl(210, 40, '七擒'),
     ),
   },
+  // ── 확장팩 「맹자의 가르침」 ──
+  'mz-01': {
+    caption: '싹(苗)을 뽑아(揠) 올려 자라기(長)를 도운(助) 농부. 싹은 모두 말라 버렸다.',
+    svg: svg(
+      `<path d="M120 162 H310" stroke="#6b9bb5" stroke-width="6" opacity=".35"/>` +
+      [140, 170, 200, 230, 260, 290].map((x, i) => `<path d="M${x} 162 V${i % 2 ? 136 : 140}" stroke="#a89a6a" stroke-width="2"/><path d="M${x} ${i % 2 ? 140 : 144} q-8 -4 -10 2 M${x} ${i % 2 ? 140 : 144} q8 -4 10 2" stroke="#a89a6a" fill="none" stroke-width="2"/><path d="M${x - 3} 162 q3 6 6 0" stroke="${WOOD}" fill="none"/>`).join('') +
+      fig(90, 162, 1, 1, 'up', '#6b5a48') +
+      `<path d="M108 98 l-3 -10 M112 96 l2 -10" stroke="${JADE}" stroke-width="2"/>` +
+      sl(80, 40, '揠苗') + sl(200, 40, '助長'),
+    ),
+  },
+  'mz-02': {
+    caption: '하늘과 땅 사이를 가득 채우는 넓고(浩) 큰 그러한(然) 기운(氣).',
+    svg: svg(
+      `<path d="M0 162 L90 96 L160 140 L230 84 L320 150 V162Z" fill="${INK}" opacity=".25"/>` +
+      `<circle cx="250" cy="60" r="18" fill="#f2c14e" opacity=".8"/>` +
+      fig(150, 162, 1.05, 1, 'up', JADE) +
+      [0, 1, 2].map((i) => `<path d="M${110 - i * 22} ${110 - i * 10} q40 -30 80 0" stroke="${GOLD}" stroke-width="2" fill="none" opacity="${0.8 - i * 0.2}"/>`).join('') +
+      sl(80, 40, '浩然') + sl(190, 40, '之氣'),
+    ),
+  },
+  'mz-03': {
+    caption: '나무(木)에 올라가(緣) 물고기(魚)를 구하는(求) 것. 방법이 틀리면 얻을 수 없다.',
+    svg: svg(
+      `<path d="M150 162 V70" stroke="${WOOD}" stroke-width="10"/><circle cx="150" cy="60" r="34" fill="${JADE}" opacity=".85"/><circle cx="120" cy="78" r="20" fill="${JADE}" opacity=".7"/><circle cx="182" cy="78" r="20" fill="${JADE}" opacity=".7"/>` +
+      fig(170, 104, .7, 1, 'reach', GOLD) +
+      `<path d="M230 150 Q270 140 310 150 V162 H230Z" fill="#6b9bb5" opacity=".45"/><g transform="translate(272,152)"><ellipse rx="10" ry="4.5" fill="${GOLD}"/><path d="M9 0 l7 -5 v10z" fill="${GOLD}"/></g>` +
+      `<text x="208" y="96" font-size="16" fill="${RED}">?</text>` +
+      sl(60, 40, '緣木') + sl(250, 40, '求魚'),
+    ),
+  },
+  'mz-04': {
+    caption: '하루(一) 볕을 쬐고(曝) 열흘(十) 춥게(寒) 두면 어떤 싹도 자라지 못한다.',
+    svg: svg(
+      `<circle cx="70" cy="80" r="20" fill="#f2c14e"/>` + [0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<path d="M${70 + Math.cos(i * 0.785) * 26} ${80 + Math.sin(i * 0.785) * 26} l${(Math.cos(i * 0.785) * 8).toFixed(1)} ${(Math.sin(i * 0.785) * 8).toFixed(1)}" stroke="#f2c14e" stroke-width="2"/>`).join('') +
+      Array.from({ length: 10 }, (_, i) => `<text x="${150 + (i % 5) * 32}" y="${84 + Math.floor(i / 5) * 30}" font-size="16" fill="#6b9bb5">❄</text>`).join('') +
+      `<path d="M160 162 V146 M160 150 q-8 -4 -10 2" stroke="#a89a6a" stroke-width="2" fill="none"/>` +
+      `<path d="M110 70 V130" stroke="${INK}" stroke-dasharray="3 4" opacity=".4"/>` +
+      sl(70, 140, '一曝') + sl(230, 140, '十寒'),
+    ),
+  },
 };
 
 export function artFor(storyId: string): { svg: string; caption: string } | undefined {
