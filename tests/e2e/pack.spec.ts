@@ -24,6 +24,7 @@ test('E-29 열전 지도 「명장」: 확장팩 안내, 체험 고사는 열리
   await expect(page.getByTestId('season-teaser')).toContainText('先則制人');
   await expect(page.getByTestId('season-teaser')).toContainText('鷄口牛後');
   await expect(page.getByTestId('season-teaser')).toContainText('狐假虎威');
+  await expect(page.getByTestId('season-teaser')).toContainText('守株待兔');
   await page.getByTestId('book-myeongjang').click();
   await expect(page.getByTestId('pack-banner')).toContainText('사기의 명장들');
   await expect(page.locator('[data-story="mj-01"]')).toBeVisible();
@@ -98,7 +99,7 @@ test('E-33 구매 복원: 스토어에 산 기록이 있으면 다시 열린다'
 test('E-34 홍보 페이지: 확장팩 4편, 광고 없음·보호자 구매·단체 문의 안내, 안내·개인정보 페이지에 연락처', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('#slip-list .slip-item')).toHaveCount(12);
-  await expect(page.locator('#pack-list .slip-pack')).toHaveCount(12); // 확장팩 3종 × 4편
+  await expect(page.locator('#pack-list .slip-pack')).toHaveCount(16); // 확장팩 4종 × 4편
   await expect(page.locator('#pack-list')).toContainText('무료 체험');
   await expect(page.locator('#pricing')).toContainText('광고도 회원가입도 없습니다');
   await page.goto('support.html');
@@ -138,4 +139,20 @@ test('E-36 확장팩 3 「우화 속 지혜」: 우화 탭, 체험 고사 「호
   await page.locator('[data-story="uh-03"]').click();
   await expect(page.getByTestId('storyboard')).toContainText('도요새');
   await expect(page.getByTestId('to-pack')).toHaveAttribute('href', '#pack-pack-fables');
+});
+
+test('E-37 확장팩 4 「한비자의 이야기」: 한비자 탭, 체험 고사 「수주대토」 완주, 2편부터 확장팩, 그림으로 보는 유래', async ({ page }) => {
+  await page.goto(`${DAY}#map-sagi`);
+  await page.getByTestId('season-pack-hanfei').click();
+  await expect(page.getByTestId('pack-screen')).toContainText('확장팩 4');
+  await expect(page.getByTestId('pack-list')).toContainText('老馬之智');
+  await playToResult(page, 'hb-01');
+  await expect(page.getByTestId('hero-reward')).toContainText('韓非');
+  await expect(page.getByTestId('lesson')).toContainText('수주대토');
+  await page.goto(`${DAY}#map-hanbi`);
+  await expect(page.getByTestId('pack-banner')).toContainText('한비자의 이야기');
+  await expect(page.locator('[data-story="hb-02"]')).toHaveAttribute('data-paid', '1');
+  await page.locator('[data-story="hb-04"]').click();
+  await expect(page.getByTestId('storyboard')).toContainText('늙은 말');
+  await expect(page.getByTestId('to-pack')).toHaveAttribute('href', '#pack-pack-hanfei');
 });

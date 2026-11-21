@@ -46,7 +46,7 @@ export function mapScreen(args: string[]): Screen {
     ...PACKS.map((p, i) => h('a', { class: 'season-pack', href: `#pack-${p.id}`, 'data-testid': `season-${p.id}` },
       h('h3', null, `${i + 1}. ${p.title} `, h('span', { class: 'hanja-sm' }, p.hanja)),
       h('p', { class: 'season-idioms' }, p.stories.map((s) => s.idiom).join(' · ')))),
-    h('p', { class: 'season-note' }, '그 뒤로 한비자의 이야기, 삼국지 정사, 맹자·장자가 이어진다.'),
+    h('p', { class: 'season-note' }, '그 뒤로 삼국지 정사, 맹자·장자, 논어 심화가 이어진다.'),
     h('p', { class: 'season-free' }, '지금의 사기·논어 12편은 앞으로도 무료이고 광고가 없다.'),
   ));
   return { el };

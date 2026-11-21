@@ -100,6 +100,13 @@ const snipe = (x: number, y = 70) =>
 const mountain = (x: number, top: number) =>
   `<path d="M${x - 44} 92 L${x} ${top} L${x + 44} 92Z" fill="${INK}" opacity=".55"/><path d="M${x + 4} 92 L${x + 30} ${top + 24} L${x + 56} 92Z" fill="${INK}" opacity=".35"/>`;
 
+const stump = (x: number, y = 92) =>
+  `<path d="M${x - 9} ${y} V${y - 12} h18 V${y}" fill="${WOOD}"/><ellipse cx="${x}" cy="${y - 12}" rx="9" ry="3" fill="#c9a47a" stroke="${WOOD}"/>`;
+const horse = (x: number, y = 92, color = '#9a8a78') =>
+  `<g transform="translate(${x},${y})"><ellipse cx="0" cy="-20" rx="16" ry="7" fill="${color}"/><path d="M12 -24 L22 -36" stroke="${color}" stroke-width="5" stroke-linecap="round"/><ellipse cx="25" cy="-37" rx="6" ry="3.5" fill="${color}" transform="rotate(25 25 -37)"/>` +
+  `<path d="M-11 -14 V0 M-4 -14 V0 M5 -14 V0 M12 -14 V0" stroke="${color}" stroke-width="3"/><path d="M-16 -21 q-7 3 -6 11" stroke="${color}" stroke-width="2" fill="none"/></g>`;
+const flute = (x: number, y: number) => `<path d="M${x} ${y} l9 -6" stroke="${GOLD}" stroke-width="2.4" stroke-linecap="round"/>`;
+
 export const STORYBOARD: Record<string, Panel[]> = {
   'sagi-01': [
     { caption: '조나라 왕이 세상에 둘도 없는 보물 구슬 ‘화씨벽’을 얻었어요.', svg: panel(roof(52, 46, 50) + p(52, 92, 0.6, 1, 'up', '#7a2e22') + jade(66, 40, 8) + sparkle(84, 30) + sparkle(42, 28) + label(122, 40, '조나라', INK, 11)) },
@@ -247,6 +254,31 @@ export const STORYBOARD: Record<string, Panel[]> = {
     { caption: '우공은 가족과 함께 돌을 깨고 흙을 퍼서 바닷가까지 날랐어요. 한 번 다녀오는 데 한 해가 걸렸어요.', svg: panel(mountain(130, 46) + p(30, 92, 0.55, 1, 'reach', '#6b5a48') + p(54, 92, 0.48, 1, 'reach') + p(74, 92, 0.4, 1, 'reach', JADE) + arrow(92, 70, 112, 70)) },
     { caption: '이웃 지수가 비웃었어요. “그 나이에 풀 한 포기도 못 뽑을 텐데 산을 옮긴다고?”', svg: panel(mountain(130, 46) + p(40, 92, 0.55, 1, 'down', '#6b5a48') + p(86, 92, 0.6, -1, 'point', '#7a5a8a') + bubble(86, 22, '어리석구려!', 70)) },
     { caption: '“내가 죽어도 자손은 끝없이 이어지고 산은 더 자라지 않소.” 그 정성에 감동한 하늘이 산을 옮겨 주었어요.', svg: panel(p(30, 92, 0.6, 1, 'up', '#6b5a48') + p(52, 92, 0.5) + p(70, 92, 0.42) + p(86, 92, 0.36) + `<g opacity=".45">` + mountain(136, 60) + `</g>` + arrow(126, 40, 150, 22, true) + sparkle(140, 50)) },
+  ],
+  // ── 확장팩 「한비자의 이야기」 ──
+  'hb-01': [
+    { caption: '송나라 농부가 밭을 갈고 있었어요. 밭 한가운데에는 나무 그루터기가 하나 있었어요.', svg: panel(stump(100) + p(50, 92, 0.6, 1, 'reach', '#6b5a48') + `<path d="M64 70 L80 88" stroke="${WOOD}" stroke-width="2.5"/>`) },
+    { caption: '달려오던 토끼가 그루터기에 쾅! 부딪혀 쓰러졌어요. 농부는 공짜로 토끼를 얻었어요.', svg: panel(stump(100) + rabbit(84) + arrow(40, 82, 70, 82) + label(100, 52, '쾅!', RED, 13)) },
+    { caption: '“또 토끼가 오겠지!” 농부는 쟁기를 내려놓고 날마다 그루터기 옆에서 기다렸어요.', svg: panel(stump(100) + p(70, 92, 0.6, 1, 'down', '#6b5a48') + `<path d="M20 90 L40 74" stroke="${WOOD}" stroke-width="2.5"/>` + bubble(70, 22, '또 오겠지?', 64)) },
+    { caption: '토끼는 다시 오지 않았고 밭은 풀만 무성해졌어요. 농부는 송나라의 웃음거리가 되었어요.', svg: panel(stump(100) + p(70, 92, 0.6, 1, 'down', '#6b5a48') + sprout(20) + sprout(34) + sprout(130) + sprout(146) + p(140, 92, 0.45, -1, 'point') + label(140, 30, '하하', INK, 10)) },
+  ],
+  'hb-02': [
+    { caption: '제나라 선왕은 피리(우) 연주를 좋아했는데, 꼭 삼백 명이 한꺼번에 부는 합주만 들었어요.', svg: panel([24, 44, 64, 84, 104].map((x) => p(x, 92, 0.42, 1, 'reach') + flute(x + 8, 72)).join('') + roof(140, 46, 30) + p(140, 92, 0.5, -1, 'down', GOLD)) },
+    { caption: '남곽 선비는 불 줄도 모르면서 악사들 사이에 섞여 부는 척만 하고 녹봉을 받았어요.', svg: panel([30, 54, 78, 102, 126].map((x, i) => p(x, 92, 0.45, 1, 'reach', i === 2 ? '#8a6a4a' : INK) + flute(x + 8, 70)).join('') + label(78, 30, '쉿…', RED, 11)) },
+    { caption: '선왕이 죽고 민왕이 왕이 되었어요. 민왕은 한 사람씩 따로 불게 해서 듣기를 좋아했어요.', svg: panel(roof(124, 46, 40) + p(124, 92, 0.6, -1, 'point', GOLD) + p(60, 92, 0.55, 1, 'reach') + flute(70, 66) + bubble(110, 20, '한 명씩!', 56)) },
+    { caption: '이제 혼자 불어야 하니 숨을 곳이 없었어요. 남곽 선비는 차례가 오기 전에 몰래 달아났어요.', svg: panel(roof(130, 46, 34) + p(60, 92, 0.55, -1, 'down', '#8a6a4a') + arrow(48, 70, 16, 70) + label(110, 24, '다음은…?', INK, 10)) },
+  ],
+  'hb-03': [
+    { caption: '위나라 신하 방공은 태자와 함께 조나라에 볼모로 가게 되었어요. 떠나기 전에 왕에게 물었어요.', svg: panel(roof(120, 46, 40) + p(120, 92, 0.6, -1, 'down', GOLD) + p(56, 92, 0.6, 1, 'point') + bubble(70, 20, '왕이시여', 60)) },
+    { caption: '“한 사람이 시장에 호랑이가 나타났다고 하면 믿으시겠습니까?” “아니, 안 믿소.”', svg: panel(p(40, 92, 0.55, 1, 'point') + bubble(56, 22, '호랑이!', 52) + roof(120, 60, 40) + label(120, 40, '시장', INK, 10)) },
+    { caption: '두 사람이 말해도 안 믿던 왕이, 세 사람이 말하면 “그렇다면 믿겠소.” 하고 대답했어요.', svg: panel(p(30, 92, 0.5, 1, 'point') + p(58, 92, 0.5, 1, 'point', '#4a5a66') + p(86, 92, 0.5, 1, 'point', '#6b5a48') + `<g opacity=".4">` + tiger(130) + `</g>` + label(58, 26, '호랑이! ×3', RED, 10)) },
+    { caption: '“시장에 호랑이가 없는 건 분명한데도 셋이 말하면 생깁니다. 저를 헐뜯는 말도 잘 살펴 주십시오.”', svg: panel(p(50, 92, 0.6, 1, 'point') + roof(120, 46, 40) + p(120, 92, 0.6, -1, 'down', GOLD) + bubble(60, 20, '잘 살펴 주십시오', 96)) },
+  ],
+  'hb-04': [
+    { caption: '제나라 환공이 북쪽 고죽국을 치러 갔어요. 재상 관중과 대부 습붕이 함께 따라갔어요.', svg: panel(flag(40, 40, '齊') + p(70, 92, 0.6, 1, 'point', GOLD) + p(100, 92, 0.55, 1, 'down') + p(124, 92, 0.55, 1, 'down', '#4a5a66')) },
+    { caption: '봄에 떠난 군대가 겨울이 되어 돌아오는 길, 낯선 산속에서 그만 길을 잃었어요.', svg: panel(mountain(60, 40) + mountain(130, 50) + p(80, 92, 0.5, 1, 'down') + label(80, 24, '어느 쪽?', RED, 11)) },
+    { caption: '관중이 말했어요. “늙은 말의 지혜를 빌립시다.” 그리고 늙은 말을 풀어 앞장세웠어요.', svg: panel(horse(100) + p(40, 92, 0.6, 1, 'point', GOLD) + bubble(50, 20, '늙은 말을 따르자', 96)) },
+    { caption: '늙은 말은 지나온 길을 기억하고 있었어요. 군대는 말을 따라가 마침내 길을 찾았어요.', svg: panel(horse(110) + p(70, 92, 0.5) + p(48, 92, 0.5, 1, 'down', '#4a5a66') + p(26, 92, 0.5, 1, 'down', GOLD) + arrow(130, 60, 154, 60) + sparkle(146, 40)) },
   ],
 };
 

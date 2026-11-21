@@ -336,6 +336,46 @@ export const ART: Record<string, { svg: string; caption: string }> = {
       sl(60, 40, '愚公') + sl(150, 40, '移山'),
     ),
   },
+  // ── 확장팩 「한비자의 이야기」 ──
+  'hb-01': {
+    caption: '그루터기(株)를 지키며(守) 토끼(兔)를 기다리는(待) 농부. 토끼는 다시 오지 않았다.',
+    svg: svg(
+      `<path d="M60 162 V138 h34 V162" fill="${WOOD}"/><ellipse cx="77" cy="138" rx="17" ry="5" fill="#c9a47a" stroke="${WOOD}"/><path d="M70 138 q7 4 14 0" stroke="${WOOD}" fill="none"/>` +
+      fig(150, 162, 1, -1, 'down', '#6b5a48') +
+      `<path d="M190 162 L230 120" stroke="${WOOD}" stroke-width="4"/><path d="M226 116 l12 -2 l-4 12z" fill="#8d97a3"/>` +
+      `<path d="M260 150 q10 -16 24 -6 M262 162 q14 -10 30 0" stroke="${JADE}" stroke-width="3" fill="none" opacity=".6"/>` +
+      `<text x="77" y="118" text-anchor="middle" font-size="16" fill="${INK}" opacity=".5">…</text>` +
+      sl(70, 40, '守株') + sl(170, 40, '待兔'),
+    ),
+  },
+  'hb-02': {
+    caption: '삼백 명이 함께 부는 피리(竽) 연주 속에 불 줄 모르는 이가 섞여(濫) 수(數)만 채웠다(充).',
+    svg: svg(
+      [60, 100, 140, 180, 220].map((x, i) => fig(x, 162, .85, 1, 'reach', i === 2 ? '#8a6a4a' : INK) + `<path d="M${x + 18} ${162 - 56 * .85} l14 -10" stroke="${GOLD}" stroke-width="3"/>`).join('') +
+      `<text x="146" y="74" text-anchor="middle" font-size="18" fill="${RED}">?</text>` +
+      `<path d="M236 70 q8 -6 16 0 t16 0" stroke="${INK}" fill="none" opacity=".5"/>` +
+      sl(80, 36, '濫竽') + sl(200, 36, '充數'),
+    ),
+  },
+  'hb-03': {
+    caption: '시장에 호랑이(虎)는 없다. 그런데 세(三) 사람(人)이 말하니 호랑이가 만들어졌다(成).',
+    svg: svg(
+      `<rect x="20" y="104" width="84" height="8" fill="${WOOD}"/><path d="M28 112 V162 M96 112 V162" stroke="${WOOD}" stroke-width="4"/><path d="M14 104 Q62 82 110 104Z" fill="${INK}" opacity=".7"/>` +
+      fig(170, 162, .9, -1, 'point') + fig(210, 162, .9, -1, 'point', '#4a5a66') + fig(250, 162, .9, -1, 'point', '#6b5a48') +
+      `<g opacity=".35" transform="translate(62,150)"><ellipse cx="0" cy="-14" rx="24" ry="10" fill="#d9a441"/><circle cx="24" cy="-22" r="9" fill="#d9a441"/><path d="M-14 -22 v14 M-4 -24 v16 M6 -24 v16" stroke="${INK}" stroke-width="2"/></g>` +
+      sl(80, 40, '三人') + sl(190, 40, '成虎'),
+    ),
+  },
+  'hb-04': {
+    caption: '길을 잃은 군대가 늙은(老) 말(馬)의 지혜(智)를 빌려 집으로 가는 길을 찾았다.',
+    svg: svg(
+      `<path d="M0 162 L60 90 L120 162Z M90 162 L150 104 L210 162Z" fill="${INK}" opacity=".2"/>` +
+      `<g transform="translate(210,162)"><ellipse cx="0" cy="-34" rx="30" ry="13" fill="#9a8a78"/><path d="M24 -40 L40 -62" stroke="#9a8a78" stroke-width="9" stroke-linecap="round"/><ellipse cx="46" cy="-64" rx="11" ry="6" fill="#9a8a78" transform="rotate(25 46 -64)"/><path d="M-20 -24 V0 M-8 -24 V0 M10 -24 V0 M22 -24 V0" stroke="#9a8a78" stroke-width="5"/><path d="M-30 -36 q-12 4 -10 18" stroke="#9a8a78" stroke-width="3" fill="none"/><path d="M32 -56 l-6 -8" stroke="#fbefe4" stroke-width="2"/></g>` +
+      fig(130, 162, .9, 1, 'point', GOLD) + fig(96, 162, .8, 1, 'down') + fig(66, 162, .8, 1, 'down', '#4a5a66') +
+      arrow(262, 120, 306, 120, true) +
+      sl(110, 40, '老馬') + sl(200, 40, '之智'),
+    ),
+  },
 };
 
 export function artFor(storyId: string): { svg: string; caption: string } | undefined {

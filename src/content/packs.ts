@@ -3,6 +3,7 @@
 import { GENERALS_STORIES, PACK_GENERALS } from './pack-generals';
 import { STRATEGISTS_STORIES, PACK_STRATEGISTS } from './pack-strategists';
 import { FABLES_STORIES, PACK_FABLES } from './pack-fables';
+import { HANFEI_STORIES, PACK_HANFEI } from './pack-hanfei';
 import type { Story } from './types';
 
 export interface Pack {
@@ -62,6 +63,21 @@ export const PACKS: Pack[] = [
       '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
       '새 한자 15자와 원문 한자 풀이',
       '새 인물 4명(강을·진진·소대·우공)',
+      '한 번 구매하면 계속 이용, 광고 없음',
+    ],
+  },
+  {
+    id: PACK_HANFEI,
+    productId: 'gojeon.pack.hanfei',
+    title: '한비자의 이야기',
+    hanja: '韓非',
+    lead: '그루터기를 지킨 농부, 부는 척하던 악사, 시장의 호랑이, 길을 아는 늙은 말. 사상가 한비가 세상을 꿰뚫어 본 네 이야기를 만난다.',
+    stories: HANFEI_STORIES,
+    trialIds: ['hb-01'],
+    includes: [
+      '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
+      '새 한자 13자와 원문 한자 풀이',
+      '새 인물 4명(한비·남곽 선비·방공·관중)',
       '한 번 구매하면 계속 이용, 광고 없음',
     ],
   },

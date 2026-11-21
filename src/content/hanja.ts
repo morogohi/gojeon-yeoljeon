@@ -51,11 +51,12 @@ export const HANJA: Hanja[] = [
 import { GENERALS_HANJA } from './pack-generals';
 import { STRATEGISTS_HANJA } from './pack-strategists';
 import { FABLES_HANJA } from './pack-fables';
+import { HANFEI_HANJA } from './pack-hanfei';
 
 /** 확장팩 성어의 한자(무료 44자 밖). 서고 지표에는 그 팩을 가졌을 때만 들어간다. */
-export const PACK_HANJA: Record<string, Hanja[]> = { 'pack-generals': GENERALS_HANJA, 'pack-strategists': STRATEGISTS_HANJA, 'pack-fables': FABLES_HANJA };
+export const PACK_HANJA: Record<string, Hanja[]> = { 'pack-generals': GENERALS_HANJA, 'pack-strategists': STRATEGISTS_HANJA, 'pack-fables': FABLES_HANJA, 'pack-hanfei': HANFEI_HANJA };
 
-const byChar = new Map([...FABLES_HANJA, ...STRATEGISTS_HANJA, ...GENERALS_HANJA, ...HANJA].map((h) => [h.char, h]));
+const byChar = new Map([...HANFEI_HANJA, ...FABLES_HANJA, ...STRATEGISTS_HANJA, ...GENERALS_HANJA, ...HANJA].map((h) => [h.char, h]));
 
 export function getHanja(char: string): Hanja {
   const h = byChar.get(char);
@@ -70,4 +71,6 @@ export function hunEum(h: Hanja): string {
 /** 성어 독음에서 두음법칙 등으로 사전 음과 달라지는 자리. key = `${idiom}:${index}` */
 export const READING_EXCEPTIONS: Record<string, string> = {
   '巧言令色:2': '영',
+  '濫竽充數:0': '남', // 두음법칙(濫 람→남)
+  '老馬之智:0': '노', // 두음법칙(老 로→노)
 };
