@@ -7,6 +7,7 @@
 import { GENERALS_EASY, GENERALS_TERMS } from './pack-generals';
 import { STRATEGISTS_EASY, STRATEGISTS_TERMS } from './pack-strategists';
 import { FABLES_EASY, FABLES_TERMS } from './pack-fables';
+import { HANFEI_EASY, HANFEI_TERMS } from './pack-hanfei';
 
 /** 쉬운 한 줄 풀이 */
 export const EASY: Record<string, string> = {
@@ -25,6 +26,7 @@ export const EASY: Record<string, string> = {
   ...GENERALS_EASY,
   ...STRATEGISTS_EASY,
   ...FABLES_EASY,
+  ...HANFEI_EASY,
 };
 
 /** 이야기 속 어려운 말. 장면 글에 나오는 말만 그 장면 아래에 보여 준다. */
@@ -51,6 +53,7 @@ export const TERMS: { word: string; desc: string }[] = [
   ...GENERALS_TERMS,
   ...STRATEGISTS_TERMS,
   ...FABLES_TERMS,
+  ...HANFEI_TERMS,
 ];
 
 export function termsIn(text: string): { word: string; desc: string }[] {
