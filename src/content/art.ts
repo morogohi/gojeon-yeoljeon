@@ -294,6 +294,48 @@ export const ART: Record<string, { svg: string; caption: string }> = {
       sl(150, 50, '奇貨') + sl(230, 34, '可居'),
     ),
   },
+  // ── 확장팩 「우화 속 지혜」 ──
+  'uh-01': {
+    caption: '여우(狐)가 호랑이(虎)의 위세(威)를 빌려(假) 숲을 걷는다. 짐승들이 달아난 건 누구 때문일까?',
+    svg: svg(
+      `<g transform="translate(110,162)"><ellipse cx="0" cy="-14" rx="16" ry="8" fill="#c8742e"/><circle cx="16" cy="-24" r="7" fill="#c8742e"/><path d="M12 -30 l2 -9 l5 7z M18 -29 l5 -8 l2 9z" fill="#c8742e"/><path d="M-16 -14 q-16 -6 -18 -20 q10 4 16 12" fill="#c8742e"/><path d="M-8 -8 V0 M8 -8 V0" stroke="#c8742e" stroke-width="3"/></g>` +
+      `<g transform="translate(200,162)"><ellipse cx="0" cy="-24" rx="40" ry="17" fill="#d9a441"/><path d="M-24 -38 v26 M-8 -41 v30 M8 -41 v30 M24 -38 v26" stroke="${INK}" stroke-width="3" opacity=".7"/><circle cx="40" cy="-36" r="15" fill="#d9a441"/><path d="M48 -40 h6 M48 -33 h6" stroke="${INK}" stroke-width="1.5"/><circle cx="44" cy="-40" r="1.8" fill="${INK}"/><path d="M-26 -10 V0 M-10 -8 V0 M12 -8 V0 M28 -10 V0" stroke="#d9a441" stroke-width="6"/><path d="M-40 -26 q-18 -6 -16 -24" stroke="#d9a441" stroke-width="4" fill="none"/></g>` +
+      `<g opacity=".6">` + arrow(70, 120, 24, 120) + arrow(70, 140, 30, 150) + `</g>` +
+      sl(110, 40, '狐假') + sl(212, 40, '虎威'),
+    ),
+  },
+  'uh-02': {
+    caption: '뱀(蛇)을 그리고(畫) 없는 발(足)까지 더하다가(添), 다 그린 그림과 술잔을 모두 잃었다.',
+    svg: svg(
+      `<path d="M60 140 q20 -24 44 0 t44 0 t44 0 q12 -10 22 -4" stroke="${JADE}" stroke-width="9" fill="none" stroke-linecap="round"/><circle cx="216" cy="134" r="7" fill="${JADE}"/>` +
+      `<path d="M92 132 l-6 14 M134 146 l4 14 M176 132 l-6 14" stroke="${RED}" stroke-width="3" stroke-linecap="round"/>` +
+      `<text x="134" y="176" text-anchor="middle" font-size="11" fill="${RED}">발?</text>` +
+      fig(262, 162, .95, -1, 'reach') +
+      `<path d="M240 108 l-8 -14 h14z" fill="${GOLD}"/>` +
+      sl(80, 40, '畫蛇') + sl(170, 40, '添足'),
+    ),
+  },
+  'uh-03': {
+    caption: '조개와 도요새가 서로 물고 버티는 사이, 어부(漁父)가 둘을 함께 잡아 이익(利)을 보았다.',
+    svg: svg(
+      `<path d="M0 150 Q80 140 160 150 T320 146 V180 H0Z" fill="#6b9bb5" opacity=".35"/>` +
+      `<g transform="translate(110,150)"><path d="M-22 0 Q0 -22 22 0Z" fill="#b9a789" stroke="${INK}"/><path d="M-22 0 Q0 10 22 0" fill="#d8cbb0" stroke="${INK}"/></g>` +
+      `<g transform="translate(150,124)"><ellipse cx="0" cy="0" rx="16" ry="9" fill="${WOOD}"/><circle cx="-14" cy="-8" r="6" fill="${WOOD}"/><path d="M-19 -6 L-40 22" stroke="${INK}" stroke-width="2.5"/><path d="M4 9 V18 M-4 9 V18" stroke="${INK}" stroke-width="1.5"/></g>` +
+      fig(250, 162, 1, -1, 'reach', '#4a5a66') +
+      `<path d="M226 104 Q200 120 190 150" stroke="${INK}" stroke-width="1.5" fill="none"/>` +
+      sl(110, 40, '漁父') + sl(212, 40, '之利'),
+    ),
+  },
+  'uh-04': {
+    caption: '어리석다(愚)는 소리를 들은 노인(公)이 대를 이어 산(山)을 옮기기(移) 시작했다.',
+    svg: svg(
+      `<path d="M150 162 L222 52 L300 162Z" fill="${INK}" opacity=".55"/><path d="M200 162 L250 92 L300 162Z" fill="${INK}" opacity=".35"/>` +
+      fig(70, 162, .95, 1, 'reach', '#6b5a48') + fig(108, 162, .75, 1, 'reach') + fig(136, 162, .55, 1, 'reach', JADE) +
+      `<g transform="translate(40,150)"><path d="M-10 -10 h20 l-3 12 h-14z" fill="#b9a789" stroke="${INK}"/></g>` +
+      arrow(160, 120, 120, 120, true) +
+      sl(60, 40, '愚公') + sl(150, 40, '移山'),
+    ),
+  },
 };
 
 export function artFor(storyId: string): { svg: string; caption: string } | undefined {

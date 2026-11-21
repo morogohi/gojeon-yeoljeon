@@ -4,7 +4,7 @@ export interface Hanja {
   eum: string;
 }
 
-export type Book = 'sagi' | 'nonyu' | 'myeongjang' | 'chaeksa';
+export type Book = 'sagi' | 'nonyu' | 'myeongjang' | 'chaeksa' | 'uhwa';
 
 export interface ChoiceOption {
   label: string;
@@ -59,4 +59,5 @@ export const BOOKS: { id: Book; name: string; hanja: string }[] = [
   { id: 'nonyu', name: '논어', hanja: '論語' },
   { id: 'myeongjang', name: '명장', hanja: '名將' },
   { id: 'chaeksa', name: '책사', hanja: '策士' },
+  { id: 'uhwa', name: '우화', hanja: '寓話' },
 ];

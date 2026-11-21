@@ -6,6 +6,7 @@
 
 import { GENERALS_EASY, GENERALS_TERMS } from './pack-generals';
 import { STRATEGISTS_EASY, STRATEGISTS_TERMS } from './pack-strategists';
+import { FABLES_EASY, FABLES_TERMS } from './pack-fables';
 
 /** 쉬운 한 줄 풀이 */
 export const EASY: Record<string, string> = {
@@ -23,6 +24,7 @@ export const EASY: Record<string, string> = {
   'nonyu-04': '나중에 태어난 어린 사람도 크게 될 수 있으니 얕보면 안 된다는 말.',
   ...GENERALS_EASY,
   ...STRATEGISTS_EASY,
+  ...FABLES_EASY,
 };
 
 /** 이야기 속 어려운 말. 장면 글에 나오는 말만 그 장면 아래에 보여 준다. */
@@ -48,6 +50,7 @@ export const TERMS: { word: string; desc: string }[] = [
   { word: '제자', desc: '스승에게서 배우는 사람.' },
   ...GENERALS_TERMS,
   ...STRATEGISTS_TERMS,
+  ...FABLES_TERMS,
 ];
 
 export function termsIn(text: string): { word: string; desc: string }[] {

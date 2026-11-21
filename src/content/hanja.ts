@@ -50,11 +50,12 @@ export const HANJA: Hanja[] = [
 
 import { GENERALS_HANJA } from './pack-generals';
 import { STRATEGISTS_HANJA } from './pack-strategists';
+import { FABLES_HANJA } from './pack-fables';
 
 /** 확장팩 성어의 한자(무료 44자 밖). 서고 지표에는 그 팩을 가졌을 때만 들어간다. */
-export const PACK_HANJA: Record<string, Hanja[]> = { 'pack-generals': GENERALS_HANJA, 'pack-strategists': STRATEGISTS_HANJA };
+export const PACK_HANJA: Record<string, Hanja[]> = { 'pack-generals': GENERALS_HANJA, 'pack-strategists': STRATEGISTS_HANJA, 'pack-fables': FABLES_HANJA };
 
-const byChar = new Map([...STRATEGISTS_HANJA, ...GENERALS_HANJA, ...HANJA].map((h) => [h.char, h]));
+const byChar = new Map([...FABLES_HANJA, ...STRATEGISTS_HANJA, ...GENERALS_HANJA, ...HANJA].map((h) => [h.char, h]));
 
 export function getHanja(char: string): Hanja {
   const h = byChar.get(char);

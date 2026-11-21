@@ -2,6 +2,7 @@
 // 확장팩은 보호자가 한 번 구매하면 계속 쓰는 비소모성 상품(앱 내 구매)으로 판매한다.
 import { GENERALS_STORIES, PACK_GENERALS } from './pack-generals';
 import { STRATEGISTS_STORIES, PACK_STRATEGISTS } from './pack-strategists';
+import { FABLES_STORIES, PACK_FABLES } from './pack-fables';
 import type { Story } from './types';
 
 export interface Pack {
@@ -46,6 +47,21 @@ export const PACKS: Pack[] = [
       '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
       '새 한자 12자와 원문 한자 풀이',
       '새 인물 4명(소진·곽외·맹상군·여불위)',
+      '한 번 구매하면 계속 이용, 광고 없음',
+    ],
+  },
+  {
+    id: PACK_FABLES,
+    productId: 'gojeon.pack.fables',
+    title: '우화 속 지혜',
+    hanja: '寓話',
+    lead: '여우와 호랑이, 조개와 도요새, 뱀의 발, 산을 옮긴 노인. 짧은 이야기 하나로 왕과 장군의 마음을 돌린 지혜를 네 고사로 만난다.',
+    stories: FABLES_STORIES,
+    trialIds: ['uh-01'],
+    includes: [
+      '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
+      '새 한자 15자와 원문 한자 풀이',
+      '새 인물 4명(강을·진진·소대·우공)',
       '한 번 구매하면 계속 이용, 광고 없음',
     ],
   },

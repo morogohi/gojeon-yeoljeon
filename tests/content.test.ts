@@ -92,7 +92,7 @@ describe('C-06 원문 한자 사전·독음', () => {
     }
   });
   it('C-10 독음의 각 음절이 사전의 음과 같거나, 두음법칙·이독(異讀)으로 설명된다', () => {
-    const variants: Record<string, string[]> = { 류: ['유'], 량: ['양'], 립: ['입'], 견: ['현'], 래: ['내'], 령: ['영'], 록: ['녹'], 칙: ['즉'], 녕: ['영'], 려: ['여'] }; // 두음법칙(寧→영, 呂→여)
+    const variants: Record<string, string[]> = { 류: ['유'], 량: ['양'], 립: ['입'], 견: ['현'], 래: ['내'], 령: ['영'], 록: ['녹'], 칙: ['즉'], 녕: ['영'], 려: ['여'], 년: ['연'], 불: ['부'] }; // 두음법칙(寧→영, 呂→여, 年→연), 不은 ㄷ·ㅈ 앞에서 ‘부’
     for (const s of ALL_STORIES) {
       const han = [...s.original.text].filter(isHan);
       const syl = [...s.original.reading].filter((c) => /[가-힣]/.test(c));
