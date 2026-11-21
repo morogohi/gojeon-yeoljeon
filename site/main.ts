@@ -15,10 +15,10 @@ if (list) {
 // 확장팩 고사 목록(같은 콘텐츠 데이터)
 const packList = document.getElementById('pack-list');
 if (packList) {
-  for (const s of PACKS[0].stories) {
+  for (const s of PACKS.flatMap((p) => p.stories)) {
     const a = document.createElement('div');
     a.className = 'slip-pack';
-    a.innerHTML = `<span class="slip-idiom">${s.idiom}</span><span class="slip-reading">${s.reading}${PACKS[0].trialIds.includes(s.id) ? ' · 무료 체험' : ''}</span><span class="slip-meaning">${s.meaning}</span><span class="slip-source">${s.source}</span>`;
+    a.innerHTML = `<span class="slip-idiom">${s.idiom}</span><span class="slip-reading">${s.reading}${PACKS.some((p) => p.trialIds.includes(s.id)) ? ' · 무료 체험' : ''}</span><span class="slip-meaning">${s.meaning}</span><span class="slip-source">${s.source}</span>`;
     packList.appendChild(a);
   }
 }

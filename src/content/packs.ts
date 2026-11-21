@@ -1,6 +1,7 @@
 // 확장팩 상품 정의. 무료 12편은 앞으로도 무료이고 광고가 없다.
 // 확장팩은 보호자가 한 번 구매하면 계속 쓰는 비소모성 상품(앱 내 구매)으로 판매한다.
 import { GENERALS_STORIES, PACK_GENERALS } from './pack-generals';
+import { STRATEGISTS_STORIES, PACK_STRATEGISTS } from './pack-strategists';
 import type { Story } from './types';
 
 export interface Pack {
@@ -30,6 +31,21 @@ export const PACKS: Pack[] = [
       '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
       '새 한자 15자와 원문 한자 풀이',
       '새 인물 4명(항량·범증·번쾌·소하)',
+      '한 번 구매하면 계속 이용, 광고 없음',
+    ],
+  },
+  {
+    id: PACK_STRATEGISTS,
+    productId: 'gojeon.pack.strategists',
+    title: '전국시대의 책사들',
+    hanja: '策士',
+    lead: '칼보다 말과 꾀로 나라를 움직인 시대. 소진·곽외·맹상군·여불위가 어떻게 기회를 만들고 사람을 얻었는지 네 고사로 만난다.',
+    stories: STRATEGISTS_STORIES,
+    trialIds: ['cs-01'],
+    includes: [
+      '고사 4편(이야기·원문·그림으로 보는 유래·한자 대전·기억 노트)',
+      '새 한자 12자와 원문 한자 풀이',
+      '새 인물 4명(소진·곽외·맹상군·여불위)',
       '한 번 구매하면 계속 이용, 광고 없음',
     ],
   },

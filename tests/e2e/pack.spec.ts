@@ -22,6 +22,7 @@ async function playToResult(page: Page, id: string) {
 test('E-29 열전 지도 「명장」: 확장팩 안내, 체험 고사는 열리고 나머지는 미리보기와 확장팩 안내', async ({ page }) => {
   await page.goto(`${DAY}#map-sagi`);
   await expect(page.getByTestId('season-teaser')).toContainText('先則制人');
+  await expect(page.getByTestId('season-teaser')).toContainText('鷄口牛後');
   await page.getByTestId('book-myeongjang').click();
   await expect(page.getByTestId('pack-banner')).toContainText('사기의 명장들');
   await expect(page.locator('[data-story="mj-01"]')).toBeVisible();
@@ -96,7 +97,7 @@ test('E-33 구매 복원: 스토어에 산 기록이 있으면 다시 열린다'
 test('E-34 홍보 페이지: 확장팩 4편, 광고 없음·보호자 구매·단체 문의 안내, 안내·개인정보 페이지에 연락처', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('#slip-list .slip-item')).toHaveCount(12);
-  await expect(page.locator('#pack-list .slip-pack')).toHaveCount(4);
+  await expect(page.locator('#pack-list .slip-pack')).toHaveCount(8);
   await expect(page.locator('#pack-list')).toContainText('무료 체험');
   await expect(page.locator('#pricing')).toContainText('광고도 회원가입도 없습니다');
   await page.goto('support.html');
@@ -105,4 +106,19 @@ test('E-34 홍보 페이지: 확장팩 4편, 광고 없음·보호자 구매·�
   await page.goto('privacy.html');
   await expect(page.locator('main')).toContainText('앱 내 구매');
   await expect(page.locator('main')).toContainText('Mysitic Cho');
+});
+
+test('E-35 확장팩 2 「전국시대의 책사들」: 책사 탭, 체험 고사 「계구우후」 완주, 2편은 확장팩, 팩 화면은 2번째 팩', async ({ page }) => {
+  await page.goto(`${DAY}#map-sagi`);
+  await page.getByTestId('season-pack-strategists').click();
+  await expect(page.getByTestId('pack-screen')).toContainText('확장팩 2');
+  await expect(page.getByTestId('pack-list')).toContainText('奇貨可居');
+  await playToResult(page, 'cs-01');
+  await expect(page.getByTestId('hero-reward')).toContainText('蘇秦');
+  await page.goto(`${DAY}#map-chaeksa`);
+  await expect(page.getByTestId('pack-banner')).toContainText('전국시대의 책사들');
+  await expect(page.locator('[data-story="cs-02"]')).toHaveAttribute('data-paid', '1');
+  await page.locator('[data-story="cs-03"]').click();
+  await expect(page.getByTestId('storyboard')).toContainText('함곡관');
+  await expect(page.getByTestId('to-pack')).toHaveAttribute('href', '#pack-pack-strategists');
 });

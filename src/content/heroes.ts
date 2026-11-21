@@ -1,5 +1,6 @@
 import type { Hero } from './types';
 import { GENERALS_HEROES } from './pack-generals';
+import { STRATEGISTS_HEROES } from './pack-strategists';
 
 export const HEROES: Hero[] = [
   { id: 'insangyeo', name: '인상여', hanjaName: '藺相如', title: '조나라 상경', skill: 'shield', skillName: '완벽 방어', skillDesc: '다음 오답 한 번은 체력이 줄지 않는다.' },
@@ -15,7 +16,7 @@ export const HEROES: Hero[] = [
 ];
 
 /** 확장팩 인물까지 포함(도감에 잠긴 채로 보인다) */
-export const ALL_HEROES: Hero[] = [...HEROES, ...GENERALS_HEROES];
+export const ALL_HEROES: Hero[] = [...HEROES, ...GENERALS_HEROES, ...STRATEGISTS_HEROES];
 
 const byId = new Map(ALL_HEROES.map((h) => [h.id, h]));
 

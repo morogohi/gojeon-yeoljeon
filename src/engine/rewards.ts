@@ -85,7 +85,9 @@ export function unlockedStories(save: SaveData): Story[] {
 
 /** 서고 지표에 들어가는 한자: 무료 44자 + 보유한 팩의 한자 */
 export function libraryHanja(save: SaveData): Hanja[] {
-  return [...HANJA, ...save.owned.flatMap((id) => PACK_HANJA[id] ?? [])];
+  // 팩끼리 겹치는 글자(先 등)는 한 번만 센다
+  const all = [...HANJA, ...save.owned.flatMap((id) => PACK_HANJA[id] ?? [])];
+  return all.filter((x, i) => all.findIndex((y) => y.char === x.char) === i);
 }
 
 /**

@@ -623,3 +623,5 @@ a.season { display: block; color: inherit; text-decoration: none; }
 .pack-item .node-idiom { color: var(--moon); }
 .pack-item .node-reading { color: var(--moon-2); font-size: 13px; }
 .node.locked a[data-paid] .node-reading { color: #8a3a2c; opacity: 1; }
+.season-pack { display: block; color: inherit; text-decoration: none; padding: 8px 0; border-bottom: 1px dotted rgba(201, 161, 74, .35); }
+.season-pack h3 { margin: 0 0 4px; }

@@ -69,7 +69,7 @@ export function packScreen(args: string[]): Screen {
     const owned = ownsPack(app.save, pack.id);
     replace(body,
       h('section', { class: 'card pack-hero' },
-        h('p', { class: 'eyebrow' }, owned ? '보유한 확장팩' : '확장팩 1'),
+        h('p', { class: 'eyebrow' }, owned ? '보유한 확장팩' : `확장팩 ${PACKS.indexOf(pack) + 1}`),
         h('h2', { class: 'pack-title' }, pack.title, ' ', h('span', { class: 'hanja-sm' }, pack.hanja)),
         h('p', null, pack.lead),
         h('ul', { class: 'pack-includes' }, ...pack.includes.map((x) => h('li', null, x))),
