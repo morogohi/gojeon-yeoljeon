@@ -1,6 +1,6 @@
 import { h, replace, stars, topbar } from '../dom';
 import { app, commit } from '../../state/store';
-import { getStory, storiesOf, STORIES } from '../../content/stories';
+import { getStory, storiesOf, ALL_STORIES as STORIES } from '../../content/stories';
 import { getHanja, hunEum } from '../../content/hanja';
 import { getHero } from '../../content/heroes';
 import { glossOf } from '../../content/gloss';
@@ -9,7 +9,8 @@ import type { Hero, Story } from '../../content/types';
 import { createRng } from '../../engine/rng';
 import { battleQuestions, type Question } from '../../engine/questions';
 import { createBattle, answerAt, useSkill, canUseSkill, current, type BattleState } from '../../engine/battle';
-import { isUnlocked, skillUsesFor } from '../../engine/rewards';
+import { isEntitled, isUnlocked, skillUsesFor } from '../../engine/rewards';
+import { packOf } from '../../content/packs';
 import { abandonSession, hasProgress, isResumable, newSession, sessionLabel, settleBattle, type LastAnswer, type PlaySession } from '../../engine/session';
 import { loadIssues } from '../../state/save';
 import { questionView } from '../quiz';
@@ -65,6 +66,7 @@ export function storyScreen(args: string[]): Screen {
   const idiomIntro = () => h('section', { class: 'idiom-intro card', 'data-testid': 'idiom-intro' },
     h('p', { class: 'intro-idiom' }, h('span', { class: 'hanja-sm' }, story.idiom), ' ', h('b', null, story.reading)),
     h('p', { class: 'intro-easy' }, h('span', { class: 'tag' }, '쉬운 뜻'), ' ', EASY[story.id] ?? story.meaning),
+    story.era ? h('p', { class: 'intro-era', 'data-testid': 'story-era' }, `${story.era} · ${story.source}`) : null,
     level === 'new'
       ? h('p', { class: 'intro-chars' }, ...[...story.idiom].map((c) => h('span', null, `${c} ${hunEum(getHanja(c))}`)))
       : null,
@@ -233,7 +235,11 @@ export function storyScreen(args: string[]): Screen {
       ),
       playable
         ? h('button', { class: 'btn primary big', 'data-testid': 'start-battle', onclick: startBattle }, '한자 대전 시작')
-        : h('p', { class: 'locked-note' }, '캠페인에서 앞 고사를 복원하면 이 고사의 대전에 도전할 수 있다.'),
+        : !isEntitled(app.save, s)
+          ? h('div', { class: 'locked-note', 'data-testid': 'pack-locked' },
+            h('p', null, `이 고사는 확장팩 「${packOf(s.id)?.title ?? ''}」에 들어 있다. 이야기 그림과 원문은 미리 볼 수 있고, 대전은 확장팩에서 열린다.`),
+            h('a', { class: 'btn primary', href: `#pack-${s.pack}`, 'data-testid': 'to-pack' }, '확장팩 보기'))
+          : h('p', { class: 'locked-note' }, '캠페인에서 앞 고사를 복원하면 이 고사의 대전에 도전할 수 있다.'),
     );
   }
 

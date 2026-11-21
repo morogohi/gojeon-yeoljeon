@@ -1,5 +1,5 @@
 // v0.8: 이어 하기, 보상 중복 방지, 방어와 오답 기록 분리, 학습 지표 분리, 퍼즐 입문, 뜻 활용 문제, 저장 형식 이전
-import { STORIES } from '../src/content/stories';
+import { STORIES, ALL_STORIES } from '../src/content/stories';
 import { HANJA } from '../src/content/hanja';
 import { EASY, TERMS, USAGE, usageOf } from '../src/content/learn';
 import { defaultSave, exportCode, importCode, loadSave, persistSave, loadIssues, BROKEN_KEY, SAVE_KEY, type KV, type SaveData } from '../src/state/save';
@@ -237,12 +237,12 @@ describe('V 퍼즐', () => {
 
 describe('V 입문 콘텐츠와 뜻 활용 문제', () => {
   it('V-14 쉬운 풀이는 12편 모두 있고 원문 번역·원뜻과 다르다. 어려운 말 풀이는 실제 장면에 나온다', () => {
-    for (const s of STORIES) {
+    for (const s of ALL_STORIES) {
       expect(EASY[s.id], s.id).toBeTruthy();
       expect(EASY[s.id]).not.toBe(s.original.translation);
       expect(EASY[s.id]).not.toBe(s.meaning);
     }
-    const scenes = STORIES.flatMap((s) => s.scenes.map((x) => x.text)).join('\n');
+    const scenes = ALL_STORIES.flatMap((s) => s.scenes.map((x) => x.text)).join('\n');
     for (const t of TERMS) expect(scenes, t.word).toContain(t.word);
   });
 

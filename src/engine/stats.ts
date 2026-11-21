@@ -1,4 +1,4 @@
-import { STORIES } from '../content/stories';
+import { ALL_STORIES as STORIES } from '../content/stories';
 import type { SaveData } from '../state/save';
 import { addDays, newCard } from './srs';
 import { hanjaStats } from './rewards';

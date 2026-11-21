@@ -1,5 +1,6 @@
 import type { Hanja } from './types';
 import { HANJA } from './hanja';
+import { GENERALS_GLOSS, GENERALS_HANJA } from './pack-generals';
 
 export interface Gloss extends Hanja {
   /** 다른 훈음이나 이 원문에서의 쓰임 */
@@ -125,7 +126,7 @@ const EXTRA: Gloss[] = [
   { char: '能', hun: '능할', eum: '능' },
 ];
 
-const ALL = new Map<string, Gloss>([...EXTRA.map((g) => [g.char, g] as const), ...HANJA.map((h) => [h.char, h] as const)]);
+const ALL = new Map<string, Gloss>([...EXTRA, ...GENERALS_GLOSS, ...GENERALS_HANJA, ...HANJA].map((g) => [g.char, g] as const));
 
 export function glossOf(char: string): Gloss | undefined {
   return ALL.get(char);

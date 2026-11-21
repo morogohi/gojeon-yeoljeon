@@ -1,13 +1,12 @@
 import { h } from '../dom';
 import { app, commit, applySettingsToPage } from '../../state/store';
-import { restoration, rankOf, todaysStory, unlockedStories, hanjaStats, memoryOf } from '../../engine/rewards';
+import { restoration, rankOf, todaysStory, unlockedStories, hanjaStats, memoryOf, libraryHanja } from '../../engine/rewards';
 import { isResumable, sessionLabel } from '../../engine/session';
 import { getStory } from '../../content/stories';
 import { EASY } from '../../content/learn';
 import type { LearnLevel } from '../../state/save';
 import { go } from '../../state/router';
 import { dueQueue } from '../../engine/srs';
-import { HANJA } from '../../content/hanja';
 import type { Screen } from '../../state/router';
 import { artEl } from '../art';
 import { todayProgress, weekReport } from '../../engine/stats';
@@ -36,8 +35,8 @@ export function homeScreen(): Screen {
 
   // 서고 두루마리: 한자 하나가 죽간 하나. 익힌 글자만 먹으로 쓰인다.
   // 만난 한자는 먹으로 쓰이고, 다시 볼 한자는 옅게 쓰인다
-  const scroll = h('div', { class: 'scroll', role: 'img', 'aria-label': `서고 복원: 만난 한자 ${hs.seen}/${HANJA.length}자, 그중 다시 볼 한자 ${hs.toReview}자` },
-    ...HANJA.map((x) => {
+  const scroll = h('div', { class: 'scroll', role: 'img', 'aria-label': `서고 복원: 만난 한자 ${hs.seen}/${hs.total}자, 그중 다시 볼 한자 ${hs.toReview}자` },
+    ...libraryHanja(app.save).map((x) => {
       const m = memoryOf(app.save, x.char);
       const inked = m !== 'none' && app.save.seen.includes(x.char);
       return h('span', { class: `slip${inked ? ' inked' : ''}${m === 'review' ? ' faded' : ''}` }, inked ? x.char : '');
@@ -49,7 +48,7 @@ export function homeScreen(): Screen {
       h('li', null, h('b', null, '만난 한자'), ' 대전·복습에서 한 번이라도 풀어 본 글자. 틀려도 줄지 않아요.'),
       h('li', null, h('b', null, '기억하는 한자'), ' 가장 최근에 맞힌 글자.'),
       h('li', null, h('b', null, '다시 볼 한자'), ' 최근에 틀린 글자. 복습에서 맞히면 기억하는 한자로 돌아가요.'),
-      h('li', null, h('b', null, '서고 복원'), ` 만난 한자 ÷ 전체 ${HANJA.length}자.`),
+      h('li', null, h('b', null, '서고 복원'), ` 만난 한자 ÷ 전체 ${hs.total}자(무료 44자 + 가진 확장팩의 한자).`),
     ),
   );
   const levelPick = () => {
@@ -114,7 +113,7 @@ export function homeScreen(): Screen {
       ),
     ),
     scroll,
-    h('p', { class: 'scroll-note', 'data-testid': 'learned-count' }, `만난 한자 ${hs.seen}자 / ${HANJA.length}자 · 기억하는 한자 ${hs.remembered}자 · 다시 볼 한자 ${hs.toReview}자`),
+    h('p', { class: 'scroll-note', 'data-testid': 'learned-count' }, `만난 한자 ${hs.seen}자 / ${hs.total}자 · 기억하는 한자 ${hs.remembered}자 · 다시 볼 한자 ${hs.toReview}자`),
     metricHelp,
     resume,
     next && next.id !== resumeStory?.id

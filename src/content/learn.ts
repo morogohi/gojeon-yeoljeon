@@ -4,6 +4,8 @@
 // - RECAP: 앞 이야기를 알아야 하는 고사의 요약
 // - USAGE: 뜻을 실제로 쓰는 문제(상황 적용·비슷한 뜻). 정답 근거(explain)를 함께 둔다.
 
+import { GENERALS_EASY, GENERALS_TERMS } from './pack-generals';
+
 /** 쉬운 한 줄 풀이 */
 export const EASY: Record<string, string> = {
   'sagi-01': '빌린 것을 흠 하나 없이 그대로 돌려주는 것. 일을 빈틈없이 해내는 것.',
@@ -18,6 +20,7 @@ export const EASY: Record<string, string> = {
   'nonyu-02': '너무 많이 하는 것은 모자란 것과 마찬가지로 좋지 않다는 말.',
   'nonyu-03': '듣기 좋은 말과 꾸민 표정으로 남의 마음을 사려는 것.',
   'nonyu-04': '나중에 태어난 어린 사람도 크게 될 수 있으니 얕보면 안 된다는 말.',
+  ...GENERALS_EASY,
 };
 
 /** 이야기 속 어려운 말. 장면 글에 나오는 말만 그 장면 아래에 보여 준다. */
@@ -41,6 +44,7 @@ export const TERMS: { word: string; desc: string }[] = [
   { word: '재상', desc: '왕을 도와 나랏일을 이끄는 가장 높은 신하.' },
   { word: '공자', desc: '노나라의 학자이자 스승. 『논어』는 제자들이 그의 말을 모은 책이다.' },
   { word: '제자', desc: '스승에게서 배우는 사람.' },
+  ...GENERALS_TERMS,
 ];
 
 export function termsIn(text: string): { word: string; desc: string }[] {

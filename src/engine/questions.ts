@@ -1,6 +1,6 @@
 import { HANJA, hunEum } from '../content/hanja';
 import { glossOf } from '../content/gloss';
-import { STORIES } from '../content/stories';
+import { STORIES, ALL_STORIES } from '../content/stories';
 import { usageOf, type UsageItem } from '../content/learn';
 import type { Story } from '../content/types';
 import { type Rng, pickDistinct, shuffle, randInt } from './rng';
@@ -68,7 +68,7 @@ export function idiomPicture(rng: Rng, story: Story): Question {
 /** 뜻을 실제로 쓰는 문제(상황 적용·비슷한 뜻). 보기는 성어와 독음, 근거는 콘텐츠(learn.ts)의 explain. */
 export function usageQuestion(rng: Rng, item: UsageItem): Question {
   const label = (id: string) => {
-    const s = STORIES.find((x) => x.id === id);
+    const s = ALL_STORIES.find((x) => x.id === id);
     if (!s) throw new Error(`없는 고사: ${id}`);
     return `${s.idiom} ${s.reading}`;
   };
@@ -98,7 +98,7 @@ export function reviewQuestion(rng: Rng, cardKey: string): Question {
     const c = cardKey.slice(2);
     return rng() < 0.5 ? charToHun(rng, c) : hunToChar(rng, c);
   }
-  const story = STORIES.find((s) => `i:${s.id}` === cardKey);
+  const story = ALL_STORIES.find((s) => `i:${s.id}` === cardKey);
   if (!story) throw new Error(`없는 카드: ${cardKey}`);
   // 뜻 활용 문제가 있는 고사는 그 문제도 복습에 섞는다
   const usage = usageOf(story.id);
